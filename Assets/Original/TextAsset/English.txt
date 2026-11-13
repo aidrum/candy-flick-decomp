@@ -1,0 +1,125 @@
+GET_IMAGE
+Show image
+
+MARKER_LABEL
+Image Target looks like this
+
+SHOW
+Show
+
+PRINT
+Print
+
+DOWNLOAD
+Download
+
+SEARCH_TARGET_LABEL
+Point your camera at an image target
+
+TOTAL
+Total
+
+BEST
+Best
+
+BONUS_POINTS
+points in the next round
+
+ABOUT_TITLE
+Om Nom: Candy Flick
+
+ABOUT_VERSION
+version 2.6
+
+ABOUT_TEXT1
+© 2013-2016 ZeptoLab UK Limited.
+
+ABOUT_TEXT2
+All rights reserved.
+
+ABOUT_TEXT3
+ZeptoLab, Candy Flick, Om Nom, Nommies and Feed with Candy are the trademarks or registered trademarks of ZeptoLab UK Limited.
+
+PRIVACY_POLICY
+Privacy Policy
+
+TERMS_OF_USE
+Terms of Use
+
+RESET_QUESTION
+Are you sure you want to reset your progress?
+
+HOLD_YES
+Hold "Yes" button for 3 seconds to reset
+
+YES
+Yes
+
+NO
+No
+
+LANGUAGE
+Language
+
+ABOUT
+About
+
+RESET_GAME
+Reset game
+
+OK
+Ok
+
+TUTOR_TITLE
+You need one of these images
+
+TUTOR_GETIMG
+Get image
+
+TUTOR_OR
+or
+
+TUTOR_HAVE_MARKER
+Already got one
+
+TUTOR_ON_IPA
+I have one more Apple device
+
+TUTOR_GOT_PRINTER
+I have a printer
+
+TUTOR_DWNLD_ANOTHER_DEV
+Download app to another device
+
+TUTOR_USE_PIC
+Use image instead of paper!
+
+TUTOR_DOP
+Save to Camera Roll
+
+TUTOR_DP
+Internet search - Print
+
+TUTOR_WELCOME
+This is an "Augmented reality" app. Point your device's camera at the special image and you'll be able to see Om Nom and interact with him.
+
+POINT_TO_MARKER
+Launch Candy Flick on another device and point at this image.
+
+DOWNLOAD_DIALOG
+Image saved to the Camera Roll. You can print it from there.
+
+DOWNLOAD_DIALOG_ERROR
+Error! May be this app does not have access to your photos. You can enable access in Privacy Settings.
+
+PHOTO_SAVED
+The photo with Om Nom has been successfully captured and saved to Camera Roll.
+
+NO_INTERNET
+Please check your Internet connection and try again later.
+
+NO_CAMERA_ACCESS
+Please enable camera access to use the app
+
+RETRY
+Reconnect

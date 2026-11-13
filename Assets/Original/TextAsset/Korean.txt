@@ -1,0 +1,125 @@
+GET_IMAGE
+이미지 보기
+
+MARKER_LABEL
+이미지 대상 표시
+
+SHOW
+보기
+
+PRINT
+출력
+
+DOWNLOAD
+다운로드
+
+SEARCH_TARGET_LABEL
+이미지 대상에 카메라 고정
+
+TOTAL
+총
+
+BEST
+최고
+
+BONUS_POINTS
+다음 회 점수
+
+ABOUT_TITLE
+Om Nom: Candy Flick
+
+ABOUT_VERSION
+버전 2.6
+
+ABOUT_TEXT1
+© 2013-2016 ZeptoLab UK Limited.
+
+ABOUT_TEXT2
+All rights reserved.
+
+ABOUT_TEXT3
+ZeptoLab, Candy Flick, Om Nom, Nommies 및 Feed with Candy는 ZeptoLab UK Limited의 상표 또는 등록 상표입니다.
+
+PRIVACY_POLICY
+개인정보 수집정책
+
+TERMS_OF_USE
+이용 약관
+
+RESET_QUESTION
+게임을 초기화하시겠습니까?
+
+HOLD_YES
+“예” 버튼을 3초 동안 누르면 초기화됩니다.
+
+YES
+예
+
+NO
+아니오
+
+LANGUAGE
+언어
+
+ABOUT
+정보
+
+RESET_GAME
+게임 초기화
+
+OK
+확인
+
+TUTOR_TITLE
+다음 이미지 중 하나가 필요합니다
+
+TUTOR_GETIMG
+이미지 받기
+
+TUTOR_OR
+하거나
+
+TUTOR_HAVE_MARKER
+이미지가 있습니다
+
+TUTOR_ON_IPA
+Apple 장치가 한 대 더 있습니다
+
+TUTOR_GOT_PRINTER
+프린터가 있습니다
+
+TUTOR_DWNLD_ANOTHER_DEV
+앱을 다른 장치에 다운로드하기
+
+TUTOR_USE_PIC
+종이 대신 이미지 사용하기!
+
+TUTOR_DOP
+카메라 롤에 저장
+
+TUTOR_DP
+인터넷 검색 - 출력
+
+TUTOR_WELCOME
+본 앱은 “증강 현실”앱입니다. 전화기의 카메라를 특수 이미지에 고정하면 Om Nom이 나타나며 소통이 가능합니다.
+
+POINT_TO_MARKER
+다른 장치에서 Candy Flick을  실행하고 해당 이미지에 고정시키세요.
+
+DOWNLOAD_DIALOG
+이미지를 카메라 롤에 저장했습니다. 저장된 이미지는 출력이 가능합니다.
+
+DOWNLOAD_DIALOG_ERROR
+오류! 해당 앱에 사용자의 사진에 대한 액세스 권한이 없습니다. 개인정보 설정에서 액세스를 활성화시키십시오.
+
+PHOTO_SAVED
+Om Nom이 나와있는 그림을 캡쳐해 카메라 롤에 저장했습니다.
+
+NO_INTERNET
+인터넷 연결을 확인하고 나중에 다시 시도하세요.
+
+NO_CAMERA_ACCESS
+앱을 사용하려면 카메라 액세스를 사용 가능으로 설정하세요
+
+RETRY
+재접속하기

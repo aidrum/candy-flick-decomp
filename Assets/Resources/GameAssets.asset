@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 047d1f6f1e3cefd4abee350872355c8a, type: 3}
+  m_Name: GameAssets
+  m_EditorClassIdentifier: Assembly-CSharp::CandyFlick.GameAssets
+  omNom: {fileID: 74, guid: 577ffdc3de3bf7e44bd158548596322c, type: 3}
+  candy: {fileID: 21, guid: 9771cad59a8a68644957d4d0a597aed5, type: 3}
+  alternateCandy: {fileID: 45, guid: 986aa25c373d717458153d794e4b99da, type: 3}
+  slingshot: {fileID: 110, guid: 20be21f8da34f664589d1a5ce7c28ae1, type: 3}
+  font: {fileID: 12800000, guid: cc82c15e918b5934e9868d6684171b23, type: 3}
+  alternateFont: {fileID: 12800000, guid: 49c81a0372cad5240b5af820d93a5d8f, type: 3}
+  languages:
+  - {fileID: 4900000, guid: 1b847e8b50b2f5544984efd7fff2a6cd, type: 3}
+  - {fileID: 4900000, guid: 2c4583300e934a146b4f356c120c0c89, type: 3}
+  - {fileID: 4900000, guid: 1dbd7eda59e0d4247915a4a87a3c20b7, type: 3}
+  - {fileID: 4900000, guid: 93179eaeddc2315478988cbd1dfa37be, type: 3}
+  - {fileID: 4900000, guid: 88ba165d808bbea42a597a67e9e9039d, type: 3}
+  - {fileID: 4900000, guid: 6763c4587dae4c44a965c1d192a54d15, type: 3}
+  - {fileID: 4900000, guid: 3b669e0f9a7cfb042bb6b9d559396cfc, type: 3}
+  - {fileID: 4900000, guid: 6860693bc4273b64989b2ed3a73940c1, type: 3}
+  - {fileID: 4900000, guid: 91ac2e38332a3a8469a2c4a2af18ae2d, type: 3}
+  menu: {fileID: 2800000, guid: 92c93321019f3e94286953e27bcecdd8, type: 3}
+  background: {fileID: 2800000, guid: 369980dcd9febd94da5d31de79a648e4, type: 3}
+  marker: {fileID: 2800000, guid: cf4040ad206a51746912e20b5c06a5f7, type: 3}
+  markerAlternate: {fileID: 2800000, guid: 343beb79d99af6146bbbb4ca1425e674, type: 3}
+  shadow: {fileID: 2800000, guid: 5c3d66f5c799c45469659807af15fcd2, type: 3}
+  candyIcon: {fileID: 2800000, guid: f6bb86428fcb65149a9949a67aae7fa3, type: 3}
+  music: {fileID: 8300000, guid: 8d1d57de594e9ca41bfc7562181f4c8a, type: 3}
+  button: {fileID: 8300000, guid: d4d7ea001645a55449bc1e6195d64bac, type: 3}
+  shoot: {fileID: 8300000, guid: a6eb0aef76aeb3944b023a8da99991a2, type: 3}
+  openMouth: {fileID: 8300000, guid: 0367a0e44fb5c0246b4f8fa615c0f264, type: 3}
+  closeMouth: {fileID: 8300000, guid: a36aca928b412d64aad482585a7988e0, type: 3}
+  chew: {fileID: 8300000, guid: 37836bda65c441047a9770c31509306a, type: 3}
+  sad: {fileID: 8300000, guid: 5dcb155b40287cc4480c6fc1a555dc06, type: 3}
+  ring: {fileID: 8300000, guid: a74cb94d157db06468d9011389db9f80, type: 3}
+  win: {fileID: 8300000, guid: e4041226ad0af0749a0849c5ed9bed58, type: 3}
+  hits:
+  - {fileID: 8300000, guid: 87525ad9ca9b3dd4d9312b70e46e8919, type: 3}
+  - {fileID: 8300000, guid: d599661c4f73de343afbf54f08574c3e, type: 3}
+  - {fileID: 8300000, guid: b1706a91371830b47b73ecc576d83f4b, type: 3}
+  - {fileID: 8300000, guid: c651b103c7ea33445a2a42ffc83419f1, type: 3}
+  - {fileID: 8300000, guid: 1107c3af9a9a2be4d8fd3cb3efa4f87a, type: 3}
+  - {fileID: 8300000, guid: 3418997e9622dd143ad5ea3880bae425, type: 3}
+  - {fileID: 8300000, guid: 0808ea3e699df874ab9d321b61dc4286, type: 3}
+  - {fileID: 8300000, guid: 641fe36a1568e1348bb5d02a8695c753, type: 3}
+  - {fileID: 8300000, guid: 261aca05d26a90449a5a80139ff9e181, type: 3}
+  - {fileID: 8300000, guid: 4111b08435c5c854e90e163fd9d37821, type: 3}
+  misses:
+  - {fileID: 8300000, guid: ea2f224e00c6dc846b28019a196a7776, type: 3}
+  - {fileID: 8300000, guid: 03e63b266ad82d249b1f526efa0e6e58, type: 3}
+  swishes:
+  - {fileID: 8300000, guid: a6eb0aef76aeb3944b023a8da99991a2, type: 3}
+  - {fileID: 8300000, guid: e1e684b60f0c579419e8b8653d9900bd, type: 3}
+  - {fileID: 8300000, guid: ce3bd915225239b418613009b36370b4, type: 3}
+  elasticShoot: {fileID: 8300000, guid: b1ff7d88ed3f754469baa4c556376377, type: 3}
+  elasticStretch: {fileID: 8300000, guid: ddc4a4198a90d814795f03a7b23d95b4, type: 3}
+  tap: {fileID: 8300000, guid: 0d923c23c4d0f654e9d713aa6f085ce6, type: 3}
+  loveTouch: {fileID: 8300000, guid: ab08f86416985de41a09ca06c14e2e84, type: 3}
+  maximumScore: {fileID: 8300000, guid: 6767ae78c7f112e4f8bcf374576d2c30, type: 3}
+  cameraShutter: {fileID: 8300000, guid: d3de6ec3f59e53f489fafbed5d792904, type: 3}

@@ -1,0 +1,394 @@
+{
+  "profiles": [
+    {
+      "name": "Geometry_465",
+      "sourceEmitterId": 465,
+      "sourceObjectId": 82,
+      "minSize": 3.0,
+      "maxSize": 4.0,
+      "minEnergy": 0.3,
+      "maxEnergy": 0.4,
+      "minEmission": 3000.0,
+      "maxEmission": 3000.0,
+      "emitterVelocityScale": 0.05,
+      "angularVelocity": 55.0,
+      "rndAngularVelocity": -25.0,
+      "rndRotation": 1.0,
+      "worldVelocity": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "localVelocity": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "rndVelocity": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "tangentVelocity": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "emit": true,
+      "oneShot": false,
+      "worldSpace": false,
+      "ellipsoid": {
+        "x": 30.0,
+        "y": 10.0,
+        "z": 30.0
+      },
+      "minEmitterRange": 0.0,
+      "sizeGrow": -0.25,
+      "damping": 0.9,
+      "force": {
+        "x": 0.0,
+        "y": 0.2,
+        "z": 0.0
+      },
+      "rndForce": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "worldRotationAxis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "localRotationAxis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "animateColor": false,
+      "colors": [
+        16777215,
+        2298478591,
+        4294967295,
+        2483027967,
+        16777215
+      ],
+      "stretchParticles": 4.0,
+      "lengthScale": 2.0,
+      "velocityScale": 0.0,
+      "maxParticleSize": 1.0
+    },
+    {
+      "name": "Geometry_466",
+      "sourceEmitterId": 466,
+      "sourceObjectId": 85,
+      "minSize": 3.0,
+      "maxSize": 4.0,
+      "minEnergy": 0.3,
+      "maxEnergy": 0.4,
+      "minEmission": 3000.0,
+      "maxEmission": 3000.0,
+      "emitterVelocityScale": 0.05,
+      "angularVelocity": 55.0,
+      "rndAngularVelocity": -25.0,
+      "rndRotation": 1.0,
+      "worldVelocity": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "localVelocity": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "rndVelocity": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "tangentVelocity": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "emit": true,
+      "oneShot": false,
+      "worldSpace": false,
+      "ellipsoid": {
+        "x": 30.0,
+        "y": 10.0,
+        "z": 30.0
+      },
+      "minEmitterRange": 0.0,
+      "sizeGrow": -0.25,
+      "damping": 0.9,
+      "force": {
+        "x": 0.0,
+        "y": 0.2,
+        "z": 0.0
+      },
+      "rndForce": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "worldRotationAxis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "localRotationAxis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "animateColor": false,
+      "colors": [
+        16777215,
+        2298478591,
+        4294967295,
+        2483027967,
+        16777215
+      ],
+      "stretchParticles": 4.0,
+      "lengthScale": 2.0,
+      "velocityScale": 0.0,
+      "maxParticleSize": 1.0
+    },
+    {
+      "name": "Geometry_467",
+      "sourceEmitterId": 467,
+      "sourceObjectId": 139,
+      "minSize": 3.0,
+      "maxSize": 4.0,
+      "minEnergy": 0.3,
+      "maxEnergy": 0.4,
+      "minEmission": 3000.0,
+      "maxEmission": 3000.0,
+      "emitterVelocityScale": 0.05,
+      "angularVelocity": 55.0,
+      "rndAngularVelocity": -25.0,
+      "rndRotation": 1.0,
+      "worldVelocity": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "localVelocity": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "rndVelocity": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "tangentVelocity": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "emit": true,
+      "oneShot": false,
+      "worldSpace": false,
+      "ellipsoid": {
+        "x": 30.0,
+        "y": 10.0,
+        "z": 30.0
+      },
+      "minEmitterRange": 0.0,
+      "sizeGrow": -0.25,
+      "damping": 0.9,
+      "force": {
+        "x": 0.0,
+        "y": 0.2,
+        "z": 0.0
+      },
+      "rndForce": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "worldRotationAxis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "localRotationAxis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "animateColor": false,
+      "colors": [
+        16777215,
+        2298478591,
+        4294967295,
+        2483027967,
+        16777215
+      ],
+      "stretchParticles": 4.0,
+      "lengthScale": 2.0,
+      "velocityScale": 0.0,
+      "maxParticleSize": 1.0
+    },
+    {
+      "name": "Geometry_468",
+      "sourceEmitterId": 468,
+      "sourceObjectId": 178,
+      "minSize": 3.0,
+      "maxSize": 4.0,
+      "minEnergy": 0.3,
+      "maxEnergy": 0.4,
+      "minEmission": 3000.0,
+      "maxEmission": 3000.0,
+      "emitterVelocityScale": 0.05,
+      "angularVelocity": 55.0,
+      "rndAngularVelocity": -25.0,
+      "rndRotation": 1.0,
+      "worldVelocity": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "localVelocity": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "rndVelocity": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "tangentVelocity": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "emit": true,
+      "oneShot": false,
+      "worldSpace": false,
+      "ellipsoid": {
+        "x": 30.0,
+        "y": 10.0,
+        "z": 30.0
+      },
+      "minEmitterRange": 0.0,
+      "sizeGrow": -0.25,
+      "damping": 0.9,
+      "force": {
+        "x": 0.0,
+        "y": 0.2,
+        "z": 0.0
+      },
+      "rndForce": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "worldRotationAxis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "localRotationAxis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "animateColor": false,
+      "colors": [
+        16777215,
+        2298478591,
+        4294967295,
+        2483027967,
+        16777215
+      ],
+      "stretchParticles": 4.0,
+      "lengthScale": 2.0,
+      "velocityScale": 0.0,
+      "maxParticleSize": 1.0
+    },
+    {
+      "name": "BoostV_1569143",
+      "sourceEmitterId": 1569143,
+      "sourceObjectId": 105782,
+      "minSize": 10.0,
+      "maxSize": 30.0,
+      "minEnergy": 1.0,
+      "maxEnergy": 1.0,
+      "minEmission": 50.0,
+      "maxEmission": 50.0,
+      "emitterVelocityScale": 0.05,
+      "angularVelocity": 0.0,
+      "rndAngularVelocity": 0.0,
+      "rndRotation": 0.0,
+      "worldVelocity": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "localVelocity": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "rndVelocity": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "tangentVelocity": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 300.0
+      },
+      "emit": false,
+      "oneShot": true,
+      "worldSpace": true,
+      "ellipsoid": {
+        "x": 100.0,
+        "y": 100.0,
+        "z": 0.0
+      },
+      "minEmitterRange": 0.0,
+      "sizeGrow": 0.0,
+      "damping": 1.0,
+      "force": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "rndForce": {
+        "x": 0.5,
+        "y": 0.5,
+        "z": 0.5
+      },
+      "worldRotationAxis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "localRotationAxis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "animateColor": true,
+      "colors": [
+        16777215,
+        3044592383,
+        4278190080,
+        3053453311,
+        16777215
+      ],
+      "stretchParticles": 0.0,
+      "lengthScale": 2.0,
+      "velocityScale": 0.0,
+      "maxParticleSize": 0.25
+    }
+  ]
+}

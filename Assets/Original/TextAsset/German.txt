@@ -1,0 +1,125 @@
+GET_IMAGE
+Bild anzeigen
+
+MARKER_LABEL
+Zielbild sieht so aus
+
+SHOW
+Anzeigen
+
+PRINT
+Drucken
+
+DOWNLOAD
+Herunterladen
+
+SEARCH_TARGET_LABEL
+Ziele mit der Kamera auf ein Zielbild
+
+TOTAL
+Gesamt
+
+BEST
+Beste
+
+BONUS_POINTS
+Punkte in der nächsten Runde
+
+ABOUT_TITLE
+Om Nom: Bonbon Knipser
+
+ABOUT_VERSION
+Version 2.6
+
+ABOUT_TEXT1
+© 2013-2016 ZeptoLab UK Limited.
+
+ABOUT_TEXT2
+Alle Rechte vorbehalten.
+
+ABOUT_TEXT3
+ZeptoLab, Candy Flick, Om Nom, Nommies und Feed with Candy sind Marken oder eingetragene Marken von ZeptoLab UK Limited.
+
+PRIVACY_POLICY
+Datenschutz
+
+TERMS_OF_USE
+Nutzungsbedingungen
+
+RESET_QUESTION
+Spielfortschritt wirklich zurücksetzen?
+
+HOLD_YES
+Halte zum Zurücksetzen 3 Sekunden lang "Ja" gedrückt.
+
+YES
+Ja
+
+NO
+Nein
+
+LANGUAGE
+Sprache
+
+ABOUT
+Über das Spiel
+
+RESET_GAME
+Spiel zurücksetzen
+
+OK
+OK
+
+TUTOR_TITLE
+Du benötigst eines dieser Bilder
+
+TUTOR_GETIMG
+Her damit
+
+TUTOR_OR
+oder
+
+TUTOR_HAVE_MARKER
+Hab ich bereits
+
+TUTOR_ON_IPA
+Ich habe noch ein Apple-Gerät
+
+TUTOR_GOT_PRINTER
+Ich habe einen Drucker
+
+TUTOR_DWNLD_ANOTHER_DEV
+App auf ein anderes Gerät herunterladen
+
+TUTOR_USE_PIC
+Statt Papier bitte Bild verwenden!
+
+TUTOR_DOP
+Im Album "Aufnahmen" speichern
+
+TUTOR_DP
+Internet-Suche - Drucken
+
+TUTOR_WELCOME
+Dies ist eine "Augmented Reality"-App. Richte die Kamera deines Handys auf das spezielle Bild aus und du wirst Om Nom sehen und mit ihm interagieren können.
+
+POINT_TO_MARKER
+Starte Candy Flick auf einem anderen Gerät und richte es auf dieses Bild aus. 
+
+DOWNLOAD_DIALOG
+Bild wurde im Album "Aufnahmen" gespeichert. Du kannst es von dort aus drucken.
+
+DOWNLOAD_DIALOG_ERROR
+Fehler! Vielleicht hat diese App keinen Zugriff auf deine Fotos. Du kannst den Zugriff unter Datenschutz freigeben.
+
+PHOTO_SAVED
+Das Foto mit Om Nom wurde erfolgreich aufgenommen und im Album "Aufnahmen" gespeichert.
+
+NO_INTERNET
+Überprüfe deine Internet-Verbindung, und versuche es später noch einmal.
+
+NO_CAMERA_ACCESS
+Bitte aktiviere den Zugriff auf die Kamera, um die App zu benutzen.
+
+RETRY
+Neu verbinden

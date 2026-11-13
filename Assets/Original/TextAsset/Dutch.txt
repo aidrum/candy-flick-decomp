@@ -1,0 +1,125 @@
+GET_IMAGE
+Plaatje weergeven
+
+MARKER_LABEL
+Afbeeldingsdoel ziet er zo uit
+
+SHOW
+Weergeven
+
+PRINT
+Afdrukken
+
+DOWNLOAD
+Downloaden
+
+SEARCH_TARGET_LABEL
+Richt je camera op een afbeeldingsdoel
+
+TOTAL
+Totaal
+
+BEST
+Beste
+
+BONUS_POINTS
+punten in de volgende ronde
+
+ABOUT_TITLE
+Om Nom: Candy Flick
+
+ABOUT_VERSION
+versie 2.6
+
+ABOUT_TEXT1
+© 2013-2016 ZeptoLab UK Limited.
+
+ABOUT_TEXT2
+Alle rechten voorbehouden.
+
+ABOUT_TEXT3
+ZeptoLab, Candy Flick, Om Nom, Nommies en Feed with Candy zijn handelsmerken of gedeponeerde handelsmerken van ZeptoLab UK Limited.
+
+PRIVACY_POLICY
+Privacybeleid
+
+TERMS_OF_USE
+Gebruiksvoorwaarden
+
+RESET_QUESTION
+Weet je zeker dat je je voortgang wilt wissen?
+
+HOLD_YES
+Houd de Ja-knop 3 seconden ingedrukt om opnieuw te beginnen
+
+YES
+Ja
+
+NO
+Nee
+
+LANGUAGE
+Taal
+
+ABOUT
+Info
+
+RESET_GAME
+Herstarten
+
+OK
+Oké
+
+TUTOR_TITLE
+Je hebt een van deze afbeeldingen nodig
+
+TUTOR_GETIMG
+Afbeelding krijgen
+
+TUTOR_OR
+of
+
+TUTOR_HAVE_MARKER
+Heb ik al
+
+TUTOR_ON_IPA
+Ik heb nog een Apple-apparaat
+
+TUTOR_GOT_PRINTER
+Ik heb een printer
+
+TUTOR_DWNLD_ANOTHER_DEV
+App downloaden op ander apparaat
+
+TUTOR_USE_PIC
+Gebruik afbeelding in plaats van papier!
+
+TUTOR_DOP
+Opslaan in Filmrol
+
+TUTOR_DP
+Online zoeken - Afdrukken
+
+TUTOR_WELCOME
+Dit is een app met toegevoegde realiteit. Richt de camera van je telefoon op het speciale plaatje en je kunt Om Nom zien en met hem spelen.
+
+POINT_TO_MARKER
+Start Candy Flick op een ander apparaat en richt het op dit plaatje.
+
+DOWNLOAD_DIALOG
+Plaatje opgeslagen in Filmrol. Je kunt het vandaaruit afdrukken.
+
+DOWNLOAD_DIALOG_ERROR
+Fout! Deze app heeft mogelijk geen toegang tot je foto's. Je kunt toegang inschakelen via Privacyinstellingen.
+
+PHOTO_SAVED
+De foto met Om Nom is gemaakt en opgeslagen in Camera Roll.
+
+NO_INTERNET
+Controleer uw internetverbinding en probeer het later opnieuw.
+
+NO_CAMERA_ACCESS
+Schakel cameratoegang in om de app te kunnen gebruiken
+
+RETRY
+Opnieuw verbinden

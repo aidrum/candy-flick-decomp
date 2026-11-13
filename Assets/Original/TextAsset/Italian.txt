@@ -1,0 +1,125 @@
+GET_IMAGE
+Visualizza immagine
+
+MARKER_LABEL
+L’immagine appare così
+
+SHOW
+Mostra
+
+PRINT
+Stampa
+
+DOWNLOAD
+Scarica
+
+SEARCH_TARGET_LABEL
+Punta la macchina fotografica verso un obiettivo
+
+TOTAL
+Totale
+
+BEST
+Migliore
+
+BONUS_POINTS
+punti nel turno successivo
+
+ABOUT_TITLE
+Om Nom: Candy Flick
+
+ABOUT_VERSION
+versione 2.6
+
+ABOUT_TEXT1
+© 2013-2016 ZeptoLab UK Limited.
+
+ABOUT_TEXT2
+Tutti i diritti riservati.
+
+ABOUT_TEXT3
+ZeptoLab, Candy Flick, Om Nom, Nommies e Feed with Candy sono marchi o marchi registrati di ZeptoLab UK Limited.
+
+PRIVACY_POLICY
+Privacy
+
+TERMS_OF_USE
+Termini di utilizzo
+
+RESET_QUESTION
+Vuoi davvero azzerare i tuoi progressi?
+
+HOLD_YES
+Tieni premuto il tasto "sì" per 3 secondi per azzerare.
+
+YES
+Sì
+
+NO
+No
+
+LANGUAGE
+Lingua
+
+ABOUT
+Info
+
+RESET_GAME
+Azzera gioco
+
+OK
+Ok
+
+TUTOR_TITLE
+Ti serve una di queste immagini
+
+TUTOR_GETIMG
+Ottieni immagine
+
+TUTOR_OR
+o
+
+TUTOR_HAVE_MARKER
+Ne ho già una
+
+TUTOR_ON_IPA
+Ho un altro dispositivo Apple
+
+TUTOR_GOT_PRINTER
+Ho una stampante
+
+TUTOR_DWNLD_ANOTHER_DEV
+Scarica l'app su un altro dispositivo
+
+TUTOR_USE_PIC
+Usa l'immagine senza stamparla!
+
+TUTOR_DOP
+Salva nel Rullino foto
+
+TUTOR_DP
+Ricerca Internet - Stampa
+
+TUTOR_WELCOME
+Questa è un'app di "realtà aumentata". Inquadra l'immagine speciale con la fotocamera del tuo telefono per far apparire Om Nom e interagire con lui.
+
+POINT_TO_MARKER
+Apri Candy Flick su un altro dispositivo e inquadra questa immagine.
+
+DOWNLOAD_DIALOG
+Immagine salvata nel Rullino foto. Puoi stamparla da quel menu.
+
+DOWNLOAD_DIALOG_ERROR
+Errore! È possibile che questa app non abbia accesso alle tue foto. Puoi attivarne l’accesso nelle impostazioni della privacy.
+
+PHOTO_SAVED
+La foto con Om Nom è stata scattata e salvata correttamente nel Rullino foto.
+
+NO_INTERNET
+Ricontrolla la connessione Internet e riprova più tardi.
+
+NO_CAMERA_ACCESS
+Abilitare l’accesso alla fotocamera per utilizzare l’app
+
+RETRY
+Riconnetti

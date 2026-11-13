@@ -1,0 +1,222 @@
+using System.Collections;
+using System.Linq;
+using UnityEngine;
+
+namespace CandyFlick
+{
+    // FrogBehaviour: retain the original rig, clip settings and scene scale.
+    public sealed class OmNomActor : MonoBehaviour
+    {
+        CandyFlickGame game;
+        Animation animationPlayer;
+        CandyProjectile bullet;
+        Vector3 startPosition, lastPosition, targetPosition;
+        Quaternion startRotation;
+        float distanceToBullet, startIdleTime, startJumpTime, moveProgress;
+        int frogMode, frogStatus, frogPosition, hitAudioIndex;
+        bool tapped, isCandyTouched;
+        float loveTouchTicker, startHeartTime;
+        Renderer[] pauseRenderers;
+        public Vector3 Mouth => transform.TransformPoint(new Vector3(0, .25f, 0));
+        public void InitializeOriginal(CandyFlickGame owner)
+        {
+            game = owner; animationPlayer = GetComponent<Animation>();
+            startPosition = lastPosition = targetPosition = transform.position;
+            startRotation = transform.rotation;
+            // The original FrogPauseHider components are on OmNom_Mesh and Shadow.
+            pauseRenderers = GetComponentsInChildren<Renderer>(true)
+                .Where(renderer => renderer.name == "OmNom_Mesh" || renderer.name == "Shadow").ToArray();
+            foreach (var renderer in GetComponentsInChildren<SkinnedMeshRenderer>()) renderer.updateWhenOffscreen = true;
+            FrogIdle();
+        }
+        public void ResetOriginal()
+        {
+            StopAllCoroutines(); bullet = null; frogStatus = frogPosition = hitAudioIndex = 0; // OnGameRestart 0x240dc resets the combo pitch.
+            tapped = isCandyTouched = false; loveTouchTicker = startHeartTime = 0;
+            transform.SetPositionAndRotation(startPosition, startRotation);
+            lastPosition = targetPosition = startPosition; moveProgress = 0; FrogIdle();
+        }
+        void FrogIdle() { startIdleTime = Time.time; animationPlayer.CrossFade("idle"); frogMode = 0; game.OnReadyForShoot(); }
+        public void Play(string name, bool loop = false)
+        {
+            if (!animationPlayer[name]) return;
+            animationPlayer.CrossFade(name); frogMode = name == "idle" ? 0 : 2;
+        }
+        public void OnBulletShoot(CandyProjectile candy) { isCandyTouched = false; frogStatus = 1; bullet = candy; }
+        public void OnCancelShoot() { isCandyTouched = false; }
+        void Update()
+        {
+            if (!game || !game.CanSimulate) return;
+            UpdateFrogTouching();
+            UpdateFrogStatus();
+            bool canJump = game.Session.round > 1;
+            if (frogMode == 0)
+            {
+                if (!canJump && Time.time - startIdleTime >= 5)
+                {
+                    startIdleTime = Time.time;
+                    animationPlayer.CrossFade("idle" + new System.Random().Next(2, 5));
+                    animationPlayer.PlayQueued("idle");
+                }
+                // ARM 0x22a6a explicitly loads 2.0; Ghidra's NEON pseudocode loses this literal.
+                if (canJump && Time.time - startJumpTime >= 2) JumpOmNomRandom();
+            }
+            if (!animationPlayer.isPlaying) FrogIdle();
+        }
+        void UpdateFrogStatus()
+        {
+            if (frogStatus == 0 || !bullet) return;
+            float distance = Vector3.Distance(transform.position, bullet.transform.position);
+            if (frogStatus == 1 && distance <= 800)
+            {
+                frogStatus = 2; FacePlayer(); frogMode = 1;
+                animationPlayer.CrossFade("open"); game.Play(game.assets.openMouth);
+            }
+            // Native UpdateFrogStatus compares successive distances exactly, even after Restore.
+            if (distanceToBullet - distance == 0) BulletMiss();
+            else distanceToBullet = distance;
+        }
+        void OnCollisionEnter(Collision collision)
+        {
+            if (!bullet || collision.gameObject != bullet.gameObject) return;
+            int bonus = bullet.RingBonus;
+            bullet.Restore(); bullet = null; frogStatus = 0; frogMode = 2;
+            animationPlayer.CrossFade("close_eat", .3f);
+            game.Play(game.assets.closeMouth); game.Play(game.assets.chew);
+            game.Play(game.assets.hits[hitAudioIndex]); hitAudioIndex = (hitAudioIndex + 1) % game.assets.hits.Length;
+            game.ResolveShot(true, bonus);
+        }
+        void BulletMiss()
+        {
+            bullet = null; frogStatus = 0; frogMode = 2;
+            animationPlayer.CrossFade("close_sad"); game.Play(game.assets.closeMouth); game.Play(game.assets.sad);
+            game.ResolveShot(false, 0);
+        }
+        public void OnPreShoot()
+        {
+            isCandyTouched = true;
+            if (game.Session.round > 1 && !animationPlayer.IsPlaying("jump"))
+            {
+                StartCoroutine(WaitAndRotate(.6f)); FrogIdle(); JumpOmNomRandom(); return;
+            }
+            float yaw = transform.eulerAngles.y;
+            transform.LookAt(game.Player); float delta = transform.eulerAngles.y - yaw;
+            if (delta > 5) { animationPlayer.Play("turn_right"); frogMode = 3; }
+            else if (delta < -5) { animationPlayer.Play("turn_left"); frogMode = 3; }
+            transform.rotation = Quaternion.Euler(0, yaw, 0);
+        }
+        IEnumerator WaitAndRotate(float seconds)
+        {
+            yield return new WaitForSeconds(seconds);
+            OnPreShootRotation();
+        }
+        void OnPreShootRotation()
+        {
+            float yaw = transform.eulerAngles.y;
+            transform.LookAt(game.Player); float delta = transform.eulerAngles.y - yaw;
+            if (delta > 5) { animationPlayer.Play("turn_right"); frogMode = 3; }
+            else if (delta < -5) { animationPlayer.Play("turn_left"); frogMode = 3; }
+            transform.rotation = Quaternion.Euler(0, yaw, 0);
+        }
+        void FacePlayer() { transform.LookAt(game.Player); transform.eulerAngles = new Vector3(0, transform.eulerAngles.y, 0); }
+        void UpdateFrogTouching()
+        {
+            bool touched = false; Vector3 point = Vector3.zero; Vector2 delta = Vector2.zero;
+            Collider collider = GetComponent<Collider>();
+            for (int i = 0; i < Input.touchCount; i++)
+            {
+                Touch touch = Input.GetTouch(i);
+                if (!collider.Raycast(game.GameCamera.ScreenPointToRay(touch.position), out RaycastHit hit, Mathf.Infinity)) continue;
+                point = hit.point; delta = touch.deltaPosition; touched = true; break;
+            }
+#if UNITY_EDITOR || UNITY_STANDALONE
+            if (Input.touchCount == 0 && Input.GetMouseButton(0) && collider.Raycast(game.GameCamera.ScreenPointToRay(Input.mousePosition), out RaycastHit mouseHit, Mathf.Infinity))
+            { point = mouseHit.point; delta = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y")); touched = true; }
+#endif
+            if (touched)
+            {
+                if (frogMode == 0)
+                {
+                    loveTouchTicker += Time.deltaTime;
+                    if (loveTouchTicker >= .15f)
+                    {
+                        tapped = false;
+                        string side = transform.InverseTransformPoint(point).x > 0 ? "_left" : "_right";
+                        frogMode = 4; game.Play(game.assets.loveTouch);
+                        animationPlayer["touch" + side].wrapMode = WrapMode.Loop;
+                        animationPlayer.Play("touch" + side + "_in"); animationPlayer.PlayQueued("touch" + side);
+                    }
+                    else tapped = true;
+                }
+                if (frogMode == 4 && delta.magnitude > 10 && Time.time - startHeartTime >= .8f) InstantiateHeart();
+            }
+            else
+            {
+                if (tapped) { frogMode = 6; animationPlayer.Play("tap"); game.Play(game.assets.tap); tapped = false; }
+                if (frogMode == 4)
+                {
+                    if (animationPlayer.IsPlaying("touch_left") || animationPlayer.IsPlaying("touch_left_in")) animationPlayer.CrossFade("touch_left_out");
+                    if (animationPlayer.IsPlaying("touch_right") || animationPlayer.IsPlaying("touch_right_in")) animationPlayer.CrossFade("touch_right_out");
+                    frogMode = 5;
+                }
+                loveTouchTicker = 0;
+            }
+        }
+        void InstantiateHeart()
+        {
+            startHeartTime = Time.time;
+            Vector3 position = transform.position - transform.forward * 100; position.y = 100;
+            Vector3 angles = transform.eulerAngles; angles.y += 180;
+            var wrapper = Instantiate(Resources.Load<GameObject>("Original26/Heart"), game.World);
+            var root = wrapper.transform.Find("HeartGlobalPos"); root.SetPositionAndRotation(position, Quaternion.Euler(angles));
+            var animation = root.GetComponent<Animation>(); animation["heart_anim"].speed = 1.5f; animation.Play("heart_anim");
+            Destroy(wrapper, 3);
+        }
+        void JumpOmNomRandom()
+        {
+            int next = 0; Vector3 offset = Vector3.zero;
+            if (frogPosition == 0)
+            {
+                int[] positions = { 3, 4, 1, 2 }; next = positions[new System.Random().Next(4)];
+                offset = next == 1 ? Vector3.right : next == 2 ? Vector3.left : next == 3 ? Vector3.back : Vector3.forward;
+            }
+            else offset = frogPosition == 1 ? Vector3.left : frogPosition == 2 ? Vector3.right : frogPosition == 3 ? Vector3.forward : Vector3.back;
+            StartCoroutine(WaitAndMoveForJump(offset * 150)); frogPosition = next;
+            animationPlayer.CrossFade("jump"); animationPlayer.CrossFadeQueued("idle");
+            frogMode = 0; startJumpTime = Time.time;
+        }
+        IEnumerator WaitAndMoveForJump(Vector3 offset)
+        {
+            yield return new WaitForSeconds(.15f);
+            transform.position += offset;
+        }
+        void LateUpdate()
+        {
+            if (game)
+            {
+                bool visible = game.ScreenState == GameScreen.Playing && (!game.IsAR || game.ar.Tracking);
+                foreach (var renderer in pauseRenderers) renderer.enabled = visible;
+            }
+            if (!game || !game.CanSimulate) return;
+            if (frogMode == 3)
+            {
+                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(game.Player.position - transform.position), Time.deltaTime * 6);
+                transform.eulerAngles = new Vector3(0, transform.eulerAngles.y, 0);
+            }
+            if (moveProgress == 0 && transform.position != lastPosition) targetPosition = transform.position;
+            if (lastPosition != targetPosition)
+            {
+                moveProgress = Mathf.Min(1, moveProgress + Time.deltaTime / (animationPlayer["jump"].length - .15f - .15f));
+                transform.position = Vector3.Lerp(lastPosition, targetPosition, moveProgress);
+                if (moveProgress == 1) { moveProgress = 0; lastPosition = targetPosition; }
+            }
+        }
+        public static Bounds CalculateBounds(GameObject obj)
+        {
+            var renderers = obj.GetComponentsInChildren<Renderer>().Where(r => r.enabled && r.gameObject.activeInHierarchy).ToArray();
+            Bounds bounds = renderers.Length > 0 ? renderers[0].bounds : new Bounds(obj.transform.position, Vector3.one);
+            foreach (var renderer in renderers) bounds.Encapsulate(renderer.bounds);
+            return bounds;
+        }
+    }
+}

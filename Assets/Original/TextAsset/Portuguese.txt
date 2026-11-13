@@ -1,0 +1,125 @@
+GET_IMAGE
+Exibir imagem
+
+MARKER_LABEL
+A imagem alvo se parece com esta
+
+SHOW
+Exibir
+
+PRINT
+Imprimir
+
+DOWNLOAD
+Baixar
+
+SEARCH_TARGET_LABEL
+Aponte a câmera para uma imagem alvo
+
+TOTAL
+Total
+
+BEST
+Recorde
+
+BONUS_POINTS
+pontos na próxima rodada
+
+ABOUT_TITLE
+Om Nom: Candy Flick
+
+ABOUT_VERSION
+versão 2.6
+
+ABOUT_TEXT1
+© 2013-2016 ZeptoLab UK Limited.
+
+ABOUT_TEXT2
+Todos os direitos reservados.
+
+ABOUT_TEXT3
+ZeptoLab, Candy Flick, Om Nom, Nommies e Feed with Candy são a marca ou marcas registradas da ZeptoLab UK Limited.
+
+PRIVACY_POLICY
+Política de Privac.
+
+TERMS_OF_USE
+Termos de uso
+
+RESET_QUESTION
+Tem certeza de que quer abandonar seu progresso?
+
+HOLD_YES
+Segure o botão "Sim" por 3 segundos para recomeçar
+
+YES
+Sim
+
+NO
+Não
+
+LANGUAGE
+Idioma
+
+ABOUT
+Sobre
+
+RESET_GAME
+Recomeçar o jogo
+
+OK
+Ok
+
+TUTOR_TITLE
+Você precisa de uma dessas imagens
+
+TUTOR_GETIMG
+Obter imagem
+
+TUTOR_OR
+ou
+
+TUTOR_HAVE_MARKER
+Uma já foi
+
+TUTOR_ON_IPA
+Eu tenho outro dispositivo Apple
+
+TUTOR_GOT_PRINTER
+Eu tenho uma impressora
+
+TUTOR_DWNLD_ANOTHER_DEV
+Baixar o app em outro dispositivo
+
+TUTOR_USE_PIC
+Usar imagem em vez de papel!
+
+TUTOR_DOP
+Salvar no Rolo da Câmera
+
+TUTOR_DP
+Pesquisa na internet - Imprimir
+
+TUTOR_WELCOME
+Este é um app de realidade aumentada. Aponte para a imagem especial com a câmera do seu celular para ver Om Nom e interagir com ele.
+
+POINT_TO_MARKER
+Execute Candy Flick em outro dispositivo e aponte para esta imagem.
+
+DOWNLOAD_DIALOG
+Imagem salva no Rolo da Câmera. Você pode imprimi-la por lá. Execute Candy Flick em outro dispositivo e aponte para esta imagem.
+
+DOWNLOAD_DIALOG_ERROR
+Erro! Talvez este app não tenha acesso às suas fotos. É possível permitir o acesso nas configurações de privacidade.
+
+PHOTO_SAVED
+A foto com Om Nom foi capturada com sucesso e salva no Rolo da Câmera.
+
+NO_INTERNET
+Verifique sua conexão com a Internet e tente novamente mais tarde.
+
+NO_CAMERA_ACCESS
+Permita o acesso à câmera para usar o app
+
+RETRY
+Reconectar

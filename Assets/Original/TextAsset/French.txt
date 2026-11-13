@@ -1,0 +1,125 @@
+GET_IMAGE
+Afficher l'image
+
+MARKER_LABEL
+L'image ressemble à cela
+
+SHOW
+Afficher
+
+PRINT
+Imprimer
+
+DOWNLOAD
+Télécharger
+
+SEARCH_TARGET_LABEL
+Diriger l'objectif sur une image
+
+TOTAL
+Total
+
+BEST
+Meilleur
+
+BONUS_POINTS
+points au tour suivant
+
+ABOUT_TITLE
+Om Nom : Candy Flick
+
+ABOUT_VERSION
+version 2.6
+
+ABOUT_TEXT1
+© 2013-2016 ZeptoLab UK Limited.
+
+ABOUT_TEXT2
+Tous droits réservés.
+
+ABOUT_TEXT3
+ZeptoLab, Candy Flick, Om Nom, Nommies et Feed with Candy sont des marques commerciales et/ou déposées de ZeptoLab UK Limited.
+
+PRIVACY_POLICY
+Vie privée
+
+TERMS_OF_USE
+Conditions d'utilisation
+
+RESET_QUESTION
+Réinitialiser la progression ?
+
+HOLD_YES
+Maintenir le doigt sur "Oui" pendant 3 secondes pour réinitialiser.
+
+YES
+Oui
+
+NO
+Non
+
+LANGUAGE
+Langue
+
+ABOUT
+À propos
+
+RESET_GAME
+Réinitialiser
+
+OK
+OK
+
+TUTOR_TITLE
+Il te faut l'une de ces images
+
+TUTOR_GETIMG
+Obtenir image
+
+TUTOR_OR
+ou
+
+TUTOR_HAVE_MARKER
+J'en ai déjà une
+
+TUTOR_ON_IPA
+J'ai un autre appareil Apple
+
+TUTOR_GOT_PRINTER
+J'ai une imprimante
+
+TUTOR_DWNLD_ANOTHER_DEV
+Télécharger l'application sur un autre appareil
+
+TUTOR_USE_PIC
+Utilise l'image à la place du papier!
+
+TUTOR_DOP
+Enregistrer dans l'album Pellicule
+
+TUTOR_DP
+Recherche Internet - Imprimer
+
+TUTOR_WELCOME
+C'est une application de "réalité augmentée". Pointe l'appareil photo de ton téléphone sur l'image spéciale et tu pourras voir Om Nom et interagir avec lui.
+
+POINT_TO_MARKER
+Lance Candy Flick sur un autre appareil et pointe l'appareil photo sur cette image.
+
+DOWNLOAD_DIALOG
+Image enregistrée dans l'album Pellicule. Tu peux l'imprimer à partir d'ici.
+
+DOWNLOAD_DIALOG_ERROR
+Erreur! L'application n'a peut être pas accès aux photos. L'accès peut être activé dans les réglages de confidentialité.
+
+PHOTO_SAVED
+La photo avec Om Nom a bien été prise et a été enregistrée dans l'album Pellicule.
+
+NO_INTERNET
+Vérifiez votre connexion Internet et réessayez plus tard.
+
+NO_CAMERA_ACCESS
+Activer l'appareil photo pour utiliser l'application
+
+RETRY
+Reconnexion

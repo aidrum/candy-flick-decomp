@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QCARConfig>
+    <Tracking>
+        <ImageTarget size="55.157593 55" name="NewTarget"/>
+        <ImageTarget size="54.889591 58" name="CandyFlickImageTarget"/>
+    </Tracking>
+</QCARConfig>

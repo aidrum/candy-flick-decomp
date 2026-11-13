@@ -1,0 +1,3 @@
+button_center: Y = 630
+
+text: WIDTH = 435 HEIGHT = 213 Y = 330
