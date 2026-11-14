@@ -27,6 +27,17 @@ namespace CandyFlickEditor
                     case "MenuTest": SkinMenuValidation.Run(); break;
                     case "MusicImport": GameplayMusicBuilder.Build(); break;
                     case "OptionsTest": ExtraOptionsValidation.Run(); break;
+                    case "NonARTest": NonARValidation.Run(); break;
+                    case "NonARControlsTest": NonARControlsValidation.Run(); break;
+                    case "SuperCandyTest": SuperCandyValidation.Run(); break;
+                    case "RestartAnimationTest": RestartAnimationValidation.Run(); break;
+                    case "EarlyMissTest": EarlyMissValidation.Run(); break;
+                    case "CreditsTest": ModelCreditsValidation.Run(); break;
+                    case "WidePointerTest": DeviceUIValidation.WidePointer(); break;
+                    case "DeviceUITest": DeviceUIValidation.Run(); break;
+                    case "MenuArtworkTest": MainMenuArtworkValidation.Run(); break;
+                    case "LoadingTest": LoadingScreenValidation.Run(); break;
+                    case "NonARLighting": NonARLightingBuilder.Apply(); break;
                     case "SkinsTest": TimeTravelSkinValidation.Run(); break;
                     case "AudioReference": TimeTravelAudioBuilder.References(); break;
                     case "AudioImport": TimeTravelAudioBuilder.Build(); break;

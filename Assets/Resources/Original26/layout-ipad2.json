@@ -1,0 +1,1142 @@
+{
+  "width": 768,
+  "height": 1024,
+  "rectangles": [
+    {
+      "method": "AboutScreen$$GetButtonsFieldRect",
+      "address": "0x28bf4",
+      "rect": [
+        153.5,
+        512.0,
+        461.0,
+        230.0500030517578
+      ]
+    },
+    {
+      "method": "AboutScreen$$GetLabelRect",
+      "address": "0x28f14",
+      "rect": [
+        115.20001220703125,
+        174.07998657226562,
+        537.5999755859375,
+        307.20001220703125
+      ]
+    },
+    {
+      "method": "AboutScreen$$GetTitleLabelRect",
+      "address": "0x2901c",
+      "rect": [
+        115.20001220703125,
+        153.59999084472656,
+        537.5999755859375,
+        20.479999542236328
+      ]
+    },
+    {
+      "method": "AboutScreen$$GetBackBtnRect",
+      "address": "0x29174",
+      "rect": [
+        13.199999809265137,
+        878.7999877929688,
+        132.0,
+        132.0
+      ]
+    },
+    {
+      "method": "GameOverScreen$$GetBannerRect",
+      "address": "0x2ba34",
+      "rect": [
+        0.0,
+        784.0,
+        768.0,
+        240.0
+      ]
+    },
+    {
+      "method": "GameOverScreen$$GetSmallBannerBtnRect",
+      "address": "0x2c314",
+      "rect": [
+        65.27999877929688,
+        824.7999877929688,
+        637.4400024414062,
+        199.1999969482422
+      ]
+    },
+    {
+      "method": "GameOverScreen$$GetBigBannerRect",
+      "address": "0x2bb58",
+      "rect": [
+        0.0,
+        0.0,
+        768.0,
+        1024.0
+      ]
+    },
+    {
+      "method": "GameOverScreen$$GetButtonBannerRect",
+      "address": "0x2be90",
+      "rect": [
+        134.40000915527344,
+        851.7760009765625,
+        499.1999816894531,
+        114.81599426269531
+      ]
+    },
+    {
+      "method": "GameOverScreen$$GetCloseBigBannerRect",
+      "address": "0x2bca8",
+      "rect": [
+        644.7999877929688,
+        10.0,
+        112.0,
+        100.0
+      ]
+    },
+    {
+      "method": "GameOverScreen$$GetBannerControlLeftRect",
+      "address": "0x2bf68",
+      "rect": [
+        0.0,
+        919.0,
+        88.0,
+        105.0
+      ]
+    },
+    {
+      "method": "GameOverScreen$$GetBannerControlRightRect",
+      "address": "0x2c130",
+      "rect": [
+        680.0,
+        919.0,
+        88.0,
+        105.0
+      ]
+    },
+    {
+      "method": "GameOverScreen$$GetBoardRect",
+      "address": "0x2afcc",
+      "rect": [
+        80.5,
+        19.5,
+        607.0,
+        745.0
+      ]
+    },
+    {
+      "method": "GameOverScreen$$GetScoresRectGO",
+      "address": "0x2b1fc",
+      "rect": [
+        141.1999969482422,
+        131.25,
+        485.6000061035156,
+        144.0
+      ]
+    },
+    {
+      "method": "GameOverScreen$$GetLabelsRectGO",
+      "address": "0x2b2ec",
+      "rect": [
+        141.1999969482422,
+        257.8999938964844,
+        485.6000061035156,
+        223.50001525878906
+      ]
+    },
+    {
+      "method": "GameOverScreen$$GetRestartRectGO",
+      "address": "0x2b3d0",
+      "rect": [
+        300.5,
+        466.5000305175781,
+        167.0,
+        167.0
+      ]
+    },
+    {
+      "method": "GameOverScreen$$GetBottomBtnRectGO",
+      "address": "0x2b664",
+      "rect": [
+        80.5,
+        637.8499755859375,
+        607.0,
+        149.0
+      ]
+    },
+    {
+      "method": "GamePlayScreen$$GetDynamicScoreRect",
+      "address": "0x2fee8",
+      "rect": [
+        329.5,
+        54.5,
+        109.0,
+        109.0
+      ]
+    },
+    {
+      "method": "GamePlayScreen$$GetCandiesLeftRect",
+      "address": "0x2ff78",
+      "rect": [
+        659.0,
+        54.5,
+        109.0,
+        109.0
+      ]
+    },
+    {
+      "method": "GamePlayScreen$$GetCurTotalScoresRect",
+      "address": "0x2fff0",
+      "rect": [
+        0.0,
+        54.5,
+        109.0,
+        109.0
+      ]
+    },
+    {
+      "method": "GamePlayScreen$$GetCurBoostScoresRect",
+      "address": "0x30038",
+      "rect": [
+        0.0,
+        163.5,
+        109.0,
+        109.0
+      ]
+    },
+    {
+      "method": "GamePlayScreen$$GetScoresRectGP",
+      "address": "0x30084",
+      "rect": [
+        45.0,
+        40.0,
+        678.0,
+        163.0
+      ]
+    },
+    {
+      "method": "GamePlayScreen$$GetRestartRectGP",
+      "address": "0x30240",
+      "rect": [
+        -34.0,
+        887.0,
+        172.0,
+        172.0
+      ]
+    },
+    {
+      "method": "GamePlayScreen$$GetPauseRect",
+      "address": "0x303f0",
+      "rect": [
+        630.0,
+        887.0,
+        172.0,
+        172.0
+      ]
+    },
+    {
+      "method": "GamePlayScreen$$GetHelpRect",
+      "address": "0x305b4",
+      "rect": [
+        630.0,
+        775.0,
+        172.0,
+        172.0
+      ]
+    },
+    {
+      "method": "GamePlayScreen$$GetSoundRect",
+      "address": "0x30784",
+      "rect": [
+        630.0,
+        646.0,
+        172.0,
+        172.0
+      ]
+    },
+    {
+      "method": "GamePlayScreen$$GetMenuRect",
+      "address": "0x30954",
+      "rect": [
+        630.0,
+        526.0,
+        172.0,
+        172.0
+      ]
+    },
+    {
+      "method": "MainScreen$$GetPlayRect",
+      "address": "0x33710",
+      "rect": [
+        250.0,
+        423.5,
+        264.0,
+        263.0
+      ]
+    },
+    {
+      "method": "MainScreen$$GetShareRect",
+      "address": "0x33c08",
+      "rect": [
+        307.0,
+        720.0,
+        152.0,
+        152.0
+      ]
+    },
+    {
+      "method": "MainScreen$$GetSettingRect",
+      "address": "0x33990",
+      "rect": [
+        432.6000061035156,
+        674.0,
+        152.0,
+        152.0
+      ]
+    },
+    {
+      "method": "MainScreen$$GetDwnldRect",
+      "address": "0x33e70",
+      "rect": [
+        181.39999389648438,
+        674.0,
+        152.0,
+        152.0
+      ]
+    },
+    {
+      "method": "MarkerScreen$$GetBoardRect",
+      "address": "0x34b60",
+      "rect": [
+        86.0,
+        102.25,
+        596.0,
+        745.0
+      ]
+    },
+    {
+      "method": "MarkerScreen$$GetLabelRect",
+      "address": "0x34d74",
+      "rect": [
+        151.55999755859375,
+        176.75,
+        196.6800079345703,
+        111.75000762939453
+      ]
+    },
+    {
+      "method": "MarkerScreen$$GetArrowRect",
+      "address": "0x34e6c",
+      "rect": [
+        267.20001220703125,
+        288.5,
+        80.0,
+        37.0
+      ]
+    },
+    {
+      "method": "MarkerScreen$$GetButtonsRect",
+      "address": "0x350ec",
+      "rect": [
+        153.5,
+        437.5,
+        461.0,
+        372.5
+      ]
+    },
+    {
+      "method": "MarkerScreen$$GetOkButtonRect",
+      "address": "0x351c8",
+      "rect": [
+        308.0,
+        866.8800048828125,
+        152.0,
+        152.0
+      ]
+    },
+    {
+      "method": "PopupView$$GetPopupRect",
+      "address": "0x364b8",
+      "rect": [
+        120.5,
+        280.0,
+        527.0,
+        459.0
+      ]
+    },
+    {
+      "method": "PopupView$$GetBtnRect",
+      "address": "0x36860",
+      "rect": [
+        157.0,
+        577.0,
+        454.0,
+        106.0
+      ]
+    },
+    {
+      "method": "PopupView$$GetMessageRect",
+      "address": "0x3668c",
+      "rect": [
+        166.5,
+        330.0,
+        435.0,
+        213.0
+      ]
+    },
+    {
+      "method": "ResetScreen$$GetYesBtnRect",
+      "address": "0x37194",
+      "rect": [
+        153.5,
+        512.0,
+        461.0,
+        107.0
+      ]
+    },
+    {
+      "method": "ResetScreen$$GetNoBtnRect",
+      "address": "0x3722c",
+      "rect": [
+        153.5,
+        629.7000122070312,
+        461.0,
+        107.0
+      ]
+    },
+    {
+      "method": "ResetScreen$$GetLabelRect",
+      "address": "0x372d8",
+      "rect": [
+        115.20001220703125,
+        51.20000076293945,
+        537.5999755859375,
+        204.8000030517578
+      ]
+    },
+    {
+      "method": "ResetScreen$$GetBackBtnRect",
+      "address": "0x373ac",
+      "rect": [
+        13.199999809265137,
+        878.7999877929688,
+        132.0,
+        132.0
+      ]
+    },
+    {
+      "method": "ScoresGOView$$GetTotalRect",
+      "address": "0x38ee8",
+      "rect": [
+        166.0,
+        288.5,
+        436.0,
+        117.0
+      ]
+    },
+    {
+      "method": "ScoresGOView$$GetBestRect",
+      "address": "0x39134",
+      "rect": [
+        166.0,
+        372.5,
+        436.0,
+        117.0
+      ]
+    },
+    {
+      "method": "ScoresGOView$$GetScore1Rect",
+      "address": "0x39464",
+      "rect": [
+        123.5,
+        99.5,
+        89.0,
+        89.0
+      ]
+    },
+    {
+      "method": "ScoresGOView$$GetScore2Rect",
+      "address": "0x3960c",
+      "rect": [
+        231.5,
+        99.5,
+        89.0,
+        89.0
+      ]
+    },
+    {
+      "method": "ScoresGOView$$GetScore3Rect",
+      "address": "0x397b4",
+      "rect": [
+        340.5,
+        99.5,
+        89.0,
+        89.0
+      ]
+    },
+    {
+      "method": "ScoresGOView$$GetScore4Rect",
+      "address": "0x3995c",
+      "rect": [
+        449.5,
+        99.5,
+        89.0,
+        89.0
+      ]
+    },
+    {
+      "method": "ScoresGOView$$GetScore5Rect",
+      "address": "0x39b04",
+      "rect": [
+        556.5,
+        99.5,
+        89.0,
+        89.0
+      ]
+    },
+    {
+      "method": "ScoresGOView$$GetScore6Rect",
+      "address": "0x39cac",
+      "rect": [
+        123.5,
+        202.5,
+        89.0,
+        89.0
+      ]
+    },
+    {
+      "method": "ScoresGOView$$GetScore7Rect",
+      "address": "0x39e54",
+      "rect": [
+        231.5,
+        202.5,
+        89.0,
+        89.0
+      ]
+    },
+    {
+      "method": "ScoresGOView$$GetScore8Rect",
+      "address": "0x39ffc",
+      "rect": [
+        340.5,
+        202.5,
+        89.0,
+        89.0
+      ]
+    },
+    {
+      "method": "ScoresGOView$$GetScore9Rect",
+      "address": "0x3a1a4",
+      "rect": [
+        449.5,
+        202.5,
+        89.0,
+        89.0
+      ]
+    },
+    {
+      "method": "ScoresGOView$$GetScore10Rect",
+      "address": "0x3a34c",
+      "rect": [
+        556.5,
+        202.5,
+        89.0,
+        89.0
+      ]
+    },
+    {
+      "method": "ScoresGPView$$GetCandiesRect",
+      "address": "0x3a980",
+      "rect": [
+        30.0,
+        30.0,
+        98.0,
+        102.0
+      ]
+    },
+    {
+      "method": "ScoresGPView$$GetPossibleScoresRect",
+      "address": "0x3ab4c",
+      "rect": [
+        327.0,
+        30.0,
+        114.0,
+        112.0
+      ]
+    },
+    {
+      "method": "ScoresGPView$$GetTotalScoresRect",
+      "address": "0x3ad28",
+      "rect": [
+        624.0,
+        30.0,
+        114.0,
+        112.0
+      ]
+    },
+    {
+      "method": "SearchTargetScreen$$GetLabelRect",
+      "address": "0x3b350",
+      "rect": [
+        230.39999389648438,
+        808.9600219726562,
+        307.20001220703125,
+        40.959999084472656
+      ]
+    },
+    {
+      "method": "SearchTargetScreen$$GetImageButtonRect",
+      "address": "0x3b4ec",
+      "rect": [
+        225.10000610351562,
+        892.3300170898438,
+        317.79998779296875,
+        119.69999694824219
+      ]
+    },
+    {
+      "method": "SearchTargetScreen$$GetPauseRect",
+      "address": "0x3b6f0",
+      "rect": [
+        630.0,
+        887.0,
+        172.0,
+        172.0
+      ]
+    },
+    {
+      "method": "SearchTargetScreen$$GetHelpRect",
+      "address": "0x3b8b4",
+      "rect": [
+        630.0,
+        766.0,
+        172.0,
+        172.0
+      ]
+    },
+    {
+      "method": "SearchTargetScreen$$GetSoundRect",
+      "address": "0x3ba80",
+      "rect": [
+        630.0,
+        646.0,
+        172.0,
+        172.0
+      ]
+    },
+    {
+      "method": "SearchTargetScreen$$GetMenuRect",
+      "address": "0x3bc50",
+      "rect": [
+        630.0,
+        526.0,
+        172.0,
+        172.0
+      ]
+    },
+    {
+      "method": "SettingScreen$$GetBackBtnRect",
+      "address": "0x3ea38",
+      "rect": [
+        13.199999809265137,
+        878.7999877929688,
+        132.0,
+        132.0
+      ]
+    },
+    {
+      "method": "SettingScreen$$GetMusicBtnRect",
+      "address": "0x3ec00",
+      "rect": [
+        156.29998779296875,
+        204.8000030517578,
+        207.0,
+        102.0
+      ]
+    },
+    {
+      "method": "SettingScreen$$GetSoundBtnRect",
+      "address": "0x3ee08",
+      "rect": [
+        404.20001220703125,
+        204.8000030517578,
+        202.0,
+        104.0
+      ]
+    },
+    {
+      "method": "SettingScreen$$GetImageFlagRectPartial",
+      "address": "0x3f5b8",
+      "rect": [
+        0.0,
+        0.0,
+        76.50499725341797,
+        53.5
+      ]
+    },
+    {
+      "method": "SettingScreen$$GetAchievRect",
+      "address": "0x3f418",
+      "rect": [
+        0.0,
+        0.0,
+        207.0,
+        109.0
+      ]
+    },
+    {
+      "method": "SettingScreen$$GetLeaderRect",
+      "address": "0x3f278",
+      "rect": [
+        0.0,
+        0.0,
+        207.0,
+        109.0
+      ]
+    },
+    {
+      "method": "ShowMarkerScreen$$GetInstructionRect",
+      "address": "0x40810",
+      "rect": [
+        112.0,
+        33.0,
+        556.0,
+        252.0
+      ]
+    },
+    {
+      "method": "ShowMarkerScreen$$GetMarkerRect",
+      "address": "0x40618",
+      "rect": [
+        114.0,
+        290.0,
+        540.0,
+        534.0
+      ]
+    },
+    {
+      "method": "ShowMarkerScreen$$GetCloseBtnRect",
+      "address": "0x40450",
+      "rect": [
+        690.0,
+        0.0,
+        78.0,
+        87.0
+      ]
+    },
+    {
+      "method": "ShowMarkerScreen$$GetTextRect",
+      "address": "0x40a20",
+      "rect": [
+        100.0,
+        848.0,
+        568.0,
+        148.0
+      ]
+    },
+    {
+      "method": "TutorCreateMarkerScreen$$GetFirstTitleRect",
+      "address": "0x4154c",
+      "rect": [
+        69.0,
+        74.0,
+        630.0,
+        159.0
+      ]
+    },
+    {
+      "method": "TutorCreateMarkerScreen$$GetSecTitleRect",
+      "address": "0x41770",
+      "rect": [
+        69.0,
+        623.0,
+        630.0,
+        113.0
+      ]
+    },
+    {
+      "method": "TutorCreateMarkerScreen$$GetIphoneIpaRect",
+      "address": "0x41994",
+      "rect": [
+        114.0,
+        187.0,
+        538.0,
+        292.0
+      ]
+    },
+    {
+      "method": "TutorCreateMarkerScreen$$GetOk1BtnRect",
+      "address": "0x42504",
+      "rect": [
+        306.5,
+        447.5,
+        155.0,
+        91.0
+      ]
+    },
+    {
+      "method": "TutorCreateMarkerScreen$$GetOk2BtnRect",
+      "address": "0x4270c",
+      "rect": [
+        306.5,
+        915.5,
+        155.0,
+        91.0
+      ]
+    },
+    {
+      "method": "TutorCreateMarkerScreen$$GetPrinterRect",
+      "address": "0x41ba0",
+      "rect": [
+        138.0,
+        722.0,
+        490.0,
+        302.0
+      ]
+    },
+    {
+      "method": "TutorCreateMarkerScreen$$GetDotLineRect",
+      "address": "0x41dac",
+      "rect": [
+        31.5,
+        594.0,
+        705.0,
+        10.0
+      ]
+    },
+    {
+      "method": "TutorCreateMarkerScreen$$GetOrImgRect",
+      "address": "0x41f98",
+      "rect": [
+        330.0,
+        553.0,
+        108.0,
+        92.0
+      ]
+    },
+    {
+      "method": "TutorCreateMarkerScreen$$GetOrLabelRect",
+      "address": "0x4218c",
+      "rect": [
+        347.0,
+        561.0,
+        74.0,
+        52.0
+      ]
+    },
+    {
+      "method": "TutorCreateMarkerScreen$$GetBackRect",
+      "address": "0x4239c",
+      "rect": [
+        0.0,
+        892.0,
+        132.0,
+        132.0
+      ]
+    },
+    {
+      "method": "TutorDownloadScreen$$GetBackRect",
+      "address": "0x4353c",
+      "rect": [
+        0.0,
+        892.0,
+        132.0,
+        132.0
+      ]
+    },
+    {
+      "method": "TutorDownloadScreen$$GetAppStoreRect",
+      "address": "0x436a4",
+      "rect": [
+        162.0,
+        202.0,
+        445.0,
+        137.0
+      ]
+    },
+    {
+      "method": "TutorDownloadScreen$$GetIpadMarkerRect",
+      "address": "0x438b4",
+      "rect": [
+        199.0,
+        463.0,
+        368.0,
+        444.0
+      ]
+    },
+    {
+      "method": "TutorDownloadScreen$$GetTitle1Rect",
+      "address": "0x43adc",
+      "rect": [
+        69.0,
+        74.0,
+        630.0,
+        159.0
+      ]
+    },
+    {
+      "method": "TutorDownloadScreen$$GetTitle2Rect",
+      "address": "0x43d00",
+      "rect": [
+        69.0,
+        330.0,
+        630.0,
+        113.0
+      ]
+    },
+    {
+      "method": "TutorDownloadScreen$$GetOkRect",
+      "address": "0x43f10",
+      "rect": [
+        636.0,
+        892.0,
+        132.0,
+        132.0
+      ]
+    },
+    {
+      "method": "TutorPrintScreen$$GetFirstTitleRect",
+      "address": "0x44878",
+      "rect": [
+        69.0,
+        74.0,
+        630.0,
+        159.0
+      ]
+    },
+    {
+      "method": "TutorPrintScreen$$GetSecTitleRect",
+      "address": "0x44a9c",
+      "rect": [
+        69.0,
+        623.0,
+        630.0,
+        113.0
+      ]
+    },
+    {
+      "method": "TutorPrintScreen$$GetPhoneMacPrinterRect",
+      "address": "0x44cc0",
+      "rect": [
+        85.0,
+        225.0,
+        616.0,
+        210.0
+      ]
+    },
+    {
+      "method": "TutorPrintScreen$$GetDwnldBtnRect",
+      "address": "0x45858",
+      "rect": [
+        157.0,
+        440.0,
+        454.0,
+        106.0
+      ]
+    },
+    {
+      "method": "TutorPrintScreen$$GetOkBtnRect",
+      "address": "0x45a60",
+      "rect": [
+        636.0,
+        892.0,
+        132.0,
+        132.0
+      ]
+    },
+    {
+      "method": "TutorPrintScreen$$GetWebPrinterRect",
+      "address": "0x44ee4",
+      "rect": [
+        138.0,
+        736.0,
+        511.0,
+        155.0
+      ]
+    },
+    {
+      "method": "TutorPrintScreen$$GetDotLineRect",
+      "address": "0x45100",
+      "rect": [
+        31.5,
+        594.0,
+        705.0,
+        10.0
+      ]
+    },
+    {
+      "method": "TutorPrintScreen$$GetOrImgRect",
+      "address": "0x452ec",
+      "rect": [
+        330.0,
+        553.0,
+        108.0,
+        92.0
+      ]
+    },
+    {
+      "method": "TutorPrintScreen$$GetOrLabelRect",
+      "address": "0x454e0",
+      "rect": [
+        347.0,
+        561.0,
+        74.0,
+        52.0
+      ]
+    },
+    {
+      "method": "TutorPrintScreen$$GetBackRect",
+      "address": "0x456f0",
+      "rect": [
+        0.0,
+        892.0,
+        132.0,
+        132.0
+      ]
+    },
+    {
+      "method": "TutorStartScreen$$GetBgrRect",
+      "address": "0x47840",
+      "rect": [
+        0.0,
+        0.0,
+        768.0,
+        1024.0
+      ]
+    },
+    {
+      "method": "TutorStartScreen$$GetMarkersRect",
+      "address": "0x463e8",
+      "rect": [
+        82.0,
+        234.0,
+        601.0,
+        349.0
+      ]
+    },
+    {
+      "method": "TutorStartScreen$$GetTitleRect",
+      "address": "0x465f8",
+      "rect": [
+        69.0,
+        86.0,
+        630.0,
+        113.0
+      ]
+    },
+    {
+      "method": "TutorStartScreen$$GetOrRect",
+      "address": "0x46808",
+      "rect": [
+        357.0,
+        333.0,
+        78.0,
+        59.0
+      ]
+    },
+    {
+      "method": "TutorStartScreen$$GetHaveMarkerBtnRect",
+      "address": "0x46a14",
+      "rect": [
+        488.5,
+        609.5,
+        127.0,
+        127.0
+      ]
+    },
+    {
+      "method": "TutorStartScreen$$GetImgBtnRect",
+      "address": "0x46c1c",
+      "rect": [
+        488.5,
+        763.5,
+        127.0,
+        127.0
+      ]
+    },
+    {
+      "method": "TutorStartScreen$$GetHaveMarkerRect",
+      "address": "0x46e24",
+      "rect": [
+        151.0,
+        622.0,
+        317.0,
+        91.0
+      ]
+    },
+    {
+      "method": "TutorStartScreen$$GetImgRect",
+      "address": "0x47034",
+      "rect": [
+        151.0,
+        777.0,
+        317.0,
+        91.0
+      ]
+    },
+    {
+      "method": "TutorWelcomeScreen$$GetFirstTitleRect",
+      "address": "0x478ec",
+      "rect": [
+        26.0,
+        86.0,
+        714.0,
+        220.0
+      ]
+    },
+    {
+      "method": "TutorWelcomeScreen$$GetNextBtnRect",
+      "address": "0x47cd4",
+      "rect": [
+        318.0,
+        329.0,
+        132.0,
+        132.0
+      ]
+    },
+    {
+      "method": "TutorWelcomeScreen$$GetHandIphoneRect",
+      "address": "0x47b0c",
+      "rect": [
+        0.0,
+        577.0,
+        697.0,
+        447.0
+      ]
+    },
+    {
+      "method": "Tutorial2Screen$$GetCloseRect",
+      "address": "0x48474",
+      "rect": [
+        690.0,
+        0.0,
+        78.0,
+        87.0
+      ]
+    }
+  ],
+  "dimensions": [
+    {
+      "method": "GameOverScreen$$GetBottomBtnWidth",
+      "value": 168.0
+    },
+    {
+      "method": "GameOverScreen$$GetBottomBtnHeight",
+      "value": 100.0
+    },
+    {
+      "method": "MarkerScreen$$GetButtonsWidth",
+      "value": 461.0
+    },
+    {
+      "method": "MarkerScreen$$GetButtonsHeight",
+      "value": 107.0
+    },
+    {
+      "method": "SettingScreen$$GetMainBtnWidth",
+      "value": 461.0
+    },
+    {
+      "method": "SettingScreen$$GetMainBtnHeight",
+      "value": 107.0
+    }
+  ]
+}

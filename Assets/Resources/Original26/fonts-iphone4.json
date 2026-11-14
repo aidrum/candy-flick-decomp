@@ -1,0 +1,769 @@
+{
+  "languages": [
+    {
+      "language": 0,
+      "sizes": [
+        {
+          "method": "FontSizeManager$$get_MainBtnFS",
+          "size": 60
+        },
+        {
+          "method": "FontSizeManager$$get_PopupBtnFs",
+          "size": 55
+        },
+        {
+          "method": "FontSizeManager$$get_PopupMessageFs",
+          "size": 40
+        },
+        {
+          "method": "FontSizeManager$$get_ScoreFS",
+          "size": 65
+        },
+        {
+          "method": "FontSizeManager$$get_ResetLabelFS",
+          "size": 60
+        },
+        {
+          "method": "FontSizeManager$$get_AboutLabelFS",
+          "size": 40
+        },
+        {
+          "method": "FontSizeManager$$get_AboutTitleFS",
+          "size": 60
+        },
+        {
+          "method": "FontSizeManager$$get_LabelMarkerFS",
+          "size": 37
+        },
+        {
+          "method": "FontSizeManager$$get_LabelGPFS",
+          "size": 34
+        },
+        {
+          "method": "FontSizeManager$$get_LabelGOFS",
+          "size": 44
+        },
+        {
+          "method": "FontSizeManager$$get_LabelGOBigFS",
+          "size": 65
+        },
+        {
+          "method": "FontSizeManager$$get_GetImageFS",
+          "size": 40
+        },
+        {
+          "method": "FontSizeManager$$get_GetImageHoverFS",
+          "size": 68
+        },
+        {
+          "method": "FontSizeManager$$get_GetImageTutorFS",
+          "size": 68
+        },
+        {
+          "method": "FontSizeManager$$get_ShowMarkerFontSize",
+          "size": 46
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialWelcomeFontSize",
+          "size": 44
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialFontSize",
+          "size": 55
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialFontSizeDwnldScreen",
+          "size": 55
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialOrFontSize",
+          "size": 55
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialShortBtnSize",
+          "size": 65
+        }
+      ]
+    },
+    {
+      "language": 1,
+      "sizes": [
+        {
+          "method": "FontSizeManager$$get_MainBtnFS",
+          "size": 37
+        },
+        {
+          "method": "FontSizeManager$$get_PopupBtnFs",
+          "size": 34
+        },
+        {
+          "method": "FontSizeManager$$get_PopupMessageFs",
+          "size": 25
+        },
+        {
+          "method": "FontSizeManager$$get_ScoreFS",
+          "size": 32
+        },
+        {
+          "method": "FontSizeManager$$get_ResetLabelFS",
+          "size": 37
+        },
+        {
+          "method": "FontSizeManager$$get_AboutLabelFS",
+          "size": 22
+        },
+        {
+          "method": "FontSizeManager$$get_AboutTitleFS",
+          "size": 37
+        },
+        {
+          "method": "FontSizeManager$$get_LabelMarkerFS",
+          "size": 17
+        },
+        {
+          "method": "FontSizeManager$$get_LabelGPFS",
+          "size": 21
+        },
+        {
+          "method": "FontSizeManager$$get_LabelGOFS",
+          "size": 30
+        },
+        {
+          "method": "FontSizeManager$$get_LabelGOBigFS",
+          "size": 45
+        },
+        {
+          "method": "FontSizeManager$$get_GetImageFS",
+          "size": 20
+        },
+        {
+          "method": "FontSizeManager$$get_GetImageHoverFS",
+          "size": 29
+        },
+        {
+          "method": "FontSizeManager$$get_GetImageTutorFS",
+          "size": 29
+        },
+        {
+          "method": "FontSizeManager$$get_ShowMarkerFontSize",
+          "size": 23
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialWelcomeFontSize",
+          "size": 24
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialFontSize",
+          "size": 28
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialFontSizeDwnldScreen",
+          "size": 22
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialOrFontSize",
+          "size": 28
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialShortBtnSize",
+          "size": 30
+        }
+      ]
+    },
+    {
+      "language": 2,
+      "sizes": [
+        {
+          "method": "FontSizeManager$$get_MainBtnFS",
+          "size": 60
+        },
+        {
+          "method": "FontSizeManager$$get_PopupBtnFs",
+          "size": 55
+        },
+        {
+          "method": "FontSizeManager$$get_PopupMessageFs",
+          "size": 40
+        },
+        {
+          "method": "FontSizeManager$$get_ScoreFS",
+          "size": 65
+        },
+        {
+          "method": "FontSizeManager$$get_ResetLabelFS",
+          "size": 60
+        },
+        {
+          "method": "FontSizeManager$$get_AboutLabelFS",
+          "size": 40
+        },
+        {
+          "method": "FontSizeManager$$get_AboutTitleFS",
+          "size": 60
+        },
+        {
+          "method": "FontSizeManager$$get_LabelMarkerFS",
+          "size": 37
+        },
+        {
+          "method": "FontSizeManager$$get_LabelGPFS",
+          "size": 34
+        },
+        {
+          "method": "FontSizeManager$$get_LabelGOFS",
+          "size": 44
+        },
+        {
+          "method": "FontSizeManager$$get_LabelGOBigFS",
+          "size": 65
+        },
+        {
+          "method": "FontSizeManager$$get_GetImageFS",
+          "size": 40
+        },
+        {
+          "method": "FontSizeManager$$get_GetImageHoverFS",
+          "size": 54
+        },
+        {
+          "method": "FontSizeManager$$get_GetImageTutorFS",
+          "size": 54
+        },
+        {
+          "method": "FontSizeManager$$get_ShowMarkerFontSize",
+          "size": 46
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialWelcomeFontSize",
+          "size": 44
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialFontSize",
+          "size": 55
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialFontSizeDwnldScreen",
+          "size": 38
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialOrFontSize",
+          "size": 55
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialShortBtnSize",
+          "size": 65
+        }
+      ]
+    },
+    {
+      "language": 3,
+      "sizes": [
+        {
+          "method": "FontSizeManager$$get_MainBtnFS",
+          "size": 60
+        },
+        {
+          "method": "FontSizeManager$$get_PopupBtnFs",
+          "size": 55
+        },
+        {
+          "method": "FontSizeManager$$get_PopupMessageFs",
+          "size": 40
+        },
+        {
+          "method": "FontSizeManager$$get_ScoreFS",
+          "size": 65
+        },
+        {
+          "method": "FontSizeManager$$get_ResetLabelFS",
+          "size": 60
+        },
+        {
+          "method": "FontSizeManager$$get_AboutLabelFS",
+          "size": 40
+        },
+        {
+          "method": "FontSizeManager$$get_AboutTitleFS",
+          "size": 60
+        },
+        {
+          "method": "FontSizeManager$$get_LabelMarkerFS",
+          "size": 33
+        },
+        {
+          "method": "FontSizeManager$$get_LabelGPFS",
+          "size": 34
+        },
+        {
+          "method": "FontSizeManager$$get_LabelGOFS",
+          "size": 44
+        },
+        {
+          "method": "FontSizeManager$$get_LabelGOBigFS",
+          "size": 65
+        },
+        {
+          "method": "FontSizeManager$$get_GetImageFS",
+          "size": 40
+        },
+        {
+          "method": "FontSizeManager$$get_GetImageHoverFS",
+          "size": 68
+        },
+        {
+          "method": "FontSizeManager$$get_GetImageTutorFS",
+          "size": 68
+        },
+        {
+          "method": "FontSizeManager$$get_ShowMarkerFontSize",
+          "size": 36
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialWelcomeFontSize",
+          "size": 44
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialFontSize",
+          "size": 55
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialFontSizeDwnldScreen",
+          "size": 38
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialOrFontSize",
+          "size": 55
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialShortBtnSize",
+          "size": 65
+        }
+      ]
+    },
+    {
+      "language": 4,
+      "sizes": [
+        {
+          "method": "FontSizeManager$$get_MainBtnFS",
+          "size": 60
+        },
+        {
+          "method": "FontSizeManager$$get_PopupBtnFs",
+          "size": 55
+        },
+        {
+          "method": "FontSizeManager$$get_PopupMessageFs",
+          "size": 40
+        },
+        {
+          "method": "FontSizeManager$$get_ScoreFS",
+          "size": 65
+        },
+        {
+          "method": "FontSizeManager$$get_ResetLabelFS",
+          "size": 60
+        },
+        {
+          "method": "FontSizeManager$$get_AboutLabelFS",
+          "size": 40
+        },
+        {
+          "method": "FontSizeManager$$get_AboutTitleFS",
+          "size": 60
+        },
+        {
+          "method": "FontSizeManager$$get_LabelMarkerFS",
+          "size": 37
+        },
+        {
+          "method": "FontSizeManager$$get_LabelGPFS",
+          "size": 34
+        },
+        {
+          "method": "FontSizeManager$$get_LabelGOFS",
+          "size": 44
+        },
+        {
+          "method": "FontSizeManager$$get_LabelGOBigFS",
+          "size": 65
+        },
+        {
+          "method": "FontSizeManager$$get_GetImageFS",
+          "size": 40
+        },
+        {
+          "method": "FontSizeManager$$get_GetImageHoverFS",
+          "size": 68
+        },
+        {
+          "method": "FontSizeManager$$get_GetImageTutorFS",
+          "size": 68
+        },
+        {
+          "method": "FontSizeManager$$get_ShowMarkerFontSize",
+          "size": 46
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialWelcomeFontSize",
+          "size": 44
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialFontSize",
+          "size": 55
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialFontSizeDwnldScreen",
+          "size": 38
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialOrFontSize",
+          "size": 46
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialShortBtnSize",
+          "size": 65
+        }
+      ]
+    },
+    {
+      "language": 5,
+      "sizes": [
+        {
+          "method": "FontSizeManager$$get_MainBtnFS",
+          "size": 60
+        },
+        {
+          "method": "FontSizeManager$$get_PopupBtnFs",
+          "size": 55
+        },
+        {
+          "method": "FontSizeManager$$get_PopupMessageFs",
+          "size": 40
+        },
+        {
+          "method": "FontSizeManager$$get_ScoreFS",
+          "size": 65
+        },
+        {
+          "method": "FontSizeManager$$get_ResetLabelFS",
+          "size": 60
+        },
+        {
+          "method": "FontSizeManager$$get_AboutLabelFS",
+          "size": 40
+        },
+        {
+          "method": "FontSizeManager$$get_AboutTitleFS",
+          "size": 60
+        },
+        {
+          "method": "FontSizeManager$$get_LabelMarkerFS",
+          "size": 37
+        },
+        {
+          "method": "FontSizeManager$$get_LabelGPFS",
+          "size": 34
+        },
+        {
+          "method": "FontSizeManager$$get_LabelGOFS",
+          "size": 44
+        },
+        {
+          "method": "FontSizeManager$$get_LabelGOBigFS",
+          "size": 65
+        },
+        {
+          "method": "FontSizeManager$$get_GetImageFS",
+          "size": 40
+        },
+        {
+          "method": "FontSizeManager$$get_GetImageHoverFS",
+          "size": 54
+        },
+        {
+          "method": "FontSizeManager$$get_GetImageTutorFS",
+          "size": 54
+        },
+        {
+          "method": "FontSizeManager$$get_ShowMarkerFontSize",
+          "size": 46
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialWelcomeFontSize",
+          "size": 44
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialFontSize",
+          "size": 55
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialFontSizeDwnldScreen",
+          "size": 38
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialOrFontSize",
+          "size": 55
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialShortBtnSize",
+          "size": 65
+        }
+      ]
+    },
+    {
+      "language": 6,
+      "sizes": [
+        {
+          "method": "FontSizeManager$$get_MainBtnFS",
+          "size": 37
+        },
+        {
+          "method": "FontSizeManager$$get_PopupBtnFs",
+          "size": 34
+        },
+        {
+          "method": "FontSizeManager$$get_PopupMessageFs",
+          "size": 25
+        },
+        {
+          "method": "FontSizeManager$$get_ScoreFS",
+          "size": 65
+        },
+        {
+          "method": "FontSizeManager$$get_ResetLabelFS",
+          "size": 37
+        },
+        {
+          "method": "FontSizeManager$$get_AboutLabelFS",
+          "size": 25
+        },
+        {
+          "method": "FontSizeManager$$get_AboutTitleFS",
+          "size": 37
+        },
+        {
+          "method": "FontSizeManager$$get_LabelMarkerFS",
+          "size": 23
+        },
+        {
+          "method": "FontSizeManager$$get_LabelGPFS",
+          "size": 21
+        },
+        {
+          "method": "FontSizeManager$$get_LabelGOFS",
+          "size": 44
+        },
+        {
+          "method": "FontSizeManager$$get_LabelGOBigFS",
+          "size": 45
+        },
+        {
+          "method": "FontSizeManager$$get_GetImageFS",
+          "size": 25
+        },
+        {
+          "method": "FontSizeManager$$get_GetImageHoverFS",
+          "size": 33
+        },
+        {
+          "method": "FontSizeManager$$get_GetImageTutorFS",
+          "size": 33
+        },
+        {
+          "method": "FontSizeManager$$get_ShowMarkerFontSize",
+          "size": 34
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialWelcomeFontSize",
+          "size": 34
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialFontSize",
+          "size": 34
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialFontSizeDwnldScreen",
+          "size": 34
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialOrFontSize",
+          "size": 23
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialShortBtnSize",
+          "size": 40
+        }
+      ]
+    },
+    {
+      "language": 7,
+      "sizes": [
+        {
+          "method": "FontSizeManager$$get_MainBtnFS",
+          "size": 60
+        },
+        {
+          "method": "FontSizeManager$$get_PopupBtnFs",
+          "size": 55
+        },
+        {
+          "method": "FontSizeManager$$get_PopupMessageFs",
+          "size": 32
+        },
+        {
+          "method": "FontSizeManager$$get_ScoreFS",
+          "size": 65
+        },
+        {
+          "method": "FontSizeManager$$get_ResetLabelFS",
+          "size": 60
+        },
+        {
+          "method": "FontSizeManager$$get_AboutLabelFS",
+          "size": 40
+        },
+        {
+          "method": "FontSizeManager$$get_AboutTitleFS",
+          "size": 60
+        },
+        {
+          "method": "FontSizeManager$$get_LabelMarkerFS",
+          "size": 33
+        },
+        {
+          "method": "FontSizeManager$$get_LabelGPFS",
+          "size": 34
+        },
+        {
+          "method": "FontSizeManager$$get_LabelGOFS",
+          "size": 44
+        },
+        {
+          "method": "FontSizeManager$$get_LabelGOBigFS",
+          "size": 65
+        },
+        {
+          "method": "FontSizeManager$$get_GetImageFS",
+          "size": 40
+        },
+        {
+          "method": "FontSizeManager$$get_GetImageHoverFS",
+          "size": 68
+        },
+        {
+          "method": "FontSizeManager$$get_GetImageTutorFS",
+          "size": 68
+        },
+        {
+          "method": "FontSizeManager$$get_ShowMarkerFontSize",
+          "size": 46
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialWelcomeFontSize",
+          "size": 44
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialFontSize",
+          "size": 55
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialFontSizeDwnldScreen",
+          "size": 38
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialOrFontSize",
+          "size": 55
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialShortBtnSize",
+          "size": 65
+        }
+      ]
+    },
+    {
+      "language": 8,
+      "sizes": [
+        {
+          "method": "FontSizeManager$$get_MainBtnFS",
+          "size": 60
+        },
+        {
+          "method": "FontSizeManager$$get_PopupBtnFs",
+          "size": 55
+        },
+        {
+          "method": "FontSizeManager$$get_PopupMessageFs",
+          "size": 40
+        },
+        {
+          "method": "FontSizeManager$$get_ScoreFS",
+          "size": 65
+        },
+        {
+          "method": "FontSizeManager$$get_ResetLabelFS",
+          "size": 60
+        },
+        {
+          "method": "FontSizeManager$$get_AboutLabelFS",
+          "size": 40
+        },
+        {
+          "method": "FontSizeManager$$get_AboutTitleFS",
+          "size": 60
+        },
+        {
+          "method": "FontSizeManager$$get_LabelMarkerFS",
+          "size": 33
+        },
+        {
+          "method": "FontSizeManager$$get_LabelGPFS",
+          "size": 34
+        },
+        {
+          "method": "FontSizeManager$$get_LabelGOFS",
+          "size": 44
+        },
+        {
+          "method": "FontSizeManager$$get_LabelGOBigFS",
+          "size": 65
+        },
+        {
+          "method": "FontSizeManager$$get_GetImageFS",
+          "size": 40
+        },
+        {
+          "method": "FontSizeManager$$get_GetImageHoverFS",
+          "size": 68
+        },
+        {
+          "method": "FontSizeManager$$get_GetImageTutorFS",
+          "size": 68
+        },
+        {
+          "method": "FontSizeManager$$get_ShowMarkerFontSize",
+          "size": 46
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialWelcomeFontSize",
+          "size": 44
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialFontSize",
+          "size": 55
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialFontSizeDwnldScreen",
+          "size": 38
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialOrFontSize",
+          "size": 55
+        },
+        {
+          "method": "FontSizeManager$$get_TutorialShortBtnSize",
+          "size": 39
+        }
+      ]
+    }
+  ]
+}

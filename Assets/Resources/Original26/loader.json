@@ -1,0 +1,164 @@
+{
+  "iPhone5Animation": [
+    {
+      "name": "indicator_bgr",
+      "position": {
+        "x": 0.5,
+        "y": 0.5,
+        "z": -1.0
+      },
+      "scale": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+      },
+      "color": {
+        "r": 0.5,
+        "g": 0.5,
+        "b": 0.5,
+        "a": 0.5
+      }
+    },
+    {
+      "name": "indicator",
+      "position": {
+        "x": 0.0,
+        "y": 0.5,
+        "z": 0.5
+      },
+      "scale": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+      },
+      "color": {
+        "r": 0.5,
+        "g": 0.5,
+        "b": 0.5,
+        "a": 0.5
+      }
+    },
+    {
+      "name": "bgr",
+      "position": {
+        "x": 0.5,
+        "y": 0.5,
+        "z": 1.0
+      },
+      "scale": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+      },
+      "color": {
+        "r": 0.5,
+        "g": 0.5,
+        "b": 0.5,
+        "a": 0.5
+      }
+    }
+  ],
+  "iPad2Animation": [
+    {
+      "name": "indicator",
+      "position": {
+        "x": 0.0,
+        "y": 0.5,
+        "z": 0.5
+      },
+      "scale": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+      },
+      "color": {
+        "r": 0.5,
+        "g": 0.5,
+        "b": 0.5,
+        "a": 0.5
+      }
+    },
+    {
+      "name": "indicator_bgr",
+      "position": {
+        "x": 0.5,
+        "y": 0.5,
+        "z": -1.0
+      },
+      "scale": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+      },
+      "color": {
+        "r": 0.5,
+        "g": 0.5,
+        "b": 0.5,
+        "a": 0.5
+      }
+    },
+    {
+      "name": "bgr",
+      "position": {
+        "x": 0.5,
+        "y": 0.5,
+        "z": 1.0
+      },
+      "scale": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+      },
+      "color": {
+        "r": 0.5,
+        "g": 0.5,
+        "b": 0.5,
+        "a": 0.5
+      }
+    }
+  ],
+  "indicatorKeys": [
+    {
+      "time": 0.0,
+      "value": 0.0,
+      "inTangent": 0.2,
+      "outTangent": 0.115384616
+    },
+    {
+      "time": 0.8666667,
+      "value": 0.1,
+      "inTangent": 0.115384616,
+      "outTangent": 0.69230795
+    },
+    {
+      "time": 1.0833333,
+      "value": 0.25,
+      "inTangent": 0.69230795,
+      "outTangent": 0.9999985
+    },
+    {
+      "time": 1.1833334,
+      "value": 0.35,
+      "inTangent": 0.9999985,
+      "outTangent": 0.12500004
+    },
+    {
+      "time": 1.5833334,
+      "value": 0.4,
+      "inTangent": 0.12500004,
+      "outTangent": 0.0095238015
+    },
+    {
+      "time": 2.6333332,
+      "value": 0.41,
+      "inTangent": 0.0095238015,
+      "outTangent": 0.24545448
+    },
+    {
+      "time": 3.0,
+      "value": 0.5,
+      "inTangent": 0.24545448,
+      "outTangent": 0.099999994
+    }
+  ]
+}

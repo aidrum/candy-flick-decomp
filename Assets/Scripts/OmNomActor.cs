@@ -11,6 +11,7 @@ namespace CandyFlick
         Animation animationPlayer;
         CandyProjectile bullet, pendingCandy;
         double pendingCatchTime;
+        double lastStatusPhysicsTime;
         Vector3 startPosition, lastPosition, targetPosition;
         Quaternion startRotation;
         float distanceToBullet, startIdleTime, startJumpTime, moveProgress;
@@ -34,8 +35,9 @@ namespace CandyFlick
         {
             StopAllCoroutines(); bullet = pendingCandy = null; frogStatus = frogPosition = hitAudioIndex = 0; // OnGameRestart 0x240dc resets the combo pitch.
             tapped = isCandyTouched = false; loveTouchTicker = startHeartTime = 0;
-            transform.SetPositionAndRotation(startPosition, startRotation);
-            lastPosition = targetPosition = startPosition; moveProgress = 0; FrogIdle();
+            Vector3 groundedStart=startPosition+(game.IsNonAR?Vector3.up*NonARStage.GroundClearance:Vector3.zero);
+            transform.SetPositionAndRotation(groundedStart, startRotation);
+            lastPosition = targetPosition = groundedStart; moveProgress = 0; FrogIdle();
         }
         void Fade(string name, float seconds = .3f)
         {
@@ -48,7 +50,12 @@ namespace CandyFlick
             if (!animationPlayer[name]) return;
             Fade(name); frogMode = name == "idle" ? 0 : 2;
         }
-        public void OnBulletShoot(CandyProjectile candy) { pendingCandy = null; isCandyTouched = false; frogStatus = 1; bullet = candy; }
+        public void OnBulletShoot(CandyProjectile candy)
+        {
+            pendingCandy = null; isCandyTouched = false; frogStatus = 1; bullet = candy;
+            distanceToBullet = Vector3.Distance(transform.position, candy.transform.position);
+            lastStatusPhysicsTime = Time.fixedTimeAsDouble;
+        }
         public void OnCancelShoot() { isCandyTouched = false; }
         void Update()
         {
@@ -61,7 +68,14 @@ namespace CandyFlick
                 if (candidate == bullet && candidate.CanBeEatenAt(pendingCatchTime)) EatCandy();
             }
             UpdateFrogTouching();
-            UpdateFrogStatus();
+            // A fast renderer can run several times between physics steps. An
+            // unchanged position in those frames does not mean the candy stopped.
+            double physicsTime = Time.fixedTimeAsDouble;
+            if (physicsTime != lastStatusPhysicsTime)
+            {
+                lastStatusPhysicsTime = physicsTime;
+                UpdateFrogStatus();
+            }
             bool canJump = game.Session.round > 1;
             if (frogMode == 0)
             {
@@ -135,19 +149,21 @@ namespace CandyFlick
             else if (delta < -5) { animationPlayer.Play("turn_left"); frogMode = 3; }
             transform.rotation = Quaternion.Euler(0, yaw, 0);
         }
-        void FacePlayer() { transform.LookAt(game.Player); transform.eulerAngles = new Vector3(0, transform.eulerAngles.y, 0); }
+        public void FacePlayer() { transform.LookAt(game.Player); transform.eulerAngles = new Vector3(0, transform.eulerAngles.y, 0); }
         void UpdateFrogTouching()
         {
             bool touched = false; Vector3 point = Vector3.zero; Vector2 delta = Vector2.zero;
+            bool cameraGesture = game.IsNonAR && (Input.touchCount > 1 || game.NonARBackground.Navigation.BlocksPetting);
+            if (cameraGesture) { tapped = false; loveTouchTicker = 0; }
             Collider collider = GetComponent<Collider>();
-            for (int i = 0; i < Input.touchCount; i++)
+            for (int i = 0; !cameraGesture && i < Input.touchCount; i++)
             {
                 Touch touch = Input.GetTouch(i);
                 if (!collider.Raycast(game.GameCamera.ScreenPointToRay(touch.position), out RaycastHit hit, Mathf.Infinity)) continue;
                 point = hit.point; delta = touch.deltaPosition; touched = true; break;
             }
 #if UNITY_EDITOR || UNITY_STANDALONE
-            if (Input.touchCount == 0 && Input.GetMouseButton(0) && collider.Raycast(game.GameCamera.ScreenPointToRay(Input.mousePosition), out RaycastHit mouseHit, Mathf.Infinity))
+            if (!cameraGesture && Input.touchCount == 0 && Input.GetMouseButton(0) && collider.Raycast(game.GameCamera.ScreenPointToRay(Input.mousePosition), out RaycastHit mouseHit, Mathf.Infinity))
             { point = mouseHit.point; delta = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y")); touched = true; }
 #endif
             if (touched)

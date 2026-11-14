@@ -14,7 +14,7 @@ namespace CandyFlickEditor
     public static class ExtraOptionsValidation
     {
         const string Key="CandyFlickExtraOptionsTest", Folder="Documentation/ExtraOptions";
-        static readonly string[] prefs={CandyFlickGame.HideCandyPreference,CandyFlickGame.InGameMusicPreference,TimeTravelSkins.Preference,"IsMusic",CandyFlickGame.ControlModePreference};
+        static readonly string[] prefs={CandyFlickGame.HideCandyPreference,CandyFlickGame.InGameMusicPreference,TimeTravelSkins.Preference,"IsMusic",CandyFlickGame.ControlModePreference,CandyFlickGame.NonARPreference};
         static readonly List<string> checks=new List<string>();
         static CandyFlickGame game;static CandyFlickUI ui;static int stage,hiddenPasses;
         static double next;static bool incorrectRender;
@@ -26,6 +26,7 @@ namespace CandyFlickEditor
             foreach(string pref in prefs){SessionState.SetBool(Key+pref+"Had",PlayerPrefs.HasKey(pref));SessionState.SetInt(Key+pref,PlayerPrefs.GetInt(pref));}
             SessionState.SetFloat(Key+"Volume",AudioListener.volume);SessionState.SetBool(Key+"Pause",AudioListener.pause);
             PlayerPrefs.DeleteKey(CandyFlickGame.HideCandyPreference);PlayerPrefs.DeleteKey(CandyFlickGame.InGameMusicPreference);
+            PlayerPrefs.DeleteKey(CandyFlickGame.NonARPreference);
             PlayerPrefs.SetInt("IsMusic",1);PlayerPrefs.SetInt(CandyFlickGame.ControlModePreference,2);PlayerPrefs.Save();
             typeof(Original26VisualValidation).GetMethod("SetReferenceResolution",BindingFlags.NonPublic|BindingFlags.Static).Invoke(null,new object[]{640,1136});
             SessionState.SetBool(Key,true);EditorApplication.EnterPlaymode();
@@ -59,7 +60,8 @@ namespace CandyFlickEditor
                 switch(stage++)
                 {
                     case 0:
-                        Check(game.HideCandyInPictures&&game.InGameMusicEnabled,"Both new options default on with no saved preferences");
+                        Check(game.HideCandyInPictures&&!game.InGameMusicEnabled,"Photo hiding defaults on and in-game music defaults off with no saved preferences");
+                        game.ToggleInGameMusic();
                         ValidateMusic();game.ReturnToMenu();Capture("main-menu-lowered-skins");
                         Check(Mathf.Approximately(ui.MenuSkinsRect.y,850),"Main menu skins button is lowered by 48 canvas units");Click(ui.MenuSkinsRect.center);break;
                     case 1: Check(game.ScreenState==GameScreen.Skins,"Lowered main menu button opens skins");Click(ui.SkinViewport.position+CandyFlickUI.SkinCardRect(TimeTravelSkins.RandomChoice).center);break;

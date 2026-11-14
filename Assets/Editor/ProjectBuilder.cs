@@ -16,6 +16,12 @@ namespace CandyFlickEditor
     public static class ProjectBuilder
     {
         public const string ScenePath="Assets/Scenes/CandyFlick.unity";
+        public const string LoadingScenePath="Assets/Scenes/Loading.unity";
+        public static string[] StartupScenes => new[]{LoadingScenePath,ScenePath};
+        public static void ConfigureStartupScenes()
+        {
+            EditorBuildSettings.scenes=StartupScenes.Select(path=>new EditorBuildSettingsScene(path,true)).ToArray();
+        }
         static T Load<T>(string path) where T:UnityEngine.Object
         {
             var asset=AssetDatabase.LoadAssetAtPath<T>(path);
@@ -73,7 +79,7 @@ namespace CandyFlickEditor
             var scene=EditorSceneManager.NewScene(NewSceneSetup.EmptyScene,NewSceneMode.Single);
             var root=new GameObject("Candy Flick");root.AddComponent<CandyFlickGame>().assets=assets;
             EditorSceneManager.SaveScene(scene,ScenePath);
-            EditorBuildSettings.scenes=new[]{new EditorBuildSettingsScene(ScenePath,true)};
+            ConfigureStartupScenes();
             AssetDatabase.SaveAssets();
             Debug.Log("CANDY_FLICK_PROJECT_READY: Unity "+Application.unityVersion+", original assets, Android ARM64 IL2CPP, Vuforia image tracking with the original 2.6 target database (no ARCore).");
         }
@@ -185,7 +191,7 @@ namespace CandyFlickEditor
         static void Build(string output,BuildTarget target)
         {
             Directory.CreateDirectory(Path.GetDirectoryName(output));
-            var report=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=new[]{ScenePath},locationPathName=output,target=target,options=BuildOptions.None});
+            var report=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=StartupScenes,locationPathName=output,target=target,options=BuildOptions.None});
             File.WriteAllText("Documentation/last-build.json",JsonUtility.ToJson(new BuildEvidence{target=target.ToString(),result=report.summary.result.ToString(),errors=(int)report.summary.totalErrors,warnings=(int)report.summary.totalWarnings,bytes=report.summary.totalSize.ToString(),output=Path.GetFullPath(output)},true));
             if(report.summary.result!=BuildResult.Succeeded)throw new Exception("Build failed: "+report.summary.result);
             Debug.Log("CANDY_FLICK_BUILD_SUCCEEDED: "+Path.GetFullPath(output));

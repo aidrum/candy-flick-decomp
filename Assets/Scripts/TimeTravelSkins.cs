@@ -71,8 +71,10 @@ namespace CandyFlick
                 return false;
             }
             player.Stop();
+            // Imported skins replace this registered action set. Enumeration also
+            // exposes Unity's temporary queued states, which RemoveClip cannot remove by name.
             // Rebind the original clips when leaving Prehistoric, including their wrap modes.
-            foreach (string name in player.Cast<AnimationState>().Select(s => s.name).ToArray()) player.RemoveClip(name);
+            foreach (string name in originalNames) player.RemoveClip(name);
             for (int i = 0; i < originalNames.Length; i++) player.AddClip(originalClips[i], originalNames[i]);
             if (Visual) { Visual.SetActive(false); Visual.transform.SetParent(null); Destroy(Visual); }
             Selected = skin;

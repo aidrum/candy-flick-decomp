@@ -122,7 +122,9 @@ namespace CandyFlickEditor
                 Check(touchedActor,"Ground-roll fixture physically contacts Om Nom's original collider (radius "+radius+", actor "+bounds+")");
                 Check(!hit&&game.Session.hits==0&&game.Session.total==0,"Ground candy rolling into Om Nom never eats or awards score");
                 candy.Body.linearVelocity=Vector3.zero;candy.Body.angularVelocity=Vector3.zero;
-                game.Actor.SendMessage("Update");game.Actor.SendMessage("Update");
+                // Manual Physics.Simulate does not advance Unity's fixed clock;
+                // explicitly sample the stopped-distance rule for this fixture.
+                game.Actor.SendMessage("UpdateFrogStatus");game.Actor.SendMessage("UpdateFrogStatus");
                 Check(game.Session.shots==1,"Grounded miss retains original stopped-distance shot resolution");
                 candy.Restore();candy.LaunchImpulse(Vector3.zero,Vector3.zero,false);
                 Check(candy.CanBeEaten&&!candy.HasLanded&&double.IsPositiveInfinity(candy.LandingPhysicsTime),"Relaunch clears landed state for pool reuse");candy.Restore();

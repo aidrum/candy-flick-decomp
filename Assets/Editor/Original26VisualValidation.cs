@@ -126,8 +126,7 @@ namespace CandyFlickEditor
                         game.Boosts.Current.GetComponentInChildren<LegacyParticles26>().SetEmitting(true);break;
                     case 35: Capture("ring-sparkles");break;
                     case 36:
-                        var ghostEffect=game.CandyGhost.Find("CandyGhost/SuperEffect");
-                        ghostEffect.gameObject.SetActive(true);break;
+                        SuperCandyValidation.AdvanceToFinalCandy(game);break;
                     case 37:
                         var emitter=game.CandyGhost.GetComponentInChildren<LegacyParticles26>();
                         Check(emitter && emitter.System.particleCount>0,"Original super-candy emitter produces live particles");Capture("super-candy");break;

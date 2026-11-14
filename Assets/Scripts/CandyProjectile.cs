@@ -53,6 +53,9 @@ namespace CandyFlick
             Body.AddRelativeTorque(torque, ForceMode.Impulse);
             childCandy.material.shader = normalShader;
             childCandy.material.color = Color.white;
+            // Unity 4 enabled this hierarchy recursively; the serialized particle
+            // child starts inactive and does not inherit SetActive(true) on its parent.
+            if(super)foreach(Transform child in superEffect.GetComponentsInChildren<Transform>(true))child.gameObject.SetActive(true);
             superEffect.SetActive(super);
             if (trail)
             {

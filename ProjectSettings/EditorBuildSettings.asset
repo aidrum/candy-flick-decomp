@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/Loading.unity
+    guid: d33d95c51a1c4cfca082a0749384ab66
+  - enabled: 1
     path: Assets/Scenes/CandyFlick.unity
     guid: 7ce7c92c0080c40438cc9696fa8f73db
   m_configObjects: {}

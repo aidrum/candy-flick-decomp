@@ -1,17 +1,18 @@
 {
   "dependencies": {
+    "com.ptc.vuforia.engine": "file:com.ptc.vuforia.engine-11.4.4.tgz",
+    "com.unity.probuilder": "6.0.9",
+    "com.unity.modules.androidjni": "1.0.0",
     "com.unity.modules.animation": "1.0.0",
     "com.unity.modules.audio": "1.0.0",
     "com.unity.modules.imageconversion": "1.0.0",
     "com.unity.modules.imgui": "1.0.0",
     "com.unity.modules.jsonserialize": "1.0.0",
-    "com.unity.modules.physics": "1.0.0",
     "com.unity.modules.particlesystem": "1.0.0",
+    "com.unity.modules.physics": "1.0.0",
     "com.unity.modules.screencapture": "1.0.0",
     "com.unity.modules.ui": "1.0.0",
     "com.unity.modules.uielements": "1.0.0",
-    "com.unity.modules.video": "1.0.0",
-    "com.unity.modules.androidjni": "1.0.0",
-    "com.ptc.vuforia.engine": "file:com.ptc.vuforia.engine-11.4.4.tgz"
+    "com.unity.modules.video": "1.0.0"
   }
 }

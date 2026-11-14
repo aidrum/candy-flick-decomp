@@ -81,6 +81,7 @@ namespace CandyFlick
             InitializeExtraOptions();
             if (MusicEnabled && !music.isPlaying) music.Play();
             BuildWorld();
+            NonARBackground = gameObject.AddComponent<NonARStage>(); NonARBackground.Initialize(this);
             PhotoVisibility = gameObject.AddComponent<PhotoCandyVisibility>();
             PhotoVisibility.Initialize(this, World.Find("Candies"), CandyGhost, slingshot.transform, animElastic.transform);
             input.Began += OnTouchBegan; input.Tweaker += OnTouchTweaker;
@@ -147,17 +148,20 @@ namespace CandyFlick
         public void StartGame(bool augmented = false)
         {
             resetFeatureBonus = ScreenState == GameScreen.Playing || ScreenState == GameScreen.Paused;
-            StopAllCoroutines(); input.Cancel(); Time.timeScale = 1; IsAR = augmented;
+            StopAllCoroutines(); input.Cancel(); Time.timeScale = 1;
+            IsNonAR = NonARModeEnabled; IsAR = augmented && !IsNonAR;
             music.Stop();
             foreach (var candy in candies) candy.Restore();
             projectile = null; candyIndex = 0;
             Session = new GameSession { bonus = NextGameBonus };
             LastScore = 0; pendingResults = false; timeForNextShoot = true; hardStabilisation = false;
             Skins.RerollRandom();
-            Actor.ResetOriginal(); ScreenState = GameScreen.Playing; SetWorldVisible(true);
-            GameCamera.clearFlags = augmented ? CameraClearFlags.Depth : CameraClearFlags.SolidColor;
+            ConfigureNonARBackground(); Actor.ResetOriginal();
+            if (IsNonAR) Actor.FacePlayer();
+            ScreenState = GameScreen.Playing; SetWorldVisible(true);
+            GameCamera.clearFlags = IsAR ? CameraClearFlags.Depth : CameraClearFlags.SolidColor;
             GameCamera.backgroundColor = Color.black;
-            if (augmented) ar.Begin(); else ar.End();
+            if (IsAR) ar.Begin(); else ar.End();
             Boosts.Reset(); Boosts.OnNewRound(Session.round); PrepareBulletForShoot(); StartGameplayMusic(); GameStarted?.Invoke();
         }
 
@@ -180,6 +184,7 @@ namespace CandyFlick
                 animElastic.SetActive(false);
             CandyGhost.gameObject.SetActive(Ready); slingshot.SetActive(Ready && ControlMode == LaunchMode.Slingshot);
             if (!CanSimulate) return;
+            if (IsNonAR && NonARBackground.Navigation.PollInput()) return;
             if (Input.touchCount > 0)
             {
                 Touch touch = Input.GetTouch(Input.touchCount - 1); // Original uses the last touch.
@@ -320,6 +325,7 @@ namespace CandyFlick
             if (!projectile) return;
             LastScore = Session.RecordUnits(hit, shotDistance, ringBonus); projectile = null;
             timeForNextShoot = true; hardStabilisation = false; Boosts.CheckBoost();
+            PrepareBulletForShoot(); // Refresh the next candy's super effect after the score advances.
             CandyResolved?.Invoke(hit);
             if (Session.IsOver)
             {
@@ -337,7 +343,7 @@ namespace CandyFlick
             pendingResults = false; ScreenState = GameScreen.Results; Play(assets.win);
         }
         public void NextRound() => StartGame(IsAR);
-        public void Pause() { if (ScreenState != GameScreen.Playing) return; input.Cancel(); ScreenState = GameScreen.Paused; Time.timeScale = 0; SyncGameplayMusic(); }
+        public void Pause() { if (ScreenState != GameScreen.Playing) return; input.Cancel(); NonARBackground.Navigation.Cancel(); ScreenState = GameScreen.Paused; Time.timeScale = 0; SyncGameplayMusic(); }
         public void Resume() { ScreenState = GameScreen.Playing; Time.timeScale = 1; SyncGameplayMusic(); }
         public void ReturnToMenu()
         {
@@ -345,6 +351,7 @@ namespace CandyFlick
             foreach (var candy in candies) candy.Restore();
             projectile = null; pendingResults = false; Boosts.Reset(); ar.End(); IsAR = false; SetWorldVisible(false); ScreenState = GameScreen.Menu;
             StopGameplayMusic(); PhotoVisibility.End();
+            NonARBackground.End(); IsNonAR = false;
             if (MusicEnabled && !music.isPlaying) music.Play();
         }
         void SetWorldVisible(bool visible)
@@ -365,6 +372,10 @@ namespace CandyFlick
             PrepareBulletForShoot();
         }
         public void ToggleControlMode() => SetMode(ControlMode == LaunchMode.Slingshot ? LaunchMode.Flick : LaunchMode.Slingshot);
+        internal void CancelCandyGesture()
+        {
+            input.Cancel(); isCandyTapped = false; Actor.OnCancelShoot(); ResetCandyPos();
+        }
         public void ToggleCameraFpsLock()
         {
             LockFpsToCamera = !LockFpsToCamera;
@@ -383,7 +394,7 @@ namespace CandyFlick
             NextGameBonus = 0; PlayerPrefs.DeleteAll(); SetMode(LaunchMode.Slingshot);
             Skins.Select(NommieSkin.Original);
             LockFpsToCamera = false; ar.RefreshFrameRate();
-            HideCandyInPictures = InGameMusicEnabled = true; SyncGameplayMusic();
+            HideCandyInPictures = true; InGameMusicEnabled = NonARModeEnabled = false; SyncGameplayMusic();
         }
         public void Play(AudioClip clip, float volume = 1) { if (SoundEnabled && clip) effects.PlayOneShot(clip, volume); }
         public void Say(string text, float seconds) { Message = text; messageUntil = Time.unscaledTime + seconds; }
@@ -396,7 +407,7 @@ namespace CandyFlick
         // Editor inspection helper; device launching never solves a trajectory toward the target.
         public void UpdateTableDistance(float distance)
         {
-            if (IsAR || projectile || IsDragging) return;
+            if (IsAR || IsNonAR || projectile || IsDragging) return;
             Player.position = new Vector3(0, 900, Actor.transform.position.z - Mathf.Clamp(distance, 3, 11.05f) * 100);
             stablePosition = Player.position;
         }

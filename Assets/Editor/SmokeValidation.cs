@@ -33,8 +33,12 @@ namespace CandyFlickEditor
             SessionState.SetBool("SmokeHadCameraFpsLock",PlayerPrefs.HasKey(CandyFlickGame.CameraFpsLockPreference));
             SessionState.SetInt("SmokeCameraFpsLock",PlayerPrefs.GetInt(CandyFlickGame.CameraFpsLockPreference,0));
             PlayerPrefs.DeleteKey(CandyFlickGame.CameraFpsLockPreference);
+            SessionState.SetBool("SmokeHadNonAR",PlayerPrefs.HasKey(CandyFlickGame.NonARPreference));
+            SessionState.SetInt("SmokeNonAR",PlayerPrefs.GetInt(CandyFlickGame.NonARPreference,0));
+            PlayerPrefs.DeleteKey(CandyFlickGame.NonARPreference);
             if (File.Exists("Documentation/validation-failure.txt")) File.Delete("Documentation/validation-failure.txt");
-            EditorSceneManager.OpenScene(ProjectBuilder.ScenePath);
+            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().path != ProjectBuilder.ScenePath)
+                EditorSceneManager.OpenScene(ProjectBuilder.ScenePath);
             EditorWindow.GetWindow(typeof(EditorWindow).Assembly.GetType("UnityEditor.GameView")).Show();
             Application.runInBackground = true;
             SessionState.SetBool("CandyFlickNative26Smoke", true); EditorApplication.EnterPlaymode();
@@ -180,6 +184,8 @@ namespace CandyFlickEditor
         }
         static void RestoreControlPreference()
         {
+            if(SessionState.GetBool("SmokeHadNonAR",false))PlayerPrefs.SetInt(CandyFlickGame.NonARPreference,SessionState.GetInt("SmokeNonAR",0));
+            else PlayerPrefs.DeleteKey(CandyFlickGame.NonARPreference);
             if(SessionState.GetBool("SmokeHadCameraFpsLock",false))PlayerPrefs.SetInt(CandyFlickGame.CameraFpsLockPreference,SessionState.GetInt("SmokeCameraFpsLock",0));
             else PlayerPrefs.DeleteKey(CandyFlickGame.CameraFpsLockPreference);
             if(SessionState.GetBool("SmokeHadControlMode",false))PlayerPrefs.SetInt(CandyFlickGame.ControlModePreference,SessionState.GetInt("SmokeControlMode",2));

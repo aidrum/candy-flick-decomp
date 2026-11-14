@@ -23,12 +23,11 @@ namespace CandyFlick
         int PopupFontSize(string name) => Array.Find(fontProfiles.languages[text.CurrentLanguage].sizes,
             entry => entry.method == "FontSizeManager$$get_" + name).size;
 
-        // iPhone5 rectangles (GetPopupRect/GetMessageRect/GetBtnRect) on the 640x1136 layout,
-        // centred vertically on taller Android screens.
-        float PopupTop => (height - 1136) / 2;
-        Rect PopupRect => new Rect(320 - 439 / 2f, PopupTop + 336, 439, 382);
-        Rect PopupMessageRect => new Rect(320 - 363 / 2f, PopupTop + 380, 363, 177);
-        Rect PopupButtonRect => new Rect(320 - 377 / 2f, PopupTop + 630 - 87 / 2f, 377, 87);
+        float PopupTop => (height-referenceHeight)/2;
+        Rect CenteredPopupRect(string method) { Rect rect=R("PopupView$$"+method);rect.y+=PopupTop;return rect; }
+        Rect PopupRect=>CenteredPopupRect("GetPopupRect");
+        Rect PopupMessageRect=>CenteredPopupRect("GetMessageRect");
+        Rect PopupButtonRect=>CenteredPopupRect("GetBtnRect");
 
         // PopupView.Update: the button shows btn_pressed while touched and fires when the touch ends.
         // Events are consumed so controls beneath the popup do not react.
@@ -56,8 +55,8 @@ namespace CandyFlick
             GUI.Button(fullScreen, "", gameSkin.box);
             Color saved = GUI.color; GUI.color = new Color(0, 0, 0, .5f);
             GUI.DrawTexture(fullScreen, Texture2D.whiteTexture); GUI.color = saved;
-            GUI.DrawTexture(PopupRect, Texture("ipad2/popup/popup"));
-            GUI.DrawTexture(PopupButtonRect, Texture(popupPressed ? "ipad2/popup/btn_pressed" : "ipad2/popup/btn"));
+            GUI.DrawTexture(PopupRect, Texture(DevicePath("popup")+"popup"));
+            GUI.DrawTexture(PopupButtonRect, Texture(DevicePath("popup")+(popupPressed?"btn_pressed":"btn")));
             GUI.Label(PopupMessageRect, popupMessage, Game(43));
             Outline(PopupButtonRect, popupButton, Game(42));
         }

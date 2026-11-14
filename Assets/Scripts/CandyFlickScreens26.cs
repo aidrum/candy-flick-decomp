@@ -18,11 +18,13 @@ namespace CandyFlick
             entry => entry.method == "FontSizeManager$$get_" + name).size;
         public void MenuPlay()
         {
+            if (game.NonARModeEnabled) { StartPlatformGame(); return; }
             if (!PlayerPrefs.HasKey("ProgramStartKey")) OpenTutorial(false, true);
             else StartPlatformGame();
         }
         void StartPlatformGame()
         {
+            if (game.NonARModeEnabled) { game.StartGame(); return; }
 #if UNITY_ANDROID && !UNITY_EDITOR
             game.StartGame(true);
 #else
@@ -58,6 +60,7 @@ namespace CandyFlick
                 if (CurrentTutorialPage == TutorialPage.Welcome || CurrentTutorialPage == TutorialPage.Start) CloseTutorial();
                 else SetTutorialPage(CurrentTutorialPage == TutorialPage.CreateMarker ? TutorialPage.Start : TutorialPage.CreateMarker);
             }
+            else if (settingsPage == "ModelCredits") ChangeSettingsPage("About");
             else if (settingsPage == "GameCenter" && gameCenterFromResults)
                 transition.Begin(() => { settingsPage = null; game.Show(GameScreen.Results); });
             else if (settingsPage != null) ChangeSettingsPage(null);
@@ -72,20 +75,20 @@ namespace CandyFlick
             GUI.Label(R("MarkerScreen$$GetLabelRect"), T("MARKER_LABEL"), gameSkin.GetStyle("label_marker"));
             GUIStyle style = new GUIStyle(gameSkin.GetStyle("main_btn")) { fontSize = NativeFontSize("AboutTitleFS") };
             GUILayout.BeginArea(R("MarkerScreen$$GetButtonsRect"));GUILayout.BeginVertical();
-            if(GUILayout.Button("",style,GUILayout.Width(466),GUILayout.Height(111)))
+            if(GUILayout.Button("",style,GUILayout.Width(Dimension("MarkerScreen$$GetButtonsWidth")),GUILayout.Height(Dimension("MarkerScreen$$GetButtonsHeight"))))
             { game.Play(game.assets.button);transition.Begin(()=>game.Show(GameScreen.Marker)); }
             Outline(GUILayoutUtility.GetLastRect(),T("SHOW"),style);
             GUILayout.FlexibleSpace();
-            if(GUILayout.Button("",style,GUILayout.Width(466),GUILayout.Height(111))) { game.Play(game.assets.button);MarkerExport26.Print(); }
+            if(GUILayout.Button("",style,GUILayout.Width(Dimension("MarkerScreen$$GetButtonsWidth")),GUILayout.Height(Dimension("MarkerScreen$$GetButtonsHeight")))) { game.Play(game.assets.button);MarkerExport26.Print(); }
             Outline(GUILayoutUtility.GetLastRect(),T("PRINT"),style);
             GUILayout.FlexibleSpace();
-            if(GUILayout.Button("",style,GUILayout.Width(466),GUILayout.Height(111))) { game.Play(game.assets.button);MarkerExport26.Save(); }
+            if(GUILayout.Button("",style,GUILayout.Width(Dimension("MarkerScreen$$GetButtonsWidth")),GUILayout.Height(Dimension("MarkerScreen$$GetButtonsHeight")))) { game.Play(game.assets.button);MarkerExport26.Save(); }
             Outline(GUILayoutUtility.GetLastRect(),T("DOWNLOAD"),style);
             GUILayout.EndVertical();GUILayout.EndArea();
             if(Button(R("MarkerScreen$$GetOkButtonRect",true),gameSkin.GetStyle("ok_btn")))transition.Begin(game.Resume);
         }
         void TutorialImage(string screen, string method, string image)
-            => GUI.DrawTexture(R(screen + "$$" + method), Texture("iphone4/tutorial/" + image));
+            => GUI.DrawTexture(R(screen + "$$" + method), Texture(DevicePath("tutorial") + image));
         void TutorialLabel(string screen, string method, string key, string style = "label_tutor1_1")
             => GUI.Label(R(screen + "$$" + method), T(key), gameSkin.GetStyle(style));
         void TutorialButton(string screen, string method, string style, Action action, string key = null)
@@ -186,6 +189,7 @@ namespace CandyFlick
             Outline(layout[2], T("PRIVACY_POLICY"), Main(1));
             if (Button(layout[3], Main(1))) Application.OpenURL("http://www.zeptolab.com/tc.htm");
             Outline(layout[3], T("TERMS_OF_USE"), Main(1));
+            if (CreditsNextButton()) ChangeSettingsPage("ModelCredits");
         }
         // Unity 6 font metrics differ from legacy IMGUI. Measure the original copy
         // instead of letting centred text overflow its 22/340-pixel native boxes.

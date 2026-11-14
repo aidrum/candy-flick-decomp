@@ -14,11 +14,17 @@ namespace CandyFlick
         public string SettingsPage => settingsPage;
         public Vector2 SkinScroll => skinScroll;
         public Rect SkinViewport => new Rect(28,155,584,height-330);
-        public Rect MoreControlsRect => new Rect(87,height/2-273,466,111);
-        public Rect MoreFpsRect => new Rect(87,height/2-128,466,111);
-        public Rect MoreHideCandyRect => new Rect(87,height/2+17,466,111);
-        public Rect MoreMusicRect => new Rect(87,height/2+162,466,111);
-        public Rect MenuSkinsRect { get { Rect rect=R("MainScreen$$GetShareRect");rect.y+=48;return rect; } }
+        Rect MoreOptionRect(float offset)
+        {
+            float h=Dimension("SettingScreen$$GetMainBtnHeight"),w=Dimension("SettingScreen$$GetMainBtnWidth");
+            return new Rect(320-w/2,height/2+offset*h/111,w,h);
+        }
+        public Rect MoreControlsRect=>MoreOptionRect(-346);
+        public Rect MoreFpsRect=>MoreOptionRect(-201);
+        public Rect MoreHideCandyRect=>MoreOptionRect(-56);
+        public Rect MoreMusicRect=>MoreOptionRect(89);
+        public Rect MoreNonARRect=>MoreOptionRect(234);
+        public Rect MenuSkinsRect { get { Rect rect=R("MainScreen$$GetShareRect");rect.y+=48*referenceHeight/1136;return rect; } }
         GUIStyle SkinsMenuButtonStyle { get { InitSkinMenu(); return skinsMenuButton; } }
         void InitSkinMenu()
         {
@@ -91,6 +97,7 @@ namespace CandyFlick
             DrawSettingsOption(MoreFpsRect,CameraFpsLockLabel,game.ToggleCameraFpsLock);
             DrawSettingsOption(MoreHideCandyRect,HideCandyLabel,game.ToggleHideCandyInPictures);
             DrawSettingsOption(MoreMusicRect,InGameMusicLabel,game.ToggleInGameMusic);
+            DrawSettingsOption(MoreNonARRect,NonARModeLabel,game.ToggleNonARMode);
         }
         string OptionLabel(string[] labels,bool enabled)
         {
@@ -100,6 +107,7 @@ namespace CandyFlick
         }
         string HideCandyLabel=>OptionLabel(new[]{"Hide candy in pictures","Скрывать конфету на фото","Snoep verbergen op foto's","Masquer le bonbon en photo","Bonbon auf Fotos ausblenden","Nascondi caramella nelle foto","사진에서 사탕 숨기기","Ocultar doce nas fotos","Ocultar caramelo en fotos"},game.HideCandyInPictures);
         string InGameMusicLabel=>OptionLabel(new[]{"In-game music","Музыка в игре","Muziek tijdens het spelen","Musique en jeu","Musik im Spiel","Musica in partita","게임 음악","Música durante o jogo","Música durante el juego"},game.InGameMusicEnabled);
+        string NonARModeLabel=>OptionLabel(new[]{"Non AR mode","Режим без AR","Spelen zonder AR","Mode sans AR","Modus ohne AR","Modalità senza AR","AR 없이 플레이","Modo sem RA","Modo sin RA"},game.NonARModeEnabled);
         void DrawSettingsOption(Rect rect,string label,System.Action action)
         {
             if(Button(rect,Main(1)))action();

@@ -11,7 +11,8 @@ namespace CandyFlick
     public sealed partial class CandyFlickUI : MonoBehaviour
     {
         public CandyFlickGame game;
-        [Serializable] sealed class Layout { public Entry[] rectangles; }
+        [Serializable] sealed class Layout { public float width,height; public Entry[] rectangles; public DimensionEntry[] dimensions; }
+        [Serializable] sealed class DimensionEntry { public string method; public float value; }
         [Serializable] sealed class Entry { public string method; public float[] rect; }
         [Serializable] sealed class FontProfiles { public FontProfile[] languages; }
         [Serializable] sealed class FontProfile { public int language; public FontSize[] sizes; }
@@ -21,7 +22,6 @@ namespace CandyFlick
         GUISkin mainSkin, gameSkin;
         GUIStyle numberStyle, outlineStyle, markerText;
         float height;
-        float horizontalGutter;
         bool initialized;
         string settingsPage;
         Rect possibleRect;
@@ -45,17 +45,9 @@ namespace CandyFlick
 
         void Init()
         {
-            if (initialized) return;
-            mainSkin = Resources.Load<GUISkin>("skins/iPhone5Skin");
-            gameSkin = Resources.Load<GUISkin>("skins/iPhone5SkinGame");
+            if (initialized) { LoadDeviceLayout(); return; }
             text = new TextManager26(game.assets.languages);
-            fontProfiles = JsonUtility.FromJson<FontProfiles>(Resources.Load<TextAsset>("Original26/fonts").text);
-            foreach (var entry in JsonUtility.FromJson<Layout>(Resources.Load<TextAsset>("Original26/layout").text).rectangles)
-                rectangles.Add(entry.method, new Rect(entry.rect[0], entry.rect[1], entry.rect[2], entry.rect[3]));
-            numberStyle = new GUIStyle(gameSkin.customStyles[41]);
-            numberStyle.normal.background = null; numberStyle.active.background = null;
-            outlineStyle = new GUIStyle(numberStyle); outlineStyle.normal.textColor = Color.black;
-            markerText = new GUIStyle(gameSkin.GetStyle("label_tutor1_1"));
+            LoadDeviceLayout();
             initialized = true;
             ApplyLanguageFont();
             game.GameStarted += ResetHud;
@@ -64,7 +56,7 @@ namespace CandyFlick
             ResetHud();
             var shadowObject = new GameObject("Original menu shadows", typeof(LegacyGUITexture26), typeof(Animation));
             menuShadow = shadowObject.GetComponent<LegacyGUITexture26>();
-            menuShadow.texture = Texture("iphone5/shadows");
+            menuShadow.texture = Texture(DevicePath("shadows"));
             menuShadow.transform.position = new Vector3(.5f, .5f, 2);
             menuShadow.transform.localScale = new Vector3(1.1f, 1.1f, 1);
             menuShadowAnimation = shadowObject.GetComponent<Animation>();
@@ -74,11 +66,12 @@ namespace CandyFlick
             capture = gameObject.AddComponent<CaptureManager26>();
             capture.Saved += saved => ShowPopupWithMessageKey(saved ? "PHOTO_SAVED" : "DOWNLOAD_DIALOG_ERROR");
             cameraEffect = new CameraEffect26(new[] { Texture("all/camera_1"), Texture("all/camera_2"), Texture("all/camera_3"), Texture("all/camera_4"), Texture("all/camera_5") });
-            // SearchTargetScreen.InitByDevice: iPhone5Anim child 0 (focusing) and child 1 (sticker).
+            // SearchTargetScreen.InitByDevice: focusing and sticker, configured for the active profile below.
             searchFocus = GUITexture("Original search focusing", "iphone4/search_target/focusing",
                 new Vector3(.5f, .52f, 0), new Vector3(.55f, .22f, 1), .5f, "GUIRearSightAnimation", "EndRearSight");
             searchSticker = GUITexture("Original search sticker", "iphone4/search_target/sticker",
-                new Vector3(.5f, -.06f, 0), new Vector3(.71588236f, .23f, 1), .2f, "GUIStickerAnimation_iph5", "EndSticker_iph5");
+                new Vector3(.5f, -.06f, 0), new Vector3(.71588236f, .23f, 1), .2f, "GUIStickerAnimation_iph5", "EndSticker_iph5", "GUIStickerAnimation", "EndSticker", "GUIStickerAnimation_iPad", "EndSticker_iPad");
+            ConfigureSearchArtwork();
             // WhiteShootScreen: full-screen whiteBgr GUITexture (alpha 0) with WhiteShootAnim.
             whiteFlash = GUITexture("Original white shoot screen", "all/whiteBgr",
                 new Vector3(.5f, .5f, 0), Vector3.one, 0, "WhiteShootAnim");
@@ -133,7 +126,7 @@ namespace CandyFlick
         void SetSearchScreen(bool show, bool animate)
         {
             searchShown = show;
-            foreach (var (guiTexture, open, close) in new[] { (searchFocus, "GUIRearSightAnimation", "EndRearSight"), (searchSticker, "GUIStickerAnimation_iph5", "EndSticker_iph5") })
+            foreach (var (guiTexture, open, close) in new[] { (searchFocus, "GUIRearSightAnimation", "EndRearSight"), (searchSticker, StickerOpen, StickerClose) })
             {
                 if (show) { guiTexture.gameObject.SetActive(true); PlayUnscaled(guiTexture, open); }
                 else if (animate && guiTexture.gameObject.activeSelf) PlayUnscaled(guiTexture, close);
@@ -244,7 +237,7 @@ namespace CandyFlick
         Rect R(string method, bool bottom = false)
         {
             Rect rect = rectangles[method];
-            if (bottom) rect.y += height - 1136;
+            if (bottom) rect.y += height - referenceHeight;
             return rect;
         }
         Texture2D Texture(string path)
@@ -264,7 +257,6 @@ namespace CandyFlick
         // Menu-style backgrounds fill the whole display, including notch/cutout areas outside the safe area.
         Rect fullScreen;
         void Background(Texture texture) => GUI.DrawTexture(fullScreen, texture);
-        public static float CanvasScale(Rect safe) => Mathf.Min(safe.width / 640f, safe.height / 1136f);
         void Outline(Rect rect, string text, GUIStyle style = null)
         {
             style = style ?? numberStyle;
@@ -284,12 +276,11 @@ namespace CandyFlick
             // Unity 6 keeps GUILayout state for this component across GUI events. A
             // native screen switch can land on Repaint; restart that event's layout.
             if (switched && Event.current.type != EventType.Layout) GUIUtility.ExitGUI();
-            // Android compatibility: original iPhone5 width scaling inside the device's usable area.
+            // Device-specific layouts, capped at the original 3:4 tablet UI width.
             Rect safe = UnityEngine.Screen.safeArea;
             float scale = CanvasScale(safe); height = safe.height / scale;
-            horizontalGutter = (safe.width / scale - 640) / 2;
             Matrix4x4 saved = GUI.matrix;
-            Vector2 origin = new Vector2(safe.x + horizontalGutter * scale, UnityEngine.Screen.height - safe.yMax);
+            Vector2 origin = CanvasOrigin(safe,UnityEngine.Screen.height);
             fullScreen = new Rect(-origin.x / scale, -origin.y / scale, UnityEngine.Screen.width / scale, UnityEngine.Screen.height / scale);
             GUI.matrix = Matrix4x4.TRS(new Vector3(origin.x, origin.y, 0), Quaternion.identity, new Vector3(scale, scale, 1));
             HandlePopupInput(); // The popup sits above every screen and takes its input first.
@@ -326,7 +317,7 @@ namespace CandyFlick
         }
         void DrawMenu()
         {
-            Background(game.assets.menu);
+            DrawMainMenuArtwork();
             Matrix4x4 canvas = GUI.matrix; // Shadow vignette spans the full display with its background.
             GUI.matrix = canvas * Matrix4x4.Translate(new Vector3(fullScreen.x, fullScreen.y, 0));
             menuShadow.Draw(fullScreen.width, fullScreen.height); GUI.matrix = canvas;
@@ -423,7 +414,7 @@ namespace CandyFlick
         {
             if (!resultsInitialized) { resultsInitialized = true; StartCoroutine(WaitAndTurn()); }
             // The original results board is drawn over the live camera output, without a background.
-            GUI.DrawTexture(R("GameOverScreen$$GetBoardRect"), Texture("iphone5/board_iph5"));
+            GUI.DrawTexture(R("GameOverScreen$$GetBoardRect"), Texture(DevicePath("board")));
             for (int i = 0; i < 10; i++)
             {
                 Rect rect = R("ScoresGOView$$GetScore" + (i + 1) + "Rect");
@@ -440,11 +431,12 @@ namespace CandyFlick
             if (Button(R("GameOverScreen$$GetRestartRectGO"), Game(13))) transition.Begin(() => game.StartGame(game.IsAR));
             GUILayout.BeginArea(R("GameOverScreen$$GetBottomBtnRectGO"));
             GUILayout.BeginHorizontal(); GUILayout.FlexibleSpace();
-            bool achievements = GUILayout.Button("", Game(15), GUILayout.Width(157), GUILayout.Height(94));
-            GUILayout.Space(157 * .1f);
-            bool leaderboard = GUILayout.Button("", Game(16), GUILayout.Width(157), GUILayout.Height(94));
-            GUILayout.Space(157 * .1f);
-            bool menu = GUILayout.Button("", Game(22), GUILayout.Width(157), GUILayout.Height(94));
+            float footerWidth=Dimension("GameOverScreen$$GetBottomBtnWidth"),footerHeight=Dimension("GameOverScreen$$GetBottomBtnHeight");
+            bool achievements = GUILayout.Button("", Game(15), GUILayout.Width(footerWidth), GUILayout.Height(footerHeight));
+            GUILayout.Space(footerWidth * .1f);
+            bool leaderboard = GUILayout.Button("", Game(16), GUILayout.Width(footerWidth), GUILayout.Height(footerHeight));
+            GUILayout.Space(footerWidth * .1f);
+            bool menu = GUILayout.Button("", Game(22), GUILayout.Width(footerWidth), GUILayout.Height(footerHeight));
             GUILayout.FlexibleSpace(); GUILayout.EndHorizontal(); GUILayout.EndArea();
             if(menu) { game.Play(game.assets.button); transition.Begin(game.ReturnToMenu); }
             // Game Center is iOS-only: the original buttons stay visible but do nothing on Android.
@@ -458,13 +450,20 @@ namespace CandyFlick
         }
         void DrawSettings()
         {
-            Background(Texture("iphone5/setting_bgr_iph5"));
+            Background(Texture(DevicePath("settings")));
+            if (settingsPage == "ModelCredits")
+            {
+                DrawModelCredits();
+                if (Button(CreditsBackRect, Main(33))) transition.Begin(() => settingsPage = "About");
+                return;
+            }
             if (Button(R("SettingScreen$$GetBackBtnRect", true), Main(33)))
-                transition.Begin(() => { if (settingsPage == "GameCenter" && gameCenterFromResults) { game.Show(GameScreen.Results); settingsPage = null; } else if (settingsPage != null) settingsPage = null; else game.ReturnToMenu(); });
+                transition.Begin(() => { if (settingsPage == "ModelCredits") settingsPage = "About"; else if (settingsPage == "GameCenter" && gameCenterFromResults) { game.Show(GameScreen.Results); settingsPage = null; } else if (settingsPage != null) settingsPage = null; else game.ReturnToMenu(); });
             if (settingsPage == "About") { DrawAbout(); return; }
             if (settingsPage == "Reset") { DrawReset(); return; }
             if (settingsPage == "MoreOptions") { DrawMoreOptions(); return; }
-            const float width = 466, buttonHeight = 111;
+            float width=Dimension("SettingScreen$$GetMainBtnWidth"),buttonHeight=Dimension("SettingScreen$$GetMainBtnHeight");
+            float buttonScale=buttonHeight/111;
             float rows = settingsPage == "GameCenter" ? 5.3f : 6.5f;
             GUILayout.BeginArea(new Rect(320 - width / 2, height / 2 - buttonHeight * rows / 2, width, buttonHeight * rows));
             GUILayout.BeginVertical();
@@ -480,15 +479,15 @@ namespace CandyFlick
             else
             {
                 GUILayout.BeginHorizontal();
-                if (GUILayout.Button("", Main(game.SoundEnabled ? 36 : 37), GUILayout.Width(219), GUILayout.Height(111))) { game.Play(game.assets.button); game.ToggleSound(); }
+                if (GUILayout.Button("", Main(game.SoundEnabled ? 36 : 37), GUILayout.Width(219*buttonScale), GUILayout.Height(buttonHeight))) { game.Play(game.assets.button); game.ToggleSound(); }
                 GUILayout.FlexibleSpace();
-                if (GUILayout.Button("", Main(game.MusicEnabled ? 34 : 35), GUILayout.Width(207), GUILayout.Height(102))) { game.Play(game.assets.button); game.ToggleMusic(); }
+                if (GUILayout.Button("", Main(game.MusicEnabled ? 34 : 35), GUILayout.Width(207*buttonScale), GUILayout.Height(102*buttonScale))) { game.Play(game.assets.button); game.ToggleMusic(); }
                 GUILayout.EndHorizontal(); GUILayout.FlexibleSpace();
                 if (GUILayout.Button("", Main(1), GUILayout.Width(width), GUILayout.Height(buttonHeight)))
                 { text.ChangeLanguage((text.CurrentLanguage + 1) % 9); ApplyLanguageFont(); game.Play(game.assets.button); }
                 Rect languageRect = GUILayoutUtility.GetLastRect();
                 Outline(languageRect, T("LANGUAGE"), Main(1));
-                GUI.DrawTexture(new Rect(languageRect.xMax - 79.365f * 1.5f, languageRect.y + languageRect.height * .45f - 55.5f / 2, 79.365f, 55.5f), Texture("all/flags/" + text.Flag));
+                GUI.DrawTexture(new Rect(languageRect.xMax - 79.365f * 1.5f*buttonScale, languageRect.y + languageRect.height * .45f - 55.5f*buttonScale / 2, 79.365f*buttonScale, 55.5f*buttonScale), Texture("all/flags/" + text.Flag));
                 GUILayout.FlexibleSpace();
                 if (GUILayout.Button("", Main(1), GUILayout.Width(width), GUILayout.Height(buttonHeight))) ChangeSettingsPage("MoreOptions");
                 Outline(GUILayoutUtility.GetLastRect(), MoreOptionsLabel, Main(1));
@@ -501,8 +500,8 @@ namespace CandyFlick
                 GUILayout.FlexibleSpace();
                 GUILayout.BeginHorizontal();
                 // Game Center is iOS-only: keep the original buttons, without a destination.
-                if (GUILayout.Button("", Main(44), GUILayout.Width(207), GUILayout.Height(109))) game.Play(game.assets.button);
-                GUILayout.FlexibleSpace(); if (GUILayout.Button("", Main(45), GUILayout.Width(207), GUILayout.Height(109))) game.Play(game.assets.button);
+                if (GUILayout.Button("", Main(44), GUILayout.Width(207*buttonScale), GUILayout.Height(109*buttonScale))) game.Play(game.assets.button);
+                GUILayout.FlexibleSpace(); if (GUILayout.Button("", Main(45), GUILayout.Width(207*buttonScale), GUILayout.Height(109*buttonScale))) game.Play(game.assets.button);
                 GUILayout.EndHorizontal();
             }
             GUILayout.EndVertical(); GUILayout.EndArea();
@@ -536,6 +535,7 @@ namespace CandyFlick
         }
         void OnDestroy()
         {
+            if(mainSkin)Destroy(mainSkin);if(gameSkin)Destroy(gameSkin);
             if (menuShadow) Destroy(menuShadow.gameObject);
             if (searchFocus) Destroy(searchFocus.gameObject);
             if (searchSticker) Destroy(searchSticker.gameObject);
