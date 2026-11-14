@@ -203,7 +203,11 @@ namespace CandyFlick
                 totalEffectAlpha += Time.deltaTime * (fadeUp ? 4 : -4);
                 if (totalEffectAlpha >= 1) fadeUp = false;
             }
-            if (flyPossible) possibleRect.x += 640 * Time.deltaTime * 1.5f;
+            if (flyPossible)
+            {
+                float travel=rectangles["ScoresGPView$$GetTotalScoresRect"].x-rectangles["ScoresGPView$$GetPossibleScoresRect"].x;
+                possibleRect.x+=640*Time.deltaTime*1.5f*(1+GameplayExtraWidth/(2*travel));
+            }
         }
         void OnBoostPassed()
         {
@@ -238,7 +242,7 @@ namespace CandyFlick
         {
             Rect rect = rectangles[method];
             if (bottom) rect.y += height - referenceHeight;
-            return rect;
+            return GameplayRect(method,rect);
         }
         Texture2D Texture(string path)
         {
@@ -276,11 +280,11 @@ namespace CandyFlick
             // Unity 6 keeps GUILayout state for this component across GUI events. A
             // native screen switch can land on Repaint; restart that event's layout.
             if (switched && Event.current.type != EventType.Layout) GUIUtility.ExitGUI();
-            // Device-specific layouts, capped at the original 3:4 tablet UI width.
+            // Menus use the bounded canvas; gameplay and pause anchors span the safe area.
             Rect safe = UnityEngine.Screen.safeArea;
             float scale = CanvasScale(safe); height = safe.height / scale;
             Matrix4x4 saved = GUI.matrix;
-            Vector2 origin = CanvasOrigin(safe,UnityEngine.Screen.height);
+            Vector2 origin = CanvasOrigin(safe,UnityEngine.Screen.height,game.ScreenState);
             fullScreen = new Rect(-origin.x / scale, -origin.y / scale, UnityEngine.Screen.width / scale, UnityEngine.Screen.height / scale);
             GUI.matrix = Matrix4x4.TRS(new Vector3(origin.x, origin.y, 0), Quaternion.identity, new Vector3(scale, scale, 1));
             HandlePopupInput(); // The popup sits above every screen and takes its input first.
@@ -343,7 +347,9 @@ namespace CandyFlick
         void DrawGamePlay()
         {
             // Unity 4 GUITextures (GUILayer) render beneath OnGUI.
-            searchSticker.Draw(640, height); searchFocus.Draw(640, height);
+            Matrix4x4 canvas=GUI.matrix;
+            GUI.matrix=canvas*Matrix4x4.Translate(new Vector3(GameplayExtraWidth/2,0,0));
+            searchSticker.Draw(640, height); searchFocus.Draw(640, height);GUI.matrix=canvas;
             if (game.IsAR && !game.ar.Tracking)
             {
                 // DrawRearSightScreen 0x3cf50: plain GUI.Label with label_gp; the button text is outlined.
@@ -357,7 +363,7 @@ namespace CandyFlick
             else
             {
                 Rect candy = R("ScoresGPView$$GetCandiesRect");
-                Rect possible = possibleRect;
+                Rect possible = GameplayRect("ScoresGPView$$GetPossibleScoresRect",possibleRect);
                 Rect total = R("ScoresGPView$$GetTotalScoresRect");
                 GUI.DrawTexture(candy, Texture("all/new_assets/Candy_number"));
                 GUI.DrawTexture(possible, possibleTexture);
@@ -404,6 +410,7 @@ namespace CandyFlick
         void DrawPause()
         {
             GUI.color = new Color(0, 0, 0, .5f); GUI.DrawTexture(fullScreen, Texture2D.whiteTexture); GUI.color = Color.white;
+            DrawARToggle();
             if (Button(R(game.IsAR && !game.ar.Tracking ? "SearchTargetScreen$$GetHelpRect" : "GamePlayScreen$$GetHelpRect", true), Game(12))) transition.Begin(() => OpenTutorial(false, false));
             if (Button(R("GamePlayScreen$$GetSoundRect", true), Game(game.SoundEnabled ? 14 : 18))) game.ToggleSound();
             if (Button(R("GamePlayScreen$$GetMenuRect", true), Game(20))) transition.Begin(game.ReturnToMenu);

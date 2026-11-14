@@ -39,6 +39,11 @@ namespace CandyFlick
             transform.SetPositionAndRotation(groundedStart, startRotation);
             lastPosition = targetPosition = groundedStart; moveProgress = 0; FrogIdle();
         }
+        internal void MoveGround(float heightChange)
+        {
+            Vector3 offset=Vector3.up*heightChange;
+            transform.position+=offset;lastPosition+=offset;targetPosition+=offset;
+        }
         void Fade(string name, float seconds = .3f)
         {
             if(game.Skins && game.Skins.Selected==NommieSkin.Prehistoric) seconds=name=="open"?.045f:.1f;

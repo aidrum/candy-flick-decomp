@@ -41,6 +41,21 @@ namespace CandyFlick
             NonARModeEnabled = !NonARModeEnabled;
             PlayerPrefs.SetInt(NonARPreference, NonARModeEnabled ? 1 : 0); PlayerPrefs.Save();
         }
+        public void ToggleARMode()
+        {
+            if(ScreenState!=GameScreen.Paused)return;
+            bool nonAR=!IsNonAR;
+            float previousClearance=IsNonAR?NonARStage.GroundClearance:0;
+            CancelCandyGesture();NonARBackground.Navigation.Cancel();PhotoVisibility.End();ar.End();
+            NonARModeEnabled=IsNonAR=nonAR;IsAR=!nonAR;
+            PlayerPrefs.SetInt(NonARPreference,nonAR?1:0);PlayerPrefs.Save();
+            ConfigureNonARBackground();
+            Actor.MoveGround((nonAR?NonARStage.GroundClearance:0)-previousClearance);Actor.FacePlayer();
+            GameCamera.clearFlags=IsAR?CameraClearFlags.Depth:CameraClearFlags.SolidColor;
+            GameCamera.backgroundColor=Color.black;SetWorldVisible(true);
+            if(IsAR)ar.Begin();
+            Time.timeScale=0;SyncGameplayMusic();
+        }
         void ConfigureNonARBackground()
         {
             if (IsNonAR) NonARBackground.Begin(); else NonARBackground.End();

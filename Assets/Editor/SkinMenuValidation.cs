@@ -32,7 +32,8 @@ namespace CandyFlickEditor
         static void Pointer(EventType type,Vector2 native,Vector2 delta=default)
         {
             Rect safe=Screen.safeArea;float scale=CandyFlickUI.CanvasScale(safe);
-            Vector2 point=new Vector2(safe.x+(safe.width/scale-640)*scale/2,Screen.height-safe.yMax)+native*scale;
+            var activeGame=UnityEngine.Object.FindAnyObjectByType<CandyFlickGame>();
+            Vector2 point=CandyFlickUI.CanvasOrigin(safe,Screen.height,activeGame?activeGame.ScreenState:GameScreen.Menu)+native*scale;
             typeof(EditorGUIUtility).GetMethod("QueueGameViewInputEvent",BindingFlags.Static|BindingFlags.Public|BindingFlags.NonPublic)
                 .Invoke(null,new object[]{new Event{type=type,mousePosition=point,delta=delta,button=0,clickCount=1}});
         }

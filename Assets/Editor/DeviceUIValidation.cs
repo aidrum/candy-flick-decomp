@@ -45,7 +45,7 @@ namespace CandyFlickEditor
                 if(!game){game=UnityEngine.Object.FindAnyObjectByType<CandyFlickGame>();if(!game)return;ui=game.GetComponent<CandyFlickUI>();Application.runInBackground=true;AudioListener.pause=true;return;}
                 if(phase==0)
                 {
-                    if(resolution==sizes.Length){game.StartGame();activeSession=game.Session;SetResolution(sizes[0]);phase=10;return;}
+                    if(resolution==sizes.Length){game.StartGame();activeSession=game.Session;SetResolution(sizes[0]);phase=20;return;}
                     SetResolution(sizes[resolution]);game.ReturnToMenu();phase=1;return;
                 }
                 if(phase==1){Prepare(pages[page]);phase=2;return;}
@@ -56,6 +56,7 @@ namespace CandyFlickEditor
                         float alpha=(float)typeof(CandyFlickUI).GetField("menuEntryAlpha",Private).GetValue(ui);if(alpha>0)return;
                         ValidateProfile();
                     }
+                    if(pages[page]=="gameplay"||pages[page]=="pause")ValidateGameplayWidth();
                     ScreenCapture.CaptureScreenshot(Folder+"/"+sizes[resolution].x+"x"+sizes[resolution].y+"-"+pages[page]+".png");
                     checks.Add(sizes[resolution]+": "+pages[page]+" rendered without runtime errors");
                     page++;phase=page==pages.Length?3:1;return;
@@ -73,12 +74,18 @@ namespace CandyFlickEditor
                     case 3: game.ReturnToMenu();typeof(CandyFlickGame).GetProperty("IsAR").SetValue(game,false);break;
                     case 4: Click(R("MainScreen$$GetSettingRect").center);break;
                     case 5: Check(game.ScreenState==GameScreen.Settings,"Settings pointer maps correctly at "+sizes[resolution]);Click(R("SettingScreen$$GetBackBtnRect",true).center);break;
-                    case 6: Check(game.ScreenState==GameScreen.Menu,"Back pointer maps correctly at "+sizes[resolution]);game.StartGame();game.Pause();break;
-                    case 7: Click(R("GamePlayScreen$$GetHelpRect",true).center);break;
-                    case 8: Check(game.ScreenState==GameScreen.Tutorial,"In-game Help pointer maps correctly at "+sizes[resolution]);resolution++;page=phase=0;break;
-                    case 10: Check(ui.ArtworkFamily=="iphone5"&&ReferenceEquals(activeSession,game.Session),"Live gameplay keeps its session when resizing to a tall phone");SetResolution(sizes[2]);break;
-                    case 11: Check(ui.ArtworkFamily=="ipad2"&&ReferenceEquals(activeSession,game.Session),"Live gameplay swaps to tablet assets and layout without restarting the session");SetResolution(sizes[3]);break;
-                    case 12: Check(ui.ArtworkFamily=="ipad2"&&ReferenceEquals(activeSession,game.Session)&&game.ScreenState==GameScreen.Playing,"Live gameplay retains the tablet profile and session after widening to PC");
+                    case 6: Check(game.ScreenState==GameScreen.Menu,"Back pointer maps correctly at "+sizes[resolution]);game.StartGame();break;
+                    case 7: Click(R("GamePlayScreen$$GetPauseRect",true).center);break;
+                    case 8: Check(game.ScreenState==GameScreen.Paused,"Edge-anchored Pause button works at "+sizes[resolution]);Click(R("GamePlayScreen$$GetPauseRect",true).center);break;
+                    case 9: Check(game.ScreenState==GameScreen.Playing,"Edge-anchored Resume button works at "+sizes[resolution]);Click(R("GamePlayScreen$$GetPauseRect",true).center);break;
+                    case 10: Check(game.ScreenState==GameScreen.Paused,"Pause can be opened again at "+sizes[resolution]);Click(R("GamePlayScreen$$GetHelpRect",true).center);break;
+                    case 11: Check(game.ScreenState==GameScreen.Tutorial&&ui.CanvasWidth==640,"In-game Help opens a bounded tutorial menu at "+sizes[resolution]);ui.Back();break;
+                    case 12: Check(game.ScreenState==GameScreen.Playing,"Closing Help restores the full-width gameplay layout at "+sizes[resolution]);Click(R("GamePlayScreen$$GetPauseRect",true).center);break;
+                    case 13: Check(game.ScreenState==GameScreen.Paused,"Pause layout returns after Help at "+sizes[resolution]);Click(R("GamePlayScreen$$GetMenuRect",true).center);break;
+                    case 14: Check(game.ScreenState==GameScreen.Menu&&ui.CanvasWidth==640,"Pause Menu button restores the bounded main menu at "+sizes[resolution]);resolution++;page=phase=0;break;
+                    case 20: Check(ui.ArtworkFamily=="iphone5"&&ReferenceEquals(activeSession,game.Session),"Live gameplay keeps its session when resizing to a tall phone");SetResolution(sizes[2]);break;
+                    case 21: Check(ui.ArtworkFamily=="ipad2"&&ReferenceEquals(activeSession,game.Session),"Live gameplay swaps to tablet assets and layout without restarting the session");SetResolution(sizes[3]);break;
+                    case 22: Check(ui.ArtworkFamily=="ipad2"&&ReferenceEquals(activeSession,game.Session)&&game.ScreenState==GameScreen.Playing,"Live gameplay retains the tablet profile and session after widening to PC");
                         File.WriteAllText("Documentation/device-ui-validation.json",JsonUtility.ToJson(new Evidence{utc=DateTime.UtcNow.ToString("o"),checks=checks.ToArray()},true));Finish(null);break;
                 }
             }
@@ -109,6 +116,16 @@ namespace CandyFlickEditor
                 case "search":game.StartGame();typeof(CandyFlickGame).GetProperty("IsAR").SetValue(game,true);break;
             }
         }
+        static void ValidateGameplayWidth()
+        {
+            Rect safe=Screen.safeArea;float scale=CandyFlickUI.CanvasScale(safe);
+            Vector2 origin=CandyFlickUI.CanvasOrigin(safe,Screen.height,game.ScreenState);
+            Check(Mathf.Abs(ui.CanvasWidth*scale-safe.width)<.01f&&Mathf.Abs(origin.x-safe.x)<.01f,"Gameplay and pause canvas spans the usable width at "+sizes[resolution]);
+            Rect candy=R("ScoresGPView$$GetCandiesRect"),total=R("ScoresGPView$$GetTotalScoresRect"),possible=R("ScoresGPView$$GetPossibleScoresRect");
+            Check(candy.xMin*scale<safe.width*.1f&&(ui.CanvasWidth-total.xMax)*scale<safe.width*.1f,"Candy counter and total score stay at opposite screen edges at "+sizes[resolution]);
+            Check(Mathf.Abs(possible.center.x-ui.CanvasWidth/2)<1,"Possible score stays at the screen center at "+sizes[resolution]);
+            Check(R("GamePlayScreen$$GetPauseRect",true).center.x>ui.CanvasWidth*.9f,"Pause/resume control follows the right edge at "+sizes[resolution]);
+        }
         static void ValidateProfile()
         {
             string expected=resolution==0?"iphone5":resolution==1?"iphone4":"ipad2";
@@ -122,7 +139,7 @@ namespace CandyFlickEditor
                 Check(AssetDatabase.GetAssetPath(skin.GetStyle("pause").normal.background).Contains("/ipad2/"),"Tablet pause style uses recovered tablet artwork");
             }
             var safe=Screen.safeArea;float scale=CandyFlickUI.CanvasScale(safe);
-            Check(640*scale<=safe.height*.75f+.1f,"UI width stays within 3:4 at "+sizes[resolution]);
+            Check(640*scale<=safe.height*.75f+.1f,"Menu UI width stays within 3:4 at "+sizes[resolution]);
             Check(Mathf.Abs(CandyFlickUI.CanvasScale(new Rect(0,0,1920,1080))-CandyFlickUI.CanvasScale(new Rect(0,0,810,1080)))<.0001f,"Wider displays keep tablet UI size instead of growing with width");
             Check(Mathf.Abs(CandyFlickUI.CanvasScale(new Rect(0,0,640,1422))-1)<.0001f,"Taller phone displays retain width scaling and extra vertical space");
         }
