@@ -4,11 +4,11 @@ using UnityEngine;
 
 namespace CandyFlick
 {
-    public enum GameScreen { Menu, Playing, Paused, Results, Settings, Help, Marker, Tutorial, TargetOptions }
+    public enum GameScreen { Menu, Playing, Paused, Results, Settings, Help, Marker, Tutorial, TargetOptions, Skins }
     public enum LaunchMode { Flick = 0, TapHold = 1, Slingshot = 2 }
 
     // Unity 6 / Android coordinator; native method addresses identify translated gameplay paths.
-    public sealed class CandyFlickGame : MonoBehaviour
+    public sealed partial class CandyFlickGame : MonoBehaviour
     {
         public GameAssets assets;
         public GameScreen ScreenState { get; private set; }
@@ -18,6 +18,7 @@ namespace CandyFlick
         public bool LockFpsToCamera { get; private set; }
         public GameSession Session { get; private set; } = new GameSession();
         public OmNomActor Actor { get; private set; }
+        public TimeTravelSkins Skins { get; private set; }
         public Camera GameCamera { get; private set; }
         public Camera CandyCamera { get; private set; }
         public Transform World { get; private set; }
@@ -77,8 +78,11 @@ namespace CandyFlick
             input.mode = (TouchMode26)ControlMode;
             effects = gameObject.AddComponent<AudioSource>();
             music = gameObject.AddComponent<AudioSource>(); music.clip = assets.music; music.loop = true;
+            InitializeExtraOptions();
             if (MusicEnabled && !music.isPlaying) music.Play();
             BuildWorld();
+            PhotoVisibility = gameObject.AddComponent<PhotoCandyVisibility>();
+            PhotoVisibility.Initialize(this, World.Find("Candies"), CandyGhost, slingshot.transform, animElastic.transform);
             input.Began += OnTouchBegan; input.Tweaker += OnTouchTweaker;
             input.Flick += OnTouchFlick;
             input.TweakerCancel += () => { isCandyTapped = false; Actor.OnCancelShoot(); ResetCandyPos(); };
@@ -97,6 +101,7 @@ namespace CandyFlick
             CandyCamera = Player.Find("candycamera").GetComponent<Camera>();
             GameCamera.tag = "MainCamera"; GameCamera.gameObject.AddComponent<AudioListener>();
             Actor = World.Find("OmNom@All-1").gameObject.AddComponent<OmNomActor>(); Actor.InitializeOriginal(this);
+            Skins = Actor.gameObject.AddComponent<TimeTravelSkins>(); Skins.Initialize(assets);
             CandyGhost = Player.Find("CandyGhost"); ghostCollider = CandyGhost.GetComponent<Collider>();
             touchPlane = Player.Find("CandyTouchPlane").GetComponent<Collider>();
             slingshot = Player.Find("elastic").gameObject; animElastic = Player.Find("test").gameObject;
@@ -148,21 +153,23 @@ namespace CandyFlick
             projectile = null; candyIndex = 0;
             Session = new GameSession { bonus = NextGameBonus };
             LastScore = 0; pendingResults = false; timeForNextShoot = true; hardStabilisation = false;
+            Skins.RerollRandom();
             Actor.ResetOriginal(); ScreenState = GameScreen.Playing; SetWorldVisible(true);
             GameCamera.clearFlags = augmented ? CameraClearFlags.Depth : CameraClearFlags.SolidColor;
             GameCamera.backgroundColor = Color.black;
             if (augmented) ar.Begin(); else ar.End();
-            Boosts.Reset(); Boosts.OnNewRound(Session.round); PrepareBulletForShoot(); GameStarted?.Invoke();
+            Boosts.Reset(); Boosts.OnNewRound(Session.round); PrepareBulletForShoot(); StartGameplayMusic(); GameStarted?.Invoke();
         }
 
         void Update()
         {
+            SyncGameplayMusic();
             if (Time.unscaledTime > messageUntil) Message = "";
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 if (ScreenState == GameScreen.Playing) Pause();
                 else if (ScreenState == GameScreen.Paused) Resume();
-                else if (ScreenState == GameScreen.Tutorial || ScreenState == GameScreen.Help || ScreenState == GameScreen.Settings || ScreenState == GameScreen.TargetOptions || ScreenState == GameScreen.Marker)
+                else if (ScreenState == GameScreen.Tutorial || ScreenState == GameScreen.Help || ScreenState == GameScreen.Settings || ScreenState == GameScreen.TargetOptions || ScreenState == GameScreen.Marker || ScreenState == GameScreen.Skins)
                     GetComponent<CandyFlickUI>().Back();
                 else ReturnToMenu();
             }
@@ -330,13 +337,14 @@ namespace CandyFlick
             pendingResults = false; ScreenState = GameScreen.Results; Play(assets.win);
         }
         public void NextRound() => StartGame(IsAR);
-        public void Pause() { if (ScreenState != GameScreen.Playing) return; input.Cancel(); ScreenState = GameScreen.Paused; Time.timeScale = 0; }
-        public void Resume() { ScreenState = GameScreen.Playing; Time.timeScale = 1; }
+        public void Pause() { if (ScreenState != GameScreen.Playing) return; input.Cancel(); ScreenState = GameScreen.Paused; Time.timeScale = 0; SyncGameplayMusic(); }
+        public void Resume() { ScreenState = GameScreen.Playing; Time.timeScale = 1; SyncGameplayMusic(); }
         public void ReturnToMenu()
         {
             StopAllCoroutines(); input.Cancel(); Time.timeScale = 1;
             foreach (var candy in candies) candy.Restore();
             projectile = null; pendingResults = false; Boosts.Reset(); ar.End(); IsAR = false; SetWorldVisible(false); ScreenState = GameScreen.Menu;
+            StopGameplayMusic(); PhotoVisibility.End();
             if (MusicEnabled && !music.isPlaying) music.Play();
         }
         void SetWorldVisible(bool visible)
@@ -364,11 +372,18 @@ namespace CandyFlick
             ar.RefreshFrameRate();
         }
         public void ToggleSound() { SoundEnabled = !SoundEnabled; PlayerPrefs.SetInt("IsSound", SoundEnabled ? 1 : 0); PlayerPrefs.Save(); }
-        public void ToggleMusic() { MusicEnabled = !MusicEnabled; PlayerPrefs.SetInt("IsMusic", MusicEnabled ? 1 : 0); if (MusicEnabled) music.Play(); else music.Stop(); PlayerPrefs.Save(); }
+        public void ToggleMusic()
+        {
+            MusicEnabled = !MusicEnabled; PlayerPrefs.SetInt("IsMusic", MusicEnabled ? 1 : 0);
+            if (MusicEnabled && !gameplayMusicSession) music.Play(); else music.Stop();
+            SyncGameplayMusic(); PlayerPrefs.Save();
+        }
         public void ResetProgress()
         {
             NextGameBonus = 0; PlayerPrefs.DeleteAll(); SetMode(LaunchMode.Slingshot);
+            Skins.Select(NommieSkin.Original);
             LockFpsToCamera = false; ar.RefreshFrameRate();
+            HideCandyInPictures = InGameMusicEnabled = true; SyncGameplayMusic();
         }
         public void Play(AudioClip clip, float volume = 1) { if (SoundEnabled && clip) effects.PlayOneShot(clip, volume); }
         public void Say(string text, float seconds) { Message = text; messageUntil = Time.unscaledTime + seconds; }

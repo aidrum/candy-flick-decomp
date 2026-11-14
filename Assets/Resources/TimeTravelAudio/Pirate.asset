@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a38650617f468de46b1d20f022335792, type: 3}
+  m_Name: Pirate
+  m_EditorClassIdentifier: Assembly-CSharp::CandyFlick.TimeTravelVoice
+  openMouth: {fileID: 8300000, guid: 6c043664296f46c44a2cc020ca31cd04, type: 3}
+  closeMouth: {fileID: 8300000, guid: 9b3189c1fcb2402429ee92e90292d2a3, type: 3}
+  chew: {fileID: 8300000, guid: 9e9b78c8f4256004ba55f7a52c960589, type: 3}
+  sad: {fileID: 8300000, guid: 5f44d70ea236fea4fa12c7521e834dc6, type: 3}
+  tap: {fileID: 8300000, guid: d757ae92519003c49a0e1a44604e8413, type: 3}
+  loveTouch: {fileID: 8300000, guid: 35d8bfdddc5f23345bee92ba569465d8, type: 3}

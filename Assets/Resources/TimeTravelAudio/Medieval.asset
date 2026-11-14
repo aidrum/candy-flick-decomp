@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a38650617f468de46b1d20f022335792, type: 3}
+  m_Name: Medieval
+  m_EditorClassIdentifier: Assembly-CSharp::CandyFlick.TimeTravelVoice
+  openMouth: {fileID: 8300000, guid: d8d0ba2966a16ad4094277ce28c0ce87, type: 3}
+  closeMouth: {fileID: 8300000, guid: b59ba62e462cad049a6729ba1c29dffa, type: 3}
+  chew: {fileID: 8300000, guid: 7dd69dcc398d211448681ed23cc14ecd, type: 3}
+  sad: {fileID: 8300000, guid: e65a62c819440cb47bd1e687b9764b14, type: 3}
+  tap: {fileID: 8300000, guid: 52caff6f6bfc8034eb97ed67ad30f373, type: 3}
+  loveTouch: {fileID: 8300000, guid: f5feb3d49df79f94dae03bc0fcecefeb, type: 3}

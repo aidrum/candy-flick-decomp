@@ -50,6 +50,7 @@ namespace CandyFlick
         }
         public void Back()
         {
+            if(game.ScreenState==GameScreen.Skins) { transition.Begin(game.ReturnToMenu);return; }
             if (game.ScreenState == GameScreen.TargetOptions || game.ScreenState == GameScreen.Marker)
             { transition.Begin(game.Resume); return; }
             if (game.ScreenState == GameScreen.Tutorial || game.ScreenState == GameScreen.Help)

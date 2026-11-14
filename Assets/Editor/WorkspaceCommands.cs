@@ -22,6 +22,14 @@ namespace CandyFlickEditor
                 switch (command)
                 {
                     case "Prepare": ProjectBuilder.PrepareProject(); break;
+                    case "SkinsImport": TimeTravelSkinBuilder.Build(); break;
+                    case "SkinMenuAssets": SkinMenuAssetsBuilder.Build(); break;
+                    case "MenuTest": SkinMenuValidation.Run(); break;
+                    case "MusicImport": GameplayMusicBuilder.Build(); break;
+                    case "OptionsTest": ExtraOptionsValidation.Run(); break;
+                    case "SkinsTest": TimeTravelSkinValidation.Run(); break;
+                    case "AudioReference": TimeTravelAudioBuilder.References(); break;
+                    case "AudioImport": TimeTravelAudioBuilder.Build(); break;
                     case "Native": Original26Validation.Run(); break;
                     case "Ring": Original26Compatibility.ValidateRing(); break;
                     case "Test": SmokeValidation.Run(); break;

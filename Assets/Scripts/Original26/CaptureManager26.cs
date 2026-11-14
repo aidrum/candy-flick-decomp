@@ -15,6 +15,7 @@ namespace CandyFlick.Original26
         string path, fileName;
         float captureTime, checkTime;
         bool waitingForFile;
+        public string LastCapturePath => path;
 
         public void CaptureScreenshot()
         {

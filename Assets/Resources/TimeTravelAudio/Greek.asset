@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a38650617f468de46b1d20f022335792, type: 3}
+  m_Name: Greek
+  m_EditorClassIdentifier: Assembly-CSharp::CandyFlick.TimeTravelVoice
+  openMouth: {fileID: 8300000, guid: a00e6b3e7b5b6304fbaddd44c4b5da49, type: 3}
+  closeMouth: {fileID: 8300000, guid: 564c802f066073b40b5081e2ef2b0cb2, type: 3}
+  chew: {fileID: 8300000, guid: afa1d9c35f2240c4689442a59a204c64, type: 3}
+  sad: {fileID: 8300000, guid: 7a2ca772050af604da82a18a58028bfb, type: 3}
+  tap: {fileID: 8300000, guid: c6cf32529384d9b46bee6c125b2e6bf9, type: 3}
+  loveTouch: {fileID: 8300000, guid: 92578c3c2a0e2da4b85029df87f02ab0, type: 3}

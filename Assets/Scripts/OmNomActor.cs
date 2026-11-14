@@ -9,7 +9,8 @@ namespace CandyFlick
     {
         CandyFlickGame game;
         Animation animationPlayer;
-        CandyProjectile bullet;
+        CandyProjectile bullet, pendingCandy;
+        double pendingCatchTime;
         Vector3 startPosition, lastPosition, targetPosition;
         Quaternion startRotation;
         float distanceToBullet, startIdleTime, startJumpTime, moveProgress;
@@ -24,29 +25,41 @@ namespace CandyFlick
             startPosition = lastPosition = targetPosition = transform.position;
             startRotation = transform.rotation;
             // The original FrogPauseHider components are on OmNom_Mesh and Shadow.
-            pauseRenderers = GetComponentsInChildren<Renderer>(true)
-                .Where(renderer => renderer.name == "OmNom_Mesh" || renderer.name == "Shadow").ToArray();
+            RefreshRenderers();
             foreach (var renderer in GetComponentsInChildren<SkinnedMeshRenderer>()) renderer.updateWhenOffscreen = true;
             FrogIdle();
         }
+        public void RefreshRenderers() => pauseRenderers = GetComponentsInChildren<Renderer>(true);
         public void ResetOriginal()
         {
-            StopAllCoroutines(); bullet = null; frogStatus = frogPosition = hitAudioIndex = 0; // OnGameRestart 0x240dc resets the combo pitch.
+            StopAllCoroutines(); bullet = pendingCandy = null; frogStatus = frogPosition = hitAudioIndex = 0; // OnGameRestart 0x240dc resets the combo pitch.
             tapped = isCandyTouched = false; loveTouchTicker = startHeartTime = 0;
             transform.SetPositionAndRotation(startPosition, startRotation);
             lastPosition = targetPosition = startPosition; moveProgress = 0; FrogIdle();
         }
-        void FrogIdle() { startIdleTime = Time.time; animationPlayer.CrossFade("idle"); frogMode = 0; game.OnReadyForShoot(); }
+        void Fade(string name, float seconds = .3f)
+        {
+            if(game.Skins && game.Skins.Selected==NommieSkin.Prehistoric) seconds=name=="open"?.045f:.1f;
+            animationPlayer.CrossFade(name,seconds);
+        }
+        void FrogIdle() { startIdleTime = Time.time; Fade("idle"); frogMode = 0; game.OnReadyForShoot(); }
         public void Play(string name, bool loop = false)
         {
             if (!animationPlayer[name]) return;
-            animationPlayer.CrossFade(name); frogMode = name == "idle" ? 0 : 2;
+            Fade(name); frogMode = name == "idle" ? 0 : 2;
         }
-        public void OnBulletShoot(CandyProjectile candy) { isCandyTouched = false; frogStatus = 1; bullet = candy; }
+        public void OnBulletShoot(CandyProjectile candy) { pendingCandy = null; isCandyTouched = false; frogStatus = 1; bullet = candy; }
         public void OnCancelShoot() { isCandyTouched = false; }
         void Update()
         {
             if (!game || !game.CanSimulate) return;
+            // Resolve after all physics contacts for the step have been reported, so a
+            // simultaneous floor/actor contact cannot depend on callback order.
+            if (pendingCandy)
+            {
+                var candidate = pendingCandy; pendingCandy = null;
+                if (candidate == bullet && candidate.CanBeEatenAt(pendingCatchTime)) EatCandy();
+            }
             UpdateFrogTouching();
             UpdateFrogStatus();
             bool canJump = game.Session.round > 1;
@@ -55,7 +68,7 @@ namespace CandyFlick
                 if (!canJump && Time.time - startIdleTime >= 5)
                 {
                     startIdleTime = Time.time;
-                    animationPlayer.CrossFade("idle" + new System.Random().Next(2, 5));
+                    Fade("idle" + new System.Random().Next(2, 5));
                     animationPlayer.PlayQueued("idle");
                 }
                 // ARM 0x22a6a explicitly loads 2.0; Ghidra's NEON pseudocode loses this literal.
@@ -70,7 +83,7 @@ namespace CandyFlick
             if (frogStatus == 1 && distance <= 800)
             {
                 frogStatus = 2; FacePlayer(); frogMode = 1;
-                animationPlayer.CrossFade("open"); game.Play(game.assets.openMouth);
+                Fade("open"); game.Play(game.Skins.Sound(NommieSound.Open));
             }
             // Native UpdateFrogStatus compares successive distances exactly, even after Restore.
             if (distanceToBullet - distance == 0) BulletMiss();
@@ -78,18 +91,22 @@ namespace CandyFlick
         }
         void OnCollisionEnter(Collision collision)
         {
-            if (!bullet || collision.gameObject != bullet.gameObject) return;
+            if (!bullet || collision.gameObject != bullet.gameObject || !bullet.IsShot || pendingCandy) return;
+            pendingCandy = bullet; pendingCatchTime = Time.fixedTimeAsDouble;
+        }
+        void EatCandy()
+        {
             int bonus = bullet.RingBonus;
             bullet.Restore(); bullet = null; frogStatus = 0; frogMode = 2;
-            animationPlayer.CrossFade("close_eat", .3f);
-            game.Play(game.assets.closeMouth); game.Play(game.assets.chew);
+            Fade("close_eat", .3f);
+            game.Play(game.Skins.Sound(NommieSound.Close)); game.Play(game.Skins.Sound(NommieSound.Chew));
             game.Play(game.assets.hits[hitAudioIndex]); hitAudioIndex = (hitAudioIndex + 1) % game.assets.hits.Length;
             game.ResolveShot(true, bonus);
         }
         void BulletMiss()
         {
-            bullet = null; frogStatus = 0; frogMode = 2;
-            animationPlayer.CrossFade("close_sad"); game.Play(game.assets.closeMouth); game.Play(game.assets.sad);
+            bullet = pendingCandy = null; frogStatus = 0; frogMode = 2;
+            Fade("close_sad"); game.Play(game.Skins.Sound(NommieSound.Close)); game.Play(game.Skins.Sound(NommieSound.Sad));
             game.ResolveShot(false, 0);
         }
         public void OnPreShoot()
@@ -142,7 +159,7 @@ namespace CandyFlick
                     {
                         tapped = false;
                         string side = transform.InverseTransformPoint(point).x > 0 ? "_left" : "_right";
-                        frogMode = 4; game.Play(game.assets.loveTouch);
+                        frogMode = 4; game.Play(game.Skins.Sound(NommieSound.Pet));
                         animationPlayer["touch" + side].wrapMode = WrapMode.Loop;
                         animationPlayer.Play("touch" + side + "_in"); animationPlayer.PlayQueued("touch" + side);
                     }
@@ -152,11 +169,11 @@ namespace CandyFlick
             }
             else
             {
-                if (tapped) { frogMode = 6; animationPlayer.Play("tap"); game.Play(game.assets.tap); tapped = false; }
+                if (tapped) { frogMode = 6; animationPlayer.Play("tap"); game.Play(game.Skins.Sound(NommieSound.Tap)); tapped = false; }
                 if (frogMode == 4)
                 {
-                    if (animationPlayer.IsPlaying("touch_left") || animationPlayer.IsPlaying("touch_left_in")) animationPlayer.CrossFade("touch_left_out");
-                    if (animationPlayer.IsPlaying("touch_right") || animationPlayer.IsPlaying("touch_right_in")) animationPlayer.CrossFade("touch_right_out");
+                    if (animationPlayer.IsPlaying("touch_left") || animationPlayer.IsPlaying("touch_left_in")) Fade("touch_left_out");
+                    if (animationPlayer.IsPlaying("touch_right") || animationPlayer.IsPlaying("touch_right_in")) Fade("touch_right_out");
                     frogMode = 5;
                 }
                 loveTouchTicker = 0;
@@ -182,7 +199,7 @@ namespace CandyFlick
             }
             else offset = frogPosition == 1 ? Vector3.left : frogPosition == 2 ? Vector3.right : frogPosition == 3 ? Vector3.forward : Vector3.back;
             StartCoroutine(WaitAndMoveForJump(offset * 150)); frogPosition = next;
-            animationPlayer.CrossFade("jump"); animationPlayer.CrossFadeQueued("idle");
+            Fade("jump"); animationPlayer.CrossFadeQueued("idle");
             frogMode = 0; startJumpTime = Time.time;
         }
         IEnumerator WaitAndMoveForJump(Vector3 offset)
@@ -195,7 +212,7 @@ namespace CandyFlick
             if (game)
             {
                 bool visible = game.ScreenState == GameScreen.Playing && (!game.IsAR || game.ar.Tracking);
-                foreach (var renderer in pauseRenderers) renderer.enabled = visible;
+                foreach (var renderer in pauseRenderers) renderer.enabled = visible && (!game.Skins || game.Skins.Includes(renderer));
             }
             if (!game || !game.CanSimulate) return;
             if (frogMode == 3)

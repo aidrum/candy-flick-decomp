@@ -184,6 +184,7 @@ namespace CandyFlick
         void ResetHud()
         {
             StopAllCoroutines();
+            game.PhotoVisibility?.End();
             possibleRect = rectangles["ScoresGPView$$GetPossibleScoresRect"];
             possibleTexture = Texture("all/new_assets/Target_Plate");
             freezeScores = missPossible = flyPossible = boostHit = showTotalEffect = false;
@@ -292,7 +293,7 @@ namespace CandyFlick
             fullScreen = new Rect(-origin.x / scale, -origin.y / scale, UnityEngine.Screen.width / scale, UnityEngine.Screen.height / scale);
             GUI.matrix = Matrix4x4.TRS(new Vector3(origin.x, origin.y, 0), Quaternion.identity, new Vector3(scale, scale, 1));
             HandlePopupInput(); // The popup sits above every screen and takes its input first.
-            GUI.skin = game.ScreenState == GameScreen.Menu || game.ScreenState == GameScreen.Settings ? mainSkin : gameSkin;
+            GUI.skin = game.ScreenState == GameScreen.Menu || game.ScreenState == GameScreen.Settings || game.ScreenState == GameScreen.Skins ? mainSkin : gameSkin;
             // Ignore input during the native switch delay without Unity's disabled-control tint.
             if (transition.Waiting && (Event.current.isMouse || Event.current.isKey || Event.current.type == EventType.ScrollWheel))
                 Event.current.Use();
@@ -306,6 +307,7 @@ namespace CandyFlick
                 case GameScreen.Paused: DrawGamePlay(); DrawPause(); break;
                 case GameScreen.Results: DrawResults(); break;
                 case GameScreen.Settings: DrawSettings(); break;
+                case GameScreen.Skins: DrawSkins(); break;
                 case GameScreen.Help: DrawTutorial(); break;
                 case GameScreen.Tutorial: DrawTutorial(); break;
                 case GameScreen.Marker: DrawMarker(); break;
@@ -337,6 +339,7 @@ namespace CandyFlick
             }
             if (Button(R("MainScreen$$GetSettingRect"), Main(24))) transition.Begin(() => { settingsPage = null; game.Show(GameScreen.Settings); });
             if (Button(R("MainScreen$$GetDwnldRect"), Main(40))) transition.Begin(() => OpenTutorial(true, false));
+            if (Button(MenuSkinsRect, SkinsMenuButtonStyle)) OpenSkins();
             GUI.color = menuColor;
             // MainScreen.OnGUI, literal at 0x34aa8: first-entry alpha decreases .05 per call.
             if(menuEntryAlpha > 0)
@@ -389,16 +392,24 @@ namespace CandyFlick
             if (game.ScreenState != GameScreen.Paused && Button(R("GamePlayScreen$$GetPauseRect", true), Game(11))) game.Pause();
         }
         // GamePlayScreen.PhotoTapped 0x313b4 and WaitAndCapture/WaitAndShowEffect/WaitAndShowGui.
-        void PhotoTapped() { hideGui = true; StartCoroutine(WaitAndCapture()); }
+        void PhotoTapped()
+        {
+            hideGui = true; game.PhotoVisibility.Begin(game.HideCandyInPictures);
+            StartCoroutine(WaitAndCapture());
+        }
         IEnumerator WaitAndCapture()
         {
-            yield return null; // WaitForSeconds(0): capture the next frame, drawn with GUI hidden.
-            capture.CaptureScreenshot();
-            yield return new WaitForSecondsRealtime(.05f);
-            game.Play(game.assets.cameraShutter); cameraEffect.Begin();
-            yield return new WaitForSecondsRealtime(.45f);
-            hideGui = false;
+            try
+            {
+                yield return null; // WaitForSeconds(0): capture the next frame, drawn with GUI hidden.
+                capture.CaptureScreenshot();
+                yield return new WaitForSecondsRealtime(.05f);
+                game.Play(game.assets.cameraShutter); cameraEffect.Begin();
+                yield return new WaitForSecondsRealtime(.45f);
+            }
+            finally { hideGui = false; game.PhotoVisibility.End(); }
         }
+        void OnDisable() { if (game && game.PhotoVisibility) game.PhotoVisibility.End(); }
         void DrawPause()
         {
             GUI.color = new Color(0, 0, 0, .5f); GUI.DrawTexture(fullScreen, Texture2D.whiteTexture); GUI.color = Color.white;
@@ -452,8 +463,9 @@ namespace CandyFlick
                 transition.Begin(() => { if (settingsPage == "GameCenter" && gameCenterFromResults) { game.Show(GameScreen.Results); settingsPage = null; } else if (settingsPage != null) settingsPage = null; else game.ReturnToMenu(); });
             if (settingsPage == "About") { DrawAbout(); return; }
             if (settingsPage == "Reset") { DrawReset(); return; }
+            if (settingsPage == "MoreOptions") { DrawMoreOptions(); return; }
             const float width = 466, buttonHeight = 111;
-            float rows = settingsPage == "GameCenter" ? 5.3f : 7.5f;
+            float rows = settingsPage == "GameCenter" ? 5.3f : 6.5f;
             GUILayout.BeginArea(new Rect(320 - width / 2, height / 2 - buttonHeight * rows / 2, width, buttonHeight * rows));
             GUILayout.BeginVertical();
             if (settingsPage == "GameCenter")
@@ -478,19 +490,8 @@ namespace CandyFlick
                 Outline(languageRect, T("LANGUAGE"), Main(1));
                 GUI.DrawTexture(new Rect(languageRect.xMax - 79.365f * 1.5f, languageRect.y + languageRect.height * .45f - 55.5f / 2, 79.365f, 55.5f), Texture("all/flags/" + text.Flag));
                 GUILayout.FlexibleSpace();
-                if (GUILayout.Button("", Main(1), GUILayout.Width(width), GUILayout.Height(buttonHeight)))
-                { game.Play(game.assets.button); game.ToggleControlMode(); }
-                var controlStyle = new GUIStyle(Main(1));
-                string controlLabel = ControlModeLabel;
-                while(controlStyle.fontSize > 18 && controlStyle.CalcSize(new GUIContent(controlLabel)).x > width - 36)controlStyle.fontSize--;
-                Outline(GUILayoutUtility.GetLastRect(), controlLabel, controlStyle);
-                GUILayout.FlexibleSpace();
-                if (GUILayout.Button("", Main(1), GUILayout.Width(width), GUILayout.Height(buttonHeight)))
-                { game.Play(game.assets.button); game.ToggleCameraFpsLock(); }
-                var fpsStyle = new GUIStyle(Main(1));
-                string fpsLabel = CameraFpsLockLabel;
-                while(fpsStyle.fontSize > 18 && fpsStyle.CalcSize(new GUIContent(fpsLabel)).x > width - 36)fpsStyle.fontSize--;
-                Outline(GUILayoutUtility.GetLastRect(), fpsLabel, fpsStyle);
+                if (GUILayout.Button("", Main(1), GUILayout.Width(width), GUILayout.Height(buttonHeight))) ChangeSettingsPage("MoreOptions");
+                Outline(GUILayoutUtility.GetLastRect(), MoreOptionsLabel, Main(1));
                 GUILayout.FlexibleSpace();
                 if (GUILayout.Button("", Main(1), GUILayout.Width(width), GUILayout.Height(buttonHeight))) ChangeSettingsPage("About");
                 Outline(GUILayoutUtility.GetLastRect(), T("ABOUT"), Main(1));

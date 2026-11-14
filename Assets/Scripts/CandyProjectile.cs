@@ -8,6 +8,12 @@ namespace CandyFlick
         public bool IsShot { get; private set; }
         public int RingBonus { get; private set; }
         public Rigidbody Body { get; private set; }
+        public bool HasLanded => collisioned;
+        public double LandingPhysicsTime { get; private set; } = double.PositiveInfinity;
+        public bool CanBeEaten => IsShot && !collisioned;
+        // A catch from an earlier physics step still counts if a later step lands
+        // before Update. Contacts in the landing step itself cannot count as a catch.
+        public bool CanBeEatenAt(double contactTime) => IsShot && (!collisioned || LandingPhysicsTime > contactTime);
         CandyFlickGame game;
         Transform shadow;
         GameObject superEffect;
@@ -39,7 +45,7 @@ namespace CandyFlick
 
         public void LaunchImpulse(Vector3 force, Vector3 torque, bool super)
         {
-            RingBonus = 0; saved = collisioned = false; alpha = 1;
+            RingBonus = 0; saved = collisioned = false; alpha = 1; LandingPhysicsTime = double.PositiveInfinity;
             Body.isKinematic = false;
             Body.linearVelocity = Body.angularVelocity = Vector3.zero;
             // ObjectShooter.Shoot, 0x26264: ForceMode.Impulse, including relative torque.
@@ -84,7 +90,7 @@ namespace CandyFlick
             if (trail) { trail.enabled = false; trail.sharedMaterial = normalTrail; trail.time = .3f; trail.startWidth = 70; trail.endWidth = 30; }
             if (shadow) shadow.GetComponent<Renderer>().enabled = true;
             Body.isKinematic = true;
-            saved = collisioned = IsShot = false;
+            saved = collisioned = IsShot = false; LandingPhysicsTime = double.PositiveInfinity;
             transform.position = restorePosition;
             childCandy.material.shader = normalShader; childCandy.material.color = Color.white; alpha = 1;
         }
@@ -98,9 +104,10 @@ namespace CandyFlick
         public void AddRingBonus(int value) { RingBonus = value; } // ScoreBehaviour.temp_boost is assigned, not accumulated.
         void OnCollisionEnter(Collision collision)
         {
-            // Native BulletBehaviour plays a floor sound once; FrogBehaviour owns hit/miss decisions.
+            // Keep the native one-shot landing sound. The modern floor sits at the
+            // table surface, so also exclude landed candies from subsequent catches.
             if (collision.gameObject.name != "Floor" || collisioned) return;
-            collisioned = true;
+            collisioned = true; LandingPhysicsTime = Time.fixedTimeAsDouble;
             game.Play(game.assets.misses[new System.Random().Next(0, game.assets.misses.Length - 1)]);
         }
     }
