@@ -8,8 +8,8 @@ namespace CandyFlick
 {
     // Modern Android bridge for the same Vuforia/QCAR tracker family used in 2.6.
     // Vuforia owns capture, calibration, tracking and live video rendering. No CPU
-    // pixel copies, custom detector, buffered preview, world anchors or SLAM fallback.
-    public sealed class ARMarkerMode : MonoBehaviour
+    // pixel copies or custom detector. Optional Ground mode uses Fusion surface anchors.
+    public sealed partial class ARMarkerMode : MonoBehaviour
     {
         public bool Tracking { get; private set; }
         public string Status { get; private set; } = "Starting camera…";
@@ -30,6 +30,9 @@ namespace CandyFlick
         public void Initialize(CandyFlickGame owner) { game = owner; }
         public void Begin()
         {
+            bool keepGround = running && GroundMode && game.GroundARModeEnabled;
+            if(!keepGround) ClearGroundAnchor();
+            GroundMode = game.GroundARModeEnabled;
             running = true; SetTracking(false);
             if(startup != null)StopCoroutine(startup);
             startup = StartCoroutine(StartCamera());
@@ -41,7 +44,7 @@ namespace CandyFlick
 #if UNITY_ANDROID && !UNITY_EDITOR
             if(!UnityEngine.Android.Permission.HasUserAuthorizedPermission(UnityEngine.Android.Permission.Camera))
             {
-                Status = "Allow camera access to find the card.";
+                Status = "Allow camera access to play in AR.";
                 UnityEngine.Android.Permission.RequestUserPermission(UnityEngine.Android.Permission.Camera);
                 float deadline = Time.realtimeSinceStartup + 30;
                 while(!UnityEngine.Android.Permission.HasUserAuthorizedPermission(UnityEngine.Android.Permission.Camera) && Time.realtimeSinceStartup < deadline)yield return null;
@@ -74,12 +77,11 @@ namespace CandyFlick
             else rig.SetActive(true);
             if(VuforiaApplication.Instance.IsInitialized)
             {
-                if(targets.Count == 0)LoadTargets();
-                foreach(var target in targets)target.enabled = true;
+                ConfigureTrackingMode();
             }
             else VuforiaApplication.Instance.Initialize();
             RefreshFrameRate();
-            Status = "Point your camera at the card.";
+            Status = GroundMode ? "Move your phone slowly to find a flat surface." : "Point your camera at the card.";
         }
         void OnInitialized(VuforiaInitError error)
         {
@@ -87,7 +89,7 @@ namespace CandyFlick
             { Status = "The camera tracker could not start (" + error + ")."; SetTracking(false); return; }
             vuforia.VideoBackground.OnVideoBackgroundChanged += RouteVideoBackground;
             RouteVideoBackground();
-            LoadTargets();
+            ConfigureTrackingMode();
             if(!running) { foreach(var target in targets)target.enabled = false; if(rig)rig.SetActive(false); }
         }
         void RouteVideoBackground()
@@ -115,6 +117,7 @@ namespace CandyFlick
         {
             if(!running)return;
             RefreshFrameRate();
+            if(GroundMode) { UpdateGroundTracking(); return; }
             ImageTargetBehaviour observed = null;
             foreach(var target in targets)
                 if(target && target.enabled && IsImageVisible(target.TargetStatus.Status)) { observed = target; break; }
@@ -150,12 +153,12 @@ namespace CandyFlick
             QualitySettings.vSyncCount = previousVSyncCount;
             frameRateLocked = false;
         }
-        void OnStarted() { capturePaused = false; RefreshFrameRate(); }
-        void OnStopped() { RestoreFrameRate(); if(running)SetTracking(false); }
+        void OnStarted() { capturePaused = false; if(running) ConfigureTrackingMode(); RefreshFrameRate(); }
+        void OnStopped() { RestoreFrameRate(); if(running)LoseTracking(); }
         void OnPaused(bool paused)
         {
             capturePaused = paused;
-            if(paused) { RestoreFrameRate(); if(running)SetTracking(false); }
+            if(paused) { RestoreFrameRate(); if(running)LoseTracking(); }
             else RefreshFrameRate();
         }
         public static Pose NativeCameraPose(Pose target, Pose camera)
@@ -171,12 +174,14 @@ namespace CandyFlick
         void OnApplicationPause(bool paused)
         {
             applicationPaused = paused;
-            if(paused) { RestoreFrameRate(); if(running)SetTracking(false); }
+            if(paused) { RestoreFrameRate(); if(running)LoseTracking(); }
             else RefreshFrameRate();
         }
         public void End()
         {
             running = false;
+            ClearGroundAnchor();
+            if(vuforia && vuforia.DevicePoseBehaviour) vuforia.DevicePoseBehaviour.enabled = false;
             RestoreFrameRate();
             if(startup != null) { StopCoroutine(startup); startup = null; }
             SetTracking(false);

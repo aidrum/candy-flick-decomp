@@ -14,16 +14,21 @@ namespace CandyFlick
         public string SettingsPage => settingsPage;
         public Vector2 SkinScroll => skinScroll;
         public Rect SkinViewport => new Rect(28,155,584,height-330);
-        Rect MoreOptionRect(float offset)
+        Rect MoreOptionRect(int index)
         {
-            float h=Dimension("SettingScreen$$GetMainBtnHeight"),w=Dimension("SettingScreen$$GetMainBtnWidth");
-            return new Rect(320-w/2,height/2+offset*h/111,w,h);
+            float w=Dimension("SettingScreen$$GetMainBtnWidth");
+            float top=height*.08f, bottom=R("SettingScreen$$GetBackBtnRect",true).y-22;
+            float step=Mathf.Min(145,(bottom-top)/6);
+            float h=Mathf.Min(Dimension("SettingScreen$$GetMainBtnHeight"),step-14);
+            return new Rect(320-w/2,top+index*step,w,h);
         }
-        public Rect MoreControlsRect=>MoreOptionRect(-346);
-        public Rect MoreFpsRect=>MoreOptionRect(-201);
-        public Rect MoreHideCandyRect=>MoreOptionRect(-56);
-        public Rect MoreMusicRect=>MoreOptionRect(89);
-        public Rect MoreNonARRect=>MoreOptionRect(234);
+        public Rect MoreControlsRect=>MoreOptionRect(0);
+        public Rect MoreFpsRect=>MoreOptionRect(1);
+        public Rect MoreHideCandyRect=>MoreOptionRect(2);
+        public Rect MoreMusicRect=>MoreOptionRect(3);
+        public Rect MoreNonARRect=>MoreOptionRect(4);
+        public Rect MoreARModeRect=>MoreOptionRect(5);
+        public string ARModeLabel=>"AR Mode: "+(game.GroundARModeEnabled?"Ground":"Image");
         public Rect MenuSkinsRect { get { Rect rect=R("MainScreen$$GetShareRect");rect.y+=48*referenceHeight/1136;return rect; } }
         GUIStyle SkinsMenuButtonStyle { get { InitSkinMenu(); return skinsMenuButton; } }
         void InitSkinMenu()
@@ -98,6 +103,7 @@ namespace CandyFlick
             DrawSettingsOption(MoreHideCandyRect,HideCandyLabel,game.ToggleHideCandyInPictures);
             DrawSettingsOption(MoreMusicRect,InGameMusicLabel,game.ToggleInGameMusic);
             DrawSettingsOption(MoreNonARRect,NonARModeLabel,game.ToggleNonARMode);
+            DrawSettingsOption(MoreARModeRect,ARModeLabel,game.ToggleGroundARMode);
         }
         string OptionLabel(string[] labels,bool enabled)
         {

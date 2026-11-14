@@ -18,7 +18,7 @@ namespace CandyFlick
             entry => entry.method == "FontSizeManager$$get_" + name).size;
         public void MenuPlay()
         {
-            if (game.NonARModeEnabled) { StartPlatformGame(); return; }
+            if (game.NonARModeEnabled || game.GroundARModeEnabled) { StartPlatformGame(); return; }
             if (!PlayerPrefs.HasKey("ProgramStartKey")) OpenTutorial(false, true);
             else StartPlatformGame();
         }
@@ -28,7 +28,7 @@ namespace CandyFlick
 #if UNITY_ANDROID && !UNITY_EDITOR
             game.StartGame(true);
 #else
-            game.StartGame();
+            game.StartGame(game.GroundARModeEnabled);
 #endif
         }
         public void OpenTutorial(bool fromMenu, bool startsNewGame)

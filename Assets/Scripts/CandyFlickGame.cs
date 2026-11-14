@@ -183,6 +183,7 @@ namespace CandyFlick
             if (animElastic.activeSelf && (Ready || ScreenState == GameScreen.Paused || !animElastic.GetComponent<Animation>().isPlaying))
                 animElastic.SetActive(false);
             CandyGhost.gameObject.SetActive(Ready); slingshot.SetActive(Ready && ControlMode == LaunchMode.Slingshot);
+            if (IsAR && ar.ConsumePlacementInput()) return;
             if (!CanSimulate) return;
             if (IsNonAR && NonARBackground.Navigation.PollInput()) return;
             if (Input.touchCount > 0)
@@ -211,8 +212,15 @@ namespace CandyFlick
             if (input.IsTouchBegan && isCandyTapped && ControlMode == LaunchMode.Slingshot)
             {
                 Physics.SyncTransforms(); // CandyPlane.Update, 0x220dc: raycast the original collider.
-                if (touchPlane.Raycast(GameCamera.ScreenPointToRay(position), out RaycastHit hit, Mathf.Infinity)) MoveCandyToPoint(hit.point);
-                else ResetCandyPos();
+                Ray ray=GameCamera.ScreenPointToRay(position);
+                if (touchPlane.Raycast(ray, out RaycastHit hit, Mathf.Infinity)) MoveCandyToPoint(hit.point);
+                else
+                {
+                    // A wide portrait AR projection can extend below the original
+                    // finite collider. Continue an owned pull on the same plane.
+                    var plane=new Plane(touchPlane.transform.up,touchPlane.bounds.center);
+                    if(plane.Raycast(ray,out float distance)) MoveCandyToPoint(ray.GetPoint(distance));
+                }
             }
         }
         void OnTouchBegan(Vector2 point)
@@ -278,9 +286,9 @@ namespace CandyFlick
             LastScore = 0;
         }
 
-        public void SetTrackedView(Vector3 position, Quaternion rotation, Matrix4x4 projection)
+        public void SetTrackedView(Vector3 position, Quaternion rotation, Matrix4x4 projection, bool snap = false)
         {
-            float blend = Time.unscaledDeltaTime * (hardStabilisation ? 5 : 18); // CameraStabilisation; keep the image aligned while paused.
+            float blend = snap ? 1 : Time.unscaledDeltaTime * (hardStabilisation ? 5 : 18); // CameraStabilisation; keep the image aligned while paused.
             stablePosition = Vector3.Lerp(stablePosition, position, blend);
             stableRotation = Quaternion.Lerp(stableRotation, rotation, blend);
             Player.SetPositionAndRotation(stablePosition, stableRotation);
@@ -394,7 +402,7 @@ namespace CandyFlick
             NextGameBonus = 0; PlayerPrefs.DeleteAll(); SetMode(LaunchMode.Slingshot);
             Skins.Select(NommieSkin.Original);
             LockFpsToCamera = false; ar.RefreshFrameRate();
-            HideCandyInPictures = true; InGameMusicEnabled = NonARModeEnabled = false; SyncGameplayMusic();
+            HideCandyInPictures = InGameMusicEnabled = true; NonARModeEnabled = GroundARModeEnabled = false; SyncGameplayMusic();
         }
         public void Play(AudioClip clip, float volume = 1) { if (SoundEnabled && clip) effects.PlayOneShot(clip, volume); }
         public void Say(string text, float seconds) { Message = text; messageUntil = Time.unscaledTime + seconds; }

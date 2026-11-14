@@ -81,7 +81,7 @@ namespace CandyFlickEditor
             EditorSceneManager.SaveScene(scene,ScenePath);
             ConfigureStartupScenes();
             AssetDatabase.SaveAssets();
-            Debug.Log("CANDY_FLICK_PROJECT_READY: Unity "+Application.unityVersion+", original assets, Android ARM64 IL2CPP, Vuforia image tracking with the original 2.6 target database (no ARCore).");
+            Debug.Log("CANDY_FLICK_PROJECT_READY: Unity "+Application.unityVersion+", original assets, Android ARM64 IL2CPP, Vuforia image tracking with the original 2.6 target database (optional ARCore Ground mode).");
         }
 
         static void RepairMaterials()
@@ -163,8 +163,8 @@ namespace CandyFlickEditor
             config.Vuforia.MaxSimultaneousImageTargets=1;
             config.Vuforia.VirtualSceneScaleFactor=1;
             config.DeviceTracker.AutoInitAndStartTracker=false;
-            config.DeviceTracker.ARCoreRequirementSetting=VuforiaConfiguration.DeviceTrackerConfiguration.ARCoreRequirement.DONT_USE;
-            config.DeviceTracker.AutoImportArcoreSetting=false;
+            config.DeviceTracker.ARCoreRequirementSetting=VuforiaConfiguration.DeviceTrackerConfiguration.ARCoreRequirement.OPTIONAL;
+            config.DeviceTracker.AutoImportArcoreSetting=true;
             config.VideoBackground.VideoBackgroundEnabled=true;
             EditorUtility.SetDirty(config);
             }
