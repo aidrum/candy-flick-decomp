@@ -60,8 +60,7 @@ namespace CandyFlickEditor
                 switch(stage++)
                 {
                     case 0:
-                        Check(game.HideCandyInPictures&&!game.InGameMusicEnabled,"Photo hiding defaults on and in-game music defaults off with no saved preferences");
-                        game.ToggleInGameMusic();
+                        Check(game.HideCandyInPictures&&game.InGameMusicEnabled,"Photo hiding and in-game music default on with no saved preferences");
                         ValidateMusic();game.ReturnToMenu();Capture("main-menu-lowered-skins");
                         Check(Mathf.Approximately(ui.MenuSkinsRect.y,850),"Main menu skins button is lowered by 48 canvas units");Click(ui.MenuSkinsRect.center);break;
                     case 1: Check(game.ScreenState==GameScreen.Skins,"Lowered main menu button opens skins");Click(ui.SkinViewport.position+CandyFlickUI.SkinCardRect(TimeTravelSkins.RandomChoice).center);break;
@@ -88,7 +87,7 @@ namespace CandyFlickEditor
                     case 9: Click(ui.MoreHideCandyRect.center);break;
                     case 10: Check(!game.HideCandyInPictures&&PlayerPrefs.GetInt(CandyFlickGame.HideCandyPreference,-1)==0,"Hide candy toggle in More Options persists off");Click(ui.MoreMusicRect.center);break;
                     case 11: Check(!game.InGameMusicEnabled&&PlayerPrefs.GetInt(CandyFlickGame.InGameMusicPreference,-1)==0,"In-game music toggle in More Options persists off");Capture("more-options-off");Click(new Vector2(79,1057));break;
-                    case 12: Check(game.ScreenState==GameScreen.Settings&&ui.SettingsPage==null,"Back from four-option submenu returns to settings");game.StartGame();break;
+                    case 12: Check(game.ScreenState==GameScreen.Settings&&ui.SettingsPage==null,"Back from six-option submenu returns to settings");game.StartGame();break;
                     case 13:
                         Check(!game.GameplayMusic.isPlaying,"Disabled in-game music stays silent when starting a game");
                         game.Skins.Select(NommieSkin.Original);Check(!game.Skins.RandomSelected,"Selecting a fixed skin leaves Random mode");

@@ -48,7 +48,7 @@ namespace CandyFlickEditor
                 switch(stage++)
                 {
                     case 0:
-                        Check(!game.NonARModeEnabled&&!game.InGameMusicEnabled,"Non AR mode and in-game music both default off without saved values");
+                        Check(!game.NonARModeEnabled&&game.InGameMusicEnabled,"Non AR mode defaults off and in-game music defaults on without saved values");
                         originalLights=UnityEngine.Object.FindObjectsByType<Light>(FindObjectsInactive.Include).ToDictionary(l=>l,l=>l.enabled);
                         ambientMode=RenderSettings.ambientMode;ambientColor=RenderSettings.ambientLight;reflections=RenderSettings.reflectionIntensity;
                         MoreOptions();break;
@@ -80,7 +80,7 @@ namespace CandyFlickEditor
                         Check(Vector3.Dot(game.Actor.transform.forward,(game.Player.position-game.Actor.transform.position).normalized)>.8f,"Om Nom faces the fixed camera");
                         cameraPosition=game.Player.position;cameraRotation=game.Player.rotation;Capture("nonar-ready");break;
                     case 5:
-                        Check(!game.GameplayMusic.isPlaying,"Gameplay stays silent with the new default-off music setting");
+                        Check(!game.MusicEnabled || game.GameplayMusic.clip,"Default-enabled gameplay music loads a song when master music is enabled");
                         game.UpdateTableDistance(3);Check(game.Player.position==cameraPosition,"Fixed Non AR view ignores the distance inspection helper");
                         Check(Quaternion.Angle(game.Player.rotation,cameraRotation)<.001f,"Non AR camera pose stays static across frames");
                         game.PhotoVisibility.Begin(true);break;

@@ -38,7 +38,7 @@ namespace CandyFlick
         // GamePlayScreen.PhotoTapped / CameraEffect and SearchTargetScreen's animated GUITextures.
         CaptureManager26 capture;
         CameraEffect26 cameraEffect;
-        bool hideGui, searchShown;
+        bool hideGui, searchShown, searchGround;
         LegacyGUITexture26 searchFocus, searchSticker, whiteFlash;
         bool restartPending;
         float searchHideTime = -1;
@@ -125,9 +125,10 @@ namespace CandyFlick
         // SearchTargetScreen.OnEnable 0x3c27c / CloseScreen 0x3c678 (WaitAndDisable after .7 s).
         void SetSearchScreen(bool show, bool animate)
         {
-            searchShown = show;
+            searchShown = show; searchGround = game.ar.GroundMode;
             foreach (var (guiTexture, open, close) in new[] { (searchFocus, "GUIRearSightAnimation", "EndRearSight"), (searchSticker, StickerOpen, StickerClose) })
             {
+                if(guiTexture==searchFocus && searchGround) { guiTexture.gameObject.SetActive(false); continue; }
                 if (show) { guiTexture.gameObject.SetActive(true); PlayUnscaled(guiTexture, open); }
                 else if (animate && guiTexture.gameObject.activeSelf) PlayUnscaled(guiTexture, close);
                 else guiTexture.gameObject.SetActive(false);
@@ -193,7 +194,7 @@ namespace CandyFlick
             UpdateResetHolding();
             bool inGame = game.ScreenState == GameScreen.Playing || game.ScreenState == GameScreen.Paused;
             bool searching = inGame && game.IsAR && !game.ar.Tracking;
-            if (searching != searchShown) SetSearchScreen(searching, inGame);
+            if (searching != searchShown || (searching && searchGround != game.ar.GroundMode)) SetSearchScreen(searching, inGame);
             if (searchHideTime >= 0 && Time.unscaledTime >= searchHideTime) SetSearchScreen(false, false);
             UpdateUnscaledAnimations();
             if (!game.CanSimulate) return;
@@ -352,13 +353,17 @@ namespace CandyFlick
             searchSticker.Draw(640, height); searchFocus.Draw(640, height);GUI.matrix=canvas;
             if (game.IsAR && !game.ar.Tracking)
             {
-                // DrawRearSightScreen 0x3cf50: plain GUI.Label with label_gp; the button text is outlined.
-                GUI.Label(R("SearchTargetScreen$$GetLabelRect", true), T("SEARCH_TARGET_LABEL"), Game(8));
-                Rect imageButton = R("SearchTargetScreen$$GetImageButtonRect", true);
-                bool getImage = Button(imageButton, Game(17));
-                if (text.CurrentLanguage == 6) imageButton.y += 3; // Native Korean baseline offset (non-iPad3).
-                Outline(imageButton, T("GET_IMAGE"), Game(17));
-                if (getImage) OpenTargetOptions();
+                if(game.ar.GroundMode) DrawGroundSearch();
+                else
+                {
+                    // DrawRearSightScreen 0x3cf50: plain GUI.Label with label_gp; the button text is outlined.
+                    GUI.Label(R("SearchTargetScreen$$GetLabelRect", true), T("SEARCH_TARGET_LABEL"), Game(8));
+                    Rect imageButton = R("SearchTargetScreen$$GetImageButtonRect", true);
+                    bool getImage = Button(imageButton, Game(17));
+                    if (text.CurrentLanguage == 6) imageButton.y += 3; // Native Korean baseline offset (non-iPad3).
+                    Outline(imageButton, T("GET_IMAGE"), Game(17));
+                    if (getImage) OpenTargetOptions();
+                }
             }
             else
             {
@@ -387,6 +392,7 @@ namespace CandyFlick
                 }
             }
             if (game.ScreenState != GameScreen.Paused && Button(R("GamePlayScreen$$GetPauseRect", true), Game(11))) game.Pause();
+            HandleGroundPlacementTap();
         }
         // GamePlayScreen.PhotoTapped 0x313b4 and WaitAndCapture/WaitAndShowEffect/WaitAndShowGui.
         void PhotoTapped()
@@ -411,7 +417,13 @@ namespace CandyFlick
         {
             GUI.color = new Color(0, 0, 0, .5f); GUI.DrawTexture(fullScreen, Texture2D.whiteTexture); GUI.color = Color.white;
             DrawARToggle();
-            if (Button(R(game.IsAR && !game.ar.Tracking ? "SearchTargetScreen$$GetHelpRect" : "GamePlayScreen$$GetHelpRect", true), Game(12))) transition.Begin(() => OpenTutorial(false, false));
+            if (Button(R(game.IsAR && !game.ar.Tracking ? "SearchTargetScreen$$GetHelpRect" : "GamePlayScreen$$GetHelpRect", true), Game(12)))
+            {
+                if(game.IsAR && game.ar.GroundMode) ShowPopupMessage("Move your phone slowly over a flat, well-lit surface. Aim at the surface and tap anywhere outside the buttons to place Om Nom. Walk around him to change your view.");
+                else transition.Begin(() => OpenTutorial(false, false));
+            }
+            if(game.IsAR && game.ar.GroundMode && game.ar.GroundPlaced)
+                DrawSettingsOption(GroundRepositionRect,"Place again",()=>{game.ar.RepositionGround();game.Resume();});
             if (Button(R("GamePlayScreen$$GetSoundRect", true), Game(game.SoundEnabled ? 14 : 18))) game.ToggleSound();
             if (Button(R("GamePlayScreen$$GetMenuRect", true), Game(20))) transition.Begin(game.ReturnToMenu);
             // Native controls are clipped by the screen at the lower right corner.

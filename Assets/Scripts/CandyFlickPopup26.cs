@@ -14,10 +14,14 @@ namespace CandyFlick
         // ShowPopupWithMessageKey: message text, localized "OK", popupBtnText/popupMessage font sizes.
         public void ShowPopupWithMessageKey(string messageKey)
         {
+            Init(); ShowPopupMessage(T(messageKey));
+        }
+        void ShowPopupMessage(string message)
+        {
             Init();
             Game(42).fontSize = PopupFontSize("PopupBtnFs");
             Game(43).fontSize = PopupFontSize("PopupMessageFs");
-            popupMessage = T(messageKey); popupButton = T("OK");
+            popupMessage = message; popupButton = T("OK");
             popupPressed = false; PopupActive = true;
         }
         int PopupFontSize(string name) => Array.Find(fontProfiles.languages[text.CurrentLanguage].sizes,

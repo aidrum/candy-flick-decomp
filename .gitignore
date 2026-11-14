@@ -41,3 +41,4 @@ Tools/opencv-*.exe
 /add-vuforia-package-*.unitypackage
 /Tools
 /Documentation
+**/VuforiaLicense.cs

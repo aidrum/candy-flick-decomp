@@ -7,6 +7,8 @@ namespace CandyFlick
         public const string HideCandyPreference = "PortHideCandyInPictures";
         public const string InGameMusicPreference = "PortInGameMusic";
         public const string NonARPreference = "PortNonARMode";
+        public const string GroundARPreference = "PortGroundARMode";
+        public bool GroundARModeEnabled { get; private set; }
         public bool HideCandyInPictures { get; private set; }
         public bool InGameMusicEnabled { get; private set; }
         public bool NonARModeEnabled { get; private set; }
@@ -20,8 +22,9 @@ namespace CandyFlick
         void InitializeExtraOptions()
         {
             HideCandyInPictures = PlayerPrefs.GetInt(HideCandyPreference, 1) == 1;
-            InGameMusicEnabled = PlayerPrefs.GetInt(InGameMusicPreference, 0) == 1;
+            InGameMusicEnabled = PlayerPrefs.GetInt(InGameMusicPreference, 1) == 1;
             NonARModeEnabled = PlayerPrefs.GetInt(NonARPreference, 0) == 1;
+            GroundARModeEnabled = PlayerPrefs.GetInt(GroundARPreference, 0) == 1;
             GameplayMusic = gameObject.AddComponent<AudioSource>();
             GameplayMusic.playOnAwake = false; GameplayMusic.loop = true; GameplayMusic.volume = .6f;
         }
@@ -35,6 +38,11 @@ namespace CandyFlick
             InGameMusicEnabled = !InGameMusicEnabled;
             PlayerPrefs.SetInt(InGameMusicPreference, InGameMusicEnabled ? 1 : 0); PlayerPrefs.Save();
             SyncGameplayMusic();
+        }
+        public void ToggleGroundARMode()
+        {
+            GroundARModeEnabled = !GroundARModeEnabled;
+            PlayerPrefs.SetInt(GroundARPreference, GroundARModeEnabled ? 1 : 0); PlayerPrefs.Save();
         }
         public void ToggleNonARMode()
         {
