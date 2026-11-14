@@ -23,10 +23,29 @@ namespace CandyFlick
             float nativeHeight=family=="ipad2"?1024f*640/768:family=="iphone4"?960:1136;
             return Mathf.Min(safe.width/640f,safe.height/nativeHeight);
         }
-        public static Vector2 CanvasOrigin(Rect safe,float screenHeight)
+        public static bool UsesFullWidth(GameScreen screen)=>screen==GameScreen.Playing||screen==GameScreen.Paused;
+        public float CanvasWidth=>UsesFullWidth(game.ScreenState)?Screen.safeArea.width/CanvasScale(Screen.safeArea):640;
+        float GameplayExtraWidth=>Mathf.Max(0,CanvasWidth-640);
+        public static Vector2 CanvasOrigin(Rect safe,float screenHeight,GameScreen screen=GameScreen.Menu)
         {
             float scale=CanvasScale(safe);
-            return new Vector2(safe.center.x-320*scale,screenHeight-safe.yMax);
+            return new Vector2(UsesFullWidth(screen)?safe.x:safe.center.x-320*scale,screenHeight-safe.yMax);
+        }
+        Rect GameplayRect(string method,Rect rect)
+        {
+            float extra=GameplayExtraWidth;
+            switch(method)
+            {
+                case "ScoresGPView$$GetTotalScoresRect":
+                case "GamePlayScreen$$GetPauseRect":case "GamePlayScreen$$GetHelpRect":
+                case "GamePlayScreen$$GetSoundRect":case "GamePlayScreen$$GetMenuRect":
+                case "SearchTargetScreen$$GetPauseRect":case "SearchTargetScreen$$GetHelpRect":
+                case "SearchTargetScreen$$GetSoundRect":case "SearchTargetScreen$$GetMenuRect":rect.x+=extra;break;
+                case "ScoresGPView$$GetPossibleScoresRect":
+                case "SearchTargetScreen$$GetLabelRect":case "SearchTargetScreen$$GetImageButtonRect":rect.x+=extra/2;break;
+                default:if(method.StartsWith("PopupView$$",StringComparison.Ordinal))rect.x+=extra/2;break;
+            }
+            return rect;
         }
         void LoadDeviceLayout()
         {

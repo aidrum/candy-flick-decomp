@@ -29,6 +29,7 @@ namespace CandyFlickEditor
                     case "OptionsTest": ExtraOptionsValidation.Run(); break;
                     case "NonARTest": NonARValidation.Run(); break;
                     case "NonARControlsTest": NonARControlsValidation.Run(); break;
+                    case "ARToggleTest": ARToggleValidation.Run(); break;
                     case "SuperCandyTest": SuperCandyValidation.Run(); break;
                     case "RestartAnimationTest": RestartAnimationValidation.Run(); break;
                     case "EarlyMissTest": EarlyMissValidation.Run(); break;
