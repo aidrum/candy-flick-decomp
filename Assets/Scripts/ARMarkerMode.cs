@@ -24,16 +24,35 @@ namespace CandyFlick
         VuforiaBehaviour vuforia;
         Coroutine startup;
         bool running, subscribed;
-        bool applicationPaused, capturePaused, frameRateLocked;
+        bool applicationPaused, capturePaused, frameRateLocked, imageMenuPaused;
         int previousFrameRate, previousVSyncCount;
 
         public void Initialize(CandyFlickGame owner) { game = owner; }
+        void Update() => RefreshImageMenuCapture();
+        // Stop the SDK capture engine while the normal Show Image menu covers it.
+        // Keep initialization and observers so closing the menu can restart capture.
+        void RefreshImageMenuCapture()
+        {
+            bool covered = running && game && !game.IsLanMatch && !lanRetained && game.ScreenState == GameScreen.Marker;
+            if(covered && !imageMenuPaused && vuforia && vuforia.enabled)
+            {
+                imageMenuPaused = true;
+                vuforia.enabled = false;
+                RestoreFrameRate(); SetTracking(false);
+            }
+            else if(!covered && imageMenuPaused && !applicationPaused)
+            {
+                imageMenuPaused = false;
+                if(running && vuforia)vuforia.enabled = true;
+            }
+        }
         public void Begin()
         {
-            bool keepGround = running && GroundMode && game.GroundARModeEnabled;
+            bool desiredGround=game.IsLanMatch?game.LAN.GroundMode:game.GroundARModeEnabled;
+            bool keepGround = running && GroundMode && desiredGround;
             if(!keepGround) ClearGroundAnchor();
-            GroundMode = game.GroundARModeEnabled;
-            running = true; SetTracking(false);
+            GroundMode = desiredGround;
+            lanRetained=false;running = true; SetTracking(false);
             if(startup != null)StopCoroutine(startup);
             startup = StartCoroutine(StartCamera());
         }
@@ -117,6 +136,8 @@ namespace CandyFlick
         {
             if(!running)return;
             RefreshFrameRate();
+            if(lanRetained&&!game.IsLanMatch){UpdateRetainedLanGround();return;}
+            if(LanGround){UpdateLanGroundCalibration();return;}
             if(GroundMode) { UpdateGroundTracking(); return; }
             ImageTargetBehaviour observed = null;
             foreach(var target in targets)
@@ -132,7 +153,7 @@ namespace CandyFlick
         // step with it, including after capture restarts or changes its rate.
         public void RefreshFrameRate()
         {
-            if(!game || !game.LockFpsToCamera || !running || applicationPaused || capturePaused || !vuforia || !VuforiaApplication.Instance.IsRunning)
+            if(!game || !game.LockFpsToCamera || !running || applicationPaused || capturePaused || imageMenuPaused || !vuforia || !VuforiaApplication.Instance.IsRunning)
             { RestoreFrameRate(); return; }
             int fps = vuforia.CameraDevice.GetRecommendedFPS();
             if(fps <= 0) { RestoreFrameRate(); return; }
@@ -179,7 +200,7 @@ namespace CandyFlick
         }
         public void End()
         {
-            running = false;
+            running = false;lanRetained=false;
             ClearGroundAnchor();
             if(vuforia && vuforia.DevicePoseBehaviour) vuforia.DevicePoseBehaviour.enabled = false;
             RestoreFrameRate();
@@ -189,6 +210,8 @@ namespace CandyFlick
             // Stop capture when leaving AR, but retain the initialized SDK/database
             // for the next game. Avoid repeated native shutdown/reinitialization.
             if(rig)rig.SetActive(false);
+            // Reset while the rig is inactive, avoiding a capture restart on exit.
+            if(imageMenuPaused) { imageMenuPaused = false; if(vuforia)vuforia.enabled = true; }
             if(game && game.World)foreach(var renderer in game.World.GetComponentsInChildren<Renderer>())renderer.forceRenderingOff = false;
         }
         void OnDestroy()

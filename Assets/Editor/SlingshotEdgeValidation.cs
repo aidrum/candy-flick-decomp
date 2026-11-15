@@ -61,6 +61,12 @@ namespace CandyFlickEditor
             Physics.SyncTransforms();Vector2 start=game.GameCamera.WorldToScreenPoint(game.CandyGhost.position);
             Vector3 initial=game.CandyGhost.position;
             game.SampleInput(TouchPhase.Began,start,Vector2.zero);
+            Vector2 forward=start+Vector2.up*40;
+            game.SampleInput(TouchPhase.Moved,forward,forward-start);
+            Check(Vector3.Distance(initial,game.CandyGhost.position)<.01f,"Forward slingshot drag stays at rest at "+sizes[index]);
+            game.SampleInput(TouchPhase.Ended,forward,Vector2.zero);
+            Check(!game.IsDragging&&!game.World.GetComponentsInChildren<CandyProjectile>(true).Any(c=>c.IsShot),"Forward release cancels without launching at "+sizes[index]);
+            game.SampleInput(TouchPhase.Began,start,Vector2.zero);
             Check(game.IsDragging,"Candy owns the slingshot gesture at "+sizes[index]);
             Collider original=game.Player.Find("CandyTouchPlane").GetComponent<Collider>();
             int outside=0;Vector2 previous=start;

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using CandyFlick;
+using CandyFlick.Multiplayer;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -21,8 +22,11 @@ namespace CandyFlickEditor
         static int stage; static double next,deadline; static bool finishing; static Action afterCapture;
         static GroundARValidation(){if(SessionState.GetBool(Key,false)){EditorApplication.update+=Tick;Application.logMessageReceived+=OnLog;}}
         [MenuItem("Candy Flick/Validate Ground AR mode")]
-        public static void Run()
+        public static void Run()=>Start(true);
+        public static void RunWithoutCaptures()=>Start(false);
+        static void Start(bool capture)
         {
+            SessionState.SetBool(Key+"Capture",capture);
             Directory.CreateDirectory(Folder);if(File.Exists(Folder+"/failure.txt"))File.Delete(Folder+"/failure.txt");
             ProjectBuilder.ConfigureVuforia();
             foreach(string pref in prefs){SessionState.SetBool(Key+pref+"Had",PlayerPrefs.HasKey(pref));SessionState.SetInt(Key+pref,PlayerPrefs.GetInt(pref));PlayerPrefs.DeleteKey(pref);}
@@ -42,15 +46,16 @@ namespace CandyFlickEditor
         static void Check(bool value,string label){if(!value)throw new Exception(label);checks.Add(label);}
         static void CaptureThen(string name, Action nextAction)
         {
-            ScreenCapture.CaptureScreenshot(Folder+"/"+name+".png"); afterCapture=nextAction;
+            if(SessionState.GetBool(Key+"Capture",true))ScreenCapture.CaptureScreenshot(Folder+"/"+name+".png"); afterCapture=nextAction;
         }
         static void More(){game.Show(GameScreen.Settings);typeof(CandyFlickUI).GetField("settingsPage",BindingFlags.NonPublic|BindingFlags.Instance).SetValue(ui,"MoreOptions");}
         static void Layout()
         {
-            var rows=new[]{ui.MoreControlsRect,ui.MoreFpsRect,ui.MoreHideCandyRect,ui.MoreMusicRect,ui.MoreNonARRect,ui.MoreARModeRect};
+            var rows=new[]{ui.MoreControlsRect,ui.MoreFpsRect,ui.MoreHideCandyRect,ui.MoreMusicRect,ui.MoreARModeRect};
             Rect back=(Rect)Call(ui,"R","SettingScreen$$GetBackBtnRect",true);
-            Check(rows.All(r=>r.x>=0&&r.xMax<=640&&r.height>=60)&&rows.Last().yMax<back.y,"All six options fit above Back at "+Screen.width+"x"+Screen.height);
-            Check(Enumerable.Range(1,5).All(i=>rows[i-1].yMax<rows[i].y),"More Options rows do not overlap");
+            Check(rows.All(r=>r.x>=0&&r.xMax<=640&&r.height>=60)&&rows.Last().yMax<back.y,"All five options fit above Back at "+Screen.width+"x"+Screen.height);
+            Check(Enumerable.Range(1,4).All(i=>rows[i-1].yMax<rows[i].y),"More Options rows do not overlap");
+            Check(ui.MoreARModeRect.yMax+70<back.y,"Device support explanation fits above Back");
         }
         static void Tick()
         {
@@ -63,6 +68,13 @@ namespace CandyFlickEditor
                 switch(stage++)
                 {
                     case 0:
+                        game.GroundSupport.EditorSupportOverride=false;game.GroundSupport.Refresh();
+                        game.ToggleGroundARMode();Check(!game.GroundARModeEnabled&&!PlayerPrefs.HasKey(CandyFlickGame.GroundARPreference),"Unsupported devices cannot enable Ground mode or save it accidentally");
+                        game.GroundSupport.EditorSupportOverride=true;game.GroundSupport.Refresh();game.ToggleGroundARMode();
+                        game.GroundSupport.EditorSupportOverride=false;game.GroundSupport.Refresh();game.ToggleGroundARMode();
+                        Check(!game.GroundARModeEnabled&&PlayerPrefs.GetInt(CandyFlickGame.GroundARPreference)==0,"An unsupported device can always switch an existing Ground selection back to Image");
+                        Check(typeof(CandyFlickUI).GetProperty("MoreNonARRect")==null,"More Options no longer exposes the redundant Non AR toggle");
+                        game.GroundSupport.EditorSupportOverride=true;game.GroundSupport.Refresh();
                         Check(game.InGameMusicEnabled&&!game.GroundARModeEnabled&&!game.NonARModeEnabled,"Fresh settings enable gameplay music and default to Image AR with Non AR off");
                         Check(ui.ARModeLabel=="AR Mode: Image","Default label is exactly AR Mode: Image");
                         Check(VuforiaConfiguration.Instance.DeviceTracker.ARCoreRequirementSetting==VuforiaConfiguration.DeviceTrackerConfiguration.ARCoreRequirement.OPTIONAL&&VuforiaConfiguration.Instance.DeviceTracker.AutoImportArcoreSetting,"Build configuration includes ARCore as optional");
@@ -76,8 +88,10 @@ namespace CandyFlickEditor
                     case 5: game.ToggleGroundARMode();break;
                     case 6:
                         Check(!game.GroundARModeEnabled&&PlayerPrefs.GetInt(CandyFlickGame.GroundARPreference,-1)==0&&ui.ARModeLabel=="AR Mode: Image","AR Mode selection switches back to Image and updates its label");
-                        ui.Back();break;
+                        ui.Back();deadline=EditorApplication.timeSinceStartup+8;break;
                     case 7:
+                        if(game.ScreenState!=GameScreen.Settings||ui.SettingsPage!=null)
+                        {if(EditorApplication.timeSinceStartup>deadline)throw new Exception("More Options Back transition timed out");stage--;return;}
                         Check(game.ScreenState==GameScreen.Settings&&ui.SettingsPage==null,"More Options Back returns to main Settings");
                         game.ToggleGroundARMode();game.ReturnToMenu();Resolution(1920,1080);PlayerPrefs.DeleteKey("ProgramStartKey");ui.MenuPlay();deadline=EditorApplication.timeSinceStartup+60;break;
                     case 8:
@@ -85,7 +99,7 @@ namespace CandyFlickEditor
                         game.ar.SendMessage("OnCameraStateUpdated");
                         Check(game.IsAR&&game.ar.GroundMode&&game.ScreenState==GameScreen.Playing&&!PlayerPrefs.HasKey("ProgramStartKey"),"Ground Play starts AR directly without image tutorial or consuming its first-run flag");
                         Check(game.ar.TargetCount==0,"Ground startup does not load or require the image database");
-                        Check(VuforiaBehaviour.Instance.DevicePoseBehaviour.enabled,"Ground mode enables positional device tracking");
+                        Check(VuforiaBehaviour.Instance.DevicePoseBehaviour.enabled&&VuforiaBehaviour.Instance.WorldCenterMode==WorldCenterMode.FIRST_TARGET,"Singleplayer Ground retains positional tracking and its original first-target world frame");
                         Check(!game.ar.Tracking&&!game.CanSimulate&&!game.Ready&&Time.timeScale==0,"Gameplay and physics wait for a tracked ground anchor");
                         Check(!game.ar.PlaceGround()&&!game.ar.GroundPlaced,"Unsupported simulator cannot place content at an invented camera-relative point");
                         Check(game.ar.Status.Contains("supported phone"),"Ground scan explains the simulator limitation ("+game.ar.Status+")");
@@ -110,13 +124,84 @@ namespace CandyFlickEditor
                         if(game.ar.TargetCount!=2||!VuforiaApplication.Instance.IsRunning){if(EditorApplication.timeSinceStartup>deadline)throw new Exception("Image regression startup timeout: "+game.ar.Status);stage--;return;}
                         Check(!game.ar.GroundMode&&!VuforiaBehaviour.Instance.DevicePoseBehaviour.enabled,"Returning to Image disables positional tracking and loads both original targets");
                         Check(!ARMarkerMode.IsImageVisible(Vuforia.Status.EXTENDED_TRACKED)&&ARMarkerMode.IsImageVisible(Vuforia.Status.TRACKED),"Image retains its original visible-card tracking policy");
-                        Geometry();game.ReturnToMenu();
+                        Geometry();NativeLanCalibrationTargets();
+                        game.Show(GameScreen.Marker);Call(game.ar,"RefreshImageMenuCapture");deadline=EditorApplication.timeSinceStartup+30;break;
+                    case 14:
+                        if(VuforiaApplication.Instance.IsRunning){if(EditorApplication.timeSinceStartup>deadline)throw new Exception("Show Image did not stop capture");stage--;return;}
+                        Check(!VuforiaBehaviour.Instance.enabled&&game.ar.Camera.gameObject.activeInHierarchy&&game.ar.TargetCount==2,"Normal Show Image stops the native capture engine while retaining the initialized rig and targets");
+                        game.Resume();Call(game.ar,"RefreshImageMenuCapture");deadline=EditorApplication.timeSinceStartup+30;break;
+                    case 15:
+                        if(!VuforiaApplication.Instance.IsRunning){if(EditorApplication.timeSinceStartup>deadline)throw new Exception("Closing Show Image did not restart capture");stage--;return;}
+                        Check(VuforiaBehaviour.Instance.enabled&&game.ar.TargetCount==2,"Closing Show Image restarts native capture with both existing image observers");
+                        game.Show(GameScreen.Marker);Call(game.ar,"RefreshImageMenuCapture");game.ReturnToMenu();
+                        Check(VuforiaBehaviour.Instance.enabled&&!game.ar.Camera.gameObject.activeInHierarchy&&!VuforiaApplication.Instance.IsRunning,"Leaving through the covered menu resets capture state without restarting the inactive camera");
+                        game.StartGame(true);deadline=EditorApplication.timeSinceStartup+30;break;
+                    case 16:
+                        if(!VuforiaApplication.Instance.IsRunning){if(EditorApplication.timeSinceStartup>deadline)throw new Exception("New game after Show Image did not restart capture");stage--;return;}
+                        Check(VuforiaBehaviour.Instance.enabled&&game.ar.TargetCount==2,"A new normal game starts capture after leaving Show Image directly");
+                        game.ReturnToMenu();
                         game.ToggleInGameMusic();Check(!game.InGameMusicEnabled&&PlayerPrefs.GetInt(CandyFlickGame.InGameMusicPreference,-1)==0,"Explicit gameplay music off remains saved");
                         // Restore test-owned preferences afterward; Reset has its own existing full-pref suite.
                         File.WriteAllText("Documentation/ground-ar-validation.json",JsonUtility.ToJson(new Evidence{utc=DateTime.UtcNow.ToString("o"),checks=checks.ToArray(),limit="Editor UI, Vuforia simulator, lifecycle and pose conversion. Real surface hits, ARCore installation and physical anchoring require an Android phone; no player build made."},true));Finish(null);break;
                 }
             }
             catch(Exception error){Finish(error.ToString());}
+        }
+        static void NativeLanCalibrationTargets()
+        {
+            game.GroundSupport.EditorSupportOverride=null;
+            Call(game.GroundSupport,"Set",GroundSupportState.ServiceRequired,"Missing AR service at startup");game.GroundSupport.Refresh();
+            Check(game.GroundSupport.State==GroundSupportState.ServiceRequired&&game.GroundSupport.Reason=="Missing AR service at startup","Missing ARCore service result remains cached instead of rechecking");
+            Call(game.GroundSupport,"Set",GroundSupportState.Unsupported,"Unsupported startup device");game.GroundSupport.Refresh();
+            Check(game.GroundSupport.State==GroundSupportState.Unsupported&&game.GroundSupport.Reason=="Unsupported startup device","Unsupported device result remains cached for this app session");game.GroundSupport.EditorSupportOverride=true;game.GroundSupport.Refresh();
+            // Use the installed SDK's real database observers, not the LAN test's
+            // EditorCalibrationOverride. Simulator cannot recognize a phone image,
+            // but it does exercise observer activation and the readiness gates.
+            var flags=BindingFlags.Instance|BindingFlags.NonPublic;
+            var active=typeof(LanMultiplayer).GetField("activeMatch",flags);
+            var state=typeof(LanMultiplayer).GetField("remoteState",flags);
+            var reference=typeof(ARMarkerMode).GetField("lanReference",flags);
+            var seen=typeof(ARMarkerMode).GetField("lanReferenceSeen",flags);
+            bool previousActive=(bool)active.GetValue(game.LAN);object previousState=state.GetValue(game.LAN);
+            var network=typeof(LanMultiplayer).GetField("network",flags);var roomGround=typeof(LanMultiplayer).GetField("roomGround",flags);
+            object previousNetwork=network.GetValue(game.LAN),previousRoomGround=roomGround.GetValue(game.LAN);LanTransport host=null;
+            var placement=typeof(ARMarkerMode).GetField("lanPlacement",flags);GameObject pending=null,placed=null;
+            try
+            {
+                var snapshot=new LanSnapshot{groundMode=true,ground=new LanGroundState{generation=73,markerWidth=.06f,originReady=false}};
+                active.SetValue(game.LAN,true);state.SetValue(game.LAN,snapshot);game.ar.Begin();
+                var targets=(List<ImageTargetBehaviour>)typeof(ARMarkerMode).GetField("targets",flags).GetValue(game.ar);
+                ImageTargetBehaviour newer=targets.Find(t=>t.TargetName==LanMultiplayer.CalibrationTarget),older=targets.Find(t=>t.TargetName!=LanMultiplayer.CalibrationTarget);
+                Check(VuforiaBehaviour.Instance.DevicePoseBehaviour.enabled&&VuforiaBehaviour.Instance.WorldCenterMode==WorldCenterMode.DEVICE,"Native LAN client keeps positional tracking in the gravity-aligned device frame while scanning an upright image");
+                VuforiaBehaviour.Instance.DevicePoseBehaviour.enabled=false;
+                Call(game.ar,"UpdateLanGroundCalibration");
+                Check(newer.enabled&&!older.enabled,"Native client enables the newer image observer before device tracking or host origin readiness");
+                Check(Mathf.Abs(newer.GetSize().x-.06f)<.00001f,"Native calibration observer uses the host screen's physical image width");
+                newer.enabled=false;snapshot.ground.originReady=true;Call(game.ar,"UpdateLanGroundCalibration");
+                Check(newer.enabled,"Host readiness updates re-enable the native client observer without a generation change");
+                pending=new GameObject("Pending LAN anchor gate fixture");pending.SetActive(false);reference.SetValue(game.ar,pending.AddComponent<AnchorBehaviour>());seen.SetValue(game.ar,false);
+                Call(game.ar,"ConfigureLanCalibrationTargets");
+                Check(newer.enabled,"Allocating an untracked reference anchor does not disable native image detection");
+                seen.SetValue(game.ar,true);Call(game.ar,"ConfigureLanCalibrationTargets");
+                Check(!newer.enabled,"Native image observer detaches only after the reference has reported tracked");
+                host=new LanTransport();Check(host.Host(),"Native host world-frame fixture opens a local room");network.SetValue(game.LAN,host);roomGround.SetValue(game.LAN,true);
+                Call(game.ar,"ConfigureTrackingMode");
+                Check(game.LAN.IsHost&&game.ar.GroundMode&&VuforiaBehaviour.Instance.DevicePoseBehaviour.enabled&&VuforiaBehaviour.Instance.WorldCenterMode==WorldCenterMode.DEVICE,"Native LAN host retains a gravity-aligned world for surface hits after screen calibration");
+                Check(targets.All(t=>!t.enabled),"Host surface finding keeps calibration image observers disabled");
+                placed=new GameObject("Retained placement lifecycle fixture");placed.SetActive(false);var placedAnchor=placed.AddComponent<AnchorBehaviour>();placement.SetValue(game.ar,placedAnchor);
+                active.SetValue(game.LAN,false);Call(game,"ReturnToMenu",true);
+                Check(game.ar.RetainingLanGround&&ReferenceEquals(reference.GetValue(game.ar),pending.GetComponent<AnchorBehaviour>())&&ReferenceEquals(placement.GetValue(game.ar),placedAnchor)&&VuforiaBehaviour.Instance.DevicePoseBehaviour.enabled&&game.ar.Camera.gameObject.activeInHierarchy,"Returning to a retained Ground room keeps its reference, placement, capture and device tracking alive");
+                active.SetValue(game.LAN,true);game.StartGame(true);
+                Check(!game.ar.RetainingLanGround&&ReferenceEquals(reference.GetValue(game.ar),pending.GetComponent<AnchorBehaviour>())&&ReferenceEquals(placement.GetValue(game.ar),placedAnchor),"Starting a Ground rematch preserves existing native anchor objects");
+                Call(game.ar,"SyncLanPlacement",new LanGroundState{placed=false,placement=2});
+                Check(placement.GetValue(game.ar)==null&&ReferenceEquals(reference.GetValue(game.ar),pending.GetComponent<AnchorBehaviour>()),"Changing only Ground placement removes the placement anchor while preserving the calibration reference");
+            }
+            finally
+            {
+                reference.SetValue(game.ar,null);placement.SetValue(game.ar,null);seen.SetValue(game.ar,false);if(placed)UnityEngine.Object.Destroy(placed);if(pending)UnityEngine.Object.Destroy(pending);
+                game.ar.End();network.SetValue(game.LAN,previousNetwork);roomGround.SetValue(game.LAN,previousRoomGround);host?.Dispose();active.SetValue(game.LAN,previousActive);state.SetValue(game.LAN,previousState);game.ar.Begin();
+            }
+            Check(!game.ar.GroundMode&&!VuforiaBehaviour.Instance.DevicePoseBehaviour.enabled&&VuforiaBehaviour.Instance.WorldCenterMode==WorldCenterMode.DEVICE,"Native observer gate test restores normal Image tracking");
         }
         static void GroundTapChecks()
         {

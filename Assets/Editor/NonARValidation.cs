@@ -53,9 +53,9 @@ namespace CandyFlickEditor
                         ambientMode=RenderSettings.ambientMode;ambientColor=RenderSettings.ambientLight;reflections=RenderSettings.reflectionIntensity;
                         MoreOptions();break;
                     case 1: Capture("more-options-default-off");break;
-                    case 2: Click(ui.MoreNonARRect.center);break;
+                    case 2: game.ToggleNonARMode();break;
                     case 3:
-                        Check(game.NonARModeEnabled&&PlayerPrefs.GetInt(CandyFlickGame.NonARPreference,-1)==1,"More Options Non AR switch persists on");
+                        Check(game.NonARModeEnabled&&PlayerPrefs.GetInt(CandyFlickGame.NonARPreference,-1)==1,"Non AR preference still persists on through the existing runtime setting");
                         PlayerPrefs.DeleteKey("ProgramStartKey");ui.MenuPlay();break;
                     case 4:
                         Check(game.ScreenState==GameScreen.Playing&&game.IsNonAR&&!game.IsAR&&game.CanSimulate,"First play in Non AR starts gameplay without the AR tutorial or tracking");
@@ -115,7 +115,7 @@ namespace CandyFlickEditor
                         Check(originalLights.All(pair=>pair.Key.enabled==pair.Value),"Leaving Non AR restores prior enabled states of scene lights");
                         Check(RenderSettings.ambientMode==ambientMode&&RenderSettings.ambientLight==ambientColor&&RenderSettings.reflectionIntensity==reflections,"Leaving Non AR restores the original ambient and reflection settings");
                         Check(Vector3.Distance(game.Player.position,new Vector3(0,900,-848))<.01f,"Leaving Non AR restores the recovered player camera pose");MoreOptions();break;
-                    case 16: Click(ui.MoreNonARRect.center);break;
+                    case 16: game.ToggleNonARMode();break;
                     case 17:
                         Check(!game.NonARModeEnabled&&PlayerPrefs.GetInt(CandyFlickGame.NonARPreference,-1)==0,"More Options Non AR switch persists off");
                         game.StartGame();break;

@@ -9,6 +9,7 @@ namespace CandyFlick
         public const string NonARPreference = "PortNonARMode";
         public const string GroundARPreference = "PortGroundARMode";
         public bool GroundARModeEnabled { get; private set; }
+        public GroundTrackingSupport GroundSupport {get;private set;}
         public bool HideCandyInPictures { get; private set; }
         public bool InGameMusicEnabled { get; private set; }
         public bool NonARModeEnabled { get; private set; }
@@ -21,6 +22,7 @@ namespace CandyFlick
 
         void InitializeExtraOptions()
         {
+            GroundSupport=gameObject.AddComponent<GroundTrackingSupport>();
             HideCandyInPictures = PlayerPrefs.GetInt(HideCandyPreference, 1) == 1;
             InGameMusicEnabled = PlayerPrefs.GetInt(InGameMusicPreference, 1) == 1;
             NonARModeEnabled = PlayerPrefs.GetInt(NonARPreference, 0) == 1;
@@ -41,6 +43,7 @@ namespace CandyFlick
         }
         public void ToggleGroundARMode()
         {
+            if(!GroundARModeEnabled&&!GroundSupport.Supported)return;
             GroundARModeEnabled = !GroundARModeEnabled;
             PlayerPrefs.SetInt(GroundARPreference, GroundARModeEnabled ? 1 : 0); PlayerPrefs.Save();
         }
@@ -51,7 +54,7 @@ namespace CandyFlick
         }
         public void ToggleARMode()
         {
-            if(ScreenState!=GameScreen.Paused)return;
+            if(ScreenState!=GameScreen.Paused || IsLanMatch)return;
             bool nonAR=!IsNonAR;
             float previousClearance=IsNonAR?NonARStage.GroundClearance:0;
             CancelCandyGesture();NonARBackground.Navigation.Cancel();PhotoVisibility.End();ar.End();
@@ -72,11 +75,12 @@ namespace CandyFlick
         void StartGameplayMusic()
         {
             gameplayMusicSession = true; GameplayMusic.Stop(); gameplayMusicPaused = false;
-            if (InGameMusicEnabled && MusicEnabled) PickGameplayTrack();
+            if (IsLanMatch || (InGameMusicEnabled && MusicEnabled)) PickGameplayTrack();
             SyncGameplayMusic();
         }
         void PickGameplayTrack()
         {
+            if(IsLanMatch) { GameplayMusic.clip=Resources.Load<AudioClip>(LanMultiplayer.TrackResource); return; }
             if (gameplayTracks == null) gameplayTracks = Resources.LoadAll<AudioClip>("GameplayMusic");
             if (gameplayTracks.Length > 0) GameplayMusic.clip = gameplayTracks[Random.Range(0, gameplayTracks.Length)];
         }
@@ -87,7 +91,7 @@ namespace CandyFlick
         void SyncGameplayMusic()
         {
             if (!GameplayMusic) return;
-            if (!gameplayMusicSession || !InGameMusicEnabled || !MusicEnabled)
+            if (!gameplayMusicSession || (!InGameMusicEnabled && !IsLanMatch) || !MusicEnabled)
             { GameplayMusic.Stop(); gameplayMusicPaused = false; return; }
             if (!GameplayMusic.clip) PickGameplayTrack();
             if (CanSimulate || ScreenState == GameScreen.Results)

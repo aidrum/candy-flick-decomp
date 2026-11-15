@@ -62,7 +62,7 @@ namespace CandyFlickEditor
                     case 0:
                         Check(game.HideCandyInPictures&&game.InGameMusicEnabled,"Photo hiding and in-game music default on with no saved preferences");
                         ValidateMusic();game.ReturnToMenu();Capture("main-menu-lowered-skins");
-                        Check(Mathf.Approximately(ui.MenuSkinsRect.y,850),"Main menu skins button is lowered by 48 canvas units");Click(ui.MenuSkinsRect.center);break;
+                        Check(ui.MenuMultiplayerRect.yMax<=1136&&Mathf.Approximately(ui.MenuMultiplayerRect.y,ui.MenuSkinsRect.y)&&!ui.MenuMultiplayerRect.Overlaps(ui.MenuSkinsRect),"Skins and LAN menu row fits above the bottom edge");Click(ui.MenuSkinsRect.center);break;
                     case 1: Check(game.ScreenState==GameScreen.Skins,"Lowered main menu button opens skins");Click(ui.SkinViewport.position+CandyFlickUI.SkinCardRect(TimeTravelSkins.RandomChoice).center);break;
                     case 2:
                         Check(game.Skins.RandomSelected&&PlayerPrefs.GetInt(TimeTravelSkins.Preference)==TimeTravelSkins.RandomChoice,"Text-only Random card selects and saves random mode");Capture("skins-random");

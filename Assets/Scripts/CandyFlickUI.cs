@@ -38,7 +38,7 @@ namespace CandyFlick
         // GamePlayScreen.PhotoTapped / CameraEffect and SearchTargetScreen's animated GUITextures.
         CaptureManager26 capture;
         CameraEffect26 cameraEffect;
-        bool hideGui, searchShown, searchGround;
+        bool hideGui, searchShown, searchGround, searchLocalTracking;
         LegacyGUITexture26 searchFocus, searchSticker, whiteFlash;
         bool restartPending;
         float searchHideTime = -1;
@@ -125,10 +125,11 @@ namespace CandyFlick
         // SearchTargetScreen.OnEnable 0x3c27c / CloseScreen 0x3c678 (WaitAndDisable after .7 s).
         void SetSearchScreen(bool show, bool animate)
         {
-            searchShown = show; searchGround = game.ar.GroundMode;
+            searchShown = show; searchGround = GroundSearchArtwork;
+            searchLocalTracking=game.IsLanMatch&&game.LAN.LocalTracking;
             foreach (var (guiTexture, open, close) in new[] { (searchFocus, "GUIRearSightAnimation", "EndRearSight"), (searchSticker, StickerOpen, StickerClose) })
             {
-                if(guiTexture==searchFocus && searchGround) { guiTexture.gameObject.SetActive(false); continue; }
+                if(guiTexture==searchFocus && (searchGround||searchLocalTracking)) { guiTexture.gameObject.SetActive(false); continue; }
                 if (show) { guiTexture.gameObject.SetActive(true); PlayUnscaled(guiTexture, open); }
                 else if (animate && guiTexture.gameObject.activeSelf) PlayUnscaled(guiTexture, close);
                 else guiTexture.gameObject.SetActive(false);
@@ -193,8 +194,8 @@ namespace CandyFlick
             { menuShadow.gameObject.SetActive(showMenu); if (showMenu) menuShadowAnimation.Play(); }
             UpdateResetHolding();
             bool inGame = game.ScreenState == GameScreen.Playing || game.ScreenState == GameScreen.Paused;
-            bool searching = inGame && game.IsAR && !game.ar.Tracking;
-            if (searching != searchShown || (searching && searchGround != game.ar.GroundMode)) SetSearchScreen(searching, inGame);
+            bool searching = inGame && game.IsAR && (game.IsLanMatch ? !game.LAN.Playing : !game.ar.Tracking);
+            if (searching != searchShown || (searching && (searchGround != GroundSearchArtwork || searchLocalTracking != (game.IsLanMatch&&game.LAN.LocalTracking)))) SetSearchScreen(searching, inGame);
             if (searchHideTime >= 0 && Time.unscaledTime >= searchHideTime) SetSearchScreen(false, false);
             UpdateUnscaledAnimations();
             if (!game.CanSimulate) return;
@@ -304,6 +305,7 @@ namespace CandyFlick
                 case GameScreen.Results: DrawResults(); break;
                 case GameScreen.Settings: DrawSettings(); break;
                 case GameScreen.Skins: DrawSkins(); break;
+                case GameScreen.LanLobby: DrawLanLobby(); break;
                 case GameScreen.Help: DrawTutorial(); break;
                 case GameScreen.Tutorial: DrawTutorial(); break;
                 case GameScreen.Marker: DrawMarker(); break;
@@ -328,14 +330,15 @@ namespace CandyFlick
             menuShadow.Draw(fullScreen.width, fullScreen.height); GUI.matrix = canvas;
             Color menuColor = GUI.color;
             GUI.color = new Color(menuColor.r, menuColor.g, menuColor.b, 1 - menuEntryAlpha);
-            if (Button(R("MainScreen$$GetPlayRect"), Main(23)))
+            if (Button(MenuSoloPlayRect, Main(23)))
             {
                 game.StopMenuMusic();
                 transition.Begin(MenuPlay);
             }
-            if (Button(R("MainScreen$$GetSettingRect"), Main(24))) transition.Begin(() => { settingsPage = null; game.Show(GameScreen.Settings); });
-            if (Button(R("MainScreen$$GetDwnldRect"), Main(40))) transition.Begin(() => OpenTutorial(true, false));
+            if (Button(MenuSettingsRect, Main(24))) transition.Begin(() => { settingsPage = null; game.Show(GameScreen.Settings); });
+            if (Button(MenuDownloadRect, Main(40))) transition.Begin(() => OpenTutorial(true, false));
             if (Button(MenuSkinsRect, SkinsMenuButtonStyle)) OpenSkins();
+            if (Button(MenuMultiplayerRect, LanMenuButtonStyle)) OpenLanMenu();
             GUI.color = menuColor;
             // MainScreen.OnGUI, literal at 0x34aa8: first-entry alpha decreases .05 per call.
             if(menuEntryAlpha > 0)
@@ -347,6 +350,12 @@ namespace CandyFlick
         }
         void DrawGamePlay()
         {
+            if(game.IsLanMatch)
+            {
+                Matrix4x4 saved=GUI.matrix;GUI.matrix=saved*Matrix4x4.Translate(new Vector3(GameplayExtraWidth/2,0,0));
+                searchSticker.Draw(640,height);searchFocus.Draw(640,height);GUI.matrix=saved;
+                DrawLanGame();return;
+            }
             // Unity 4 GUITextures (GUILayer) render beneath OnGUI.
             Matrix4x4 canvas=GUI.matrix;
             GUI.matrix=canvas*Matrix4x4.Translate(new Vector3(GameplayExtraWidth/2,0,0));
@@ -415,11 +424,12 @@ namespace CandyFlick
         void OnDisable() { if (game && game.PhotoVisibility) game.PhotoVisibility.End(); }
         void DrawPause()
         {
+            if(game.IsLanMatch) { DrawLanPause(); return; }
             GUI.color = new Color(0, 0, 0, .5f); GUI.DrawTexture(fullScreen, Texture2D.whiteTexture); GUI.color = Color.white;
             DrawARToggle();
             if (Button(R(game.IsAR && !game.ar.Tracking ? "SearchTargetScreen$$GetHelpRect" : "GamePlayScreen$$GetHelpRect", true), Game(12)))
             {
-                if(game.IsAR && game.ar.GroundMode) ShowPopupMessage("Move your phone slowly over a flat, well-lit surface. Aim at the surface and tap anywhere outside the buttons to place Om Nom. Walk around him to change your view.");
+                if(game.IsAR && game.ar.GroundMode) ShowPopupMessage("Move your phone slowly over a flat, well-lit surface. Aim at the surface and tap anywhere to place Om Nom.");
                 else transition.Begin(() => OpenTutorial(false, false));
             }
             if(game.IsAR && game.ar.GroundMode && game.ar.GroundPlaced)
@@ -431,6 +441,7 @@ namespace CandyFlick
         }
         void DrawResults()
         {
+            if(game.IsLanMatch) { DrawLanResults(); return; }
             if (!resultsInitialized) { resultsInitialized = true; StartCoroutine(WaitAndTurn()); }
             // The original results board is drawn over the live camera output, without a background.
             GUI.DrawTexture(R("GameOverScreen$$GetBoardRect"), Texture(DevicePath("board")));
@@ -554,6 +565,7 @@ namespace CandyFlick
         }
         void OnDestroy()
         {
+            if(lanInputBackground)Destroy(lanInputBackground);if(lanScoreBackground)Destroy(lanScoreBackground);
             if(mainSkin)Destroy(mainSkin);if(gameSkin)Destroy(gameSkin);
             if (menuShadow) Destroy(menuShadow.gameObject);
             if (searchFocus) Destroy(searchFocus.gameObject);

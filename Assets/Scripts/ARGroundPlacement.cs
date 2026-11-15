@@ -8,7 +8,7 @@ namespace CandyFlick
     public sealed partial class ARMarkerMode
     {
         public bool GroundMode { get; private set; }
-        public bool GroundPlaced => groundAnchor;
+        public bool GroundPlaced => groundAnchor || (LanGround&&lanPlacement);
         public bool GroundPointAvailable { get; private set; }
         AnchorBehaviour groundAnchor;
         bool consumingPlacement, faceGroundOnTrack, groundAnchorWasTracked;
@@ -18,9 +18,14 @@ namespace CandyFlick
         {
             // Device tracking stays off for the original image-only experience.
             vuforia.DevicePoseBehaviour.enabled = running && GroundMode;
-            vuforia.SetWorldCenter(GroundMode ? WorldCenterMode.FIRST_TARGET : WorldCenterMode.DEVICE, null);
-            if(!GroundMode) LoadTargets();
-            foreach(var target in targets) if(target) target.enabled = running && !GroundMode;
+            // LAN's first target is an upright screen/reference, not the floor.
+            // FIRST_TARGET would make that frame Unity's origin and rotate real
+            // horizontal hits away from Vector3.up. With device tracking enabled,
+            // DEVICE retains the gravity-aligned tracking frame and moving camera;
+            // the separate LAN reference anchor still supplies shared coordinates.
+            vuforia.SetWorldCenter(GroundMode && !LanGround ? WorldCenterMode.FIRST_TARGET : WorldCenterMode.DEVICE, null);
+            if(!GroundMode||LanGround) LoadTargets();
+            ConfigureLanCalibrationTargets();
         }
         bool GroundDeviceTracked => vuforia && vuforia.DevicePoseBehaviour &&
             vuforia.DevicePoseBehaviour.enabled && IsGroundTracked(vuforia.DevicePoseBehaviour.TargetStatus.Status);
@@ -30,6 +35,7 @@ namespace CandyFlick
         void UpdateGroundTracking()
         {
             GroundPointAvailable = false;
+            if(!game.GroundSupport.Supported){Status=game.GroundSupport.Reason;LoseTracking();return;}
             if(VuforiaRuntimeUtilities.IsSimulatorPlayMode() || !vuforia.World.AnchorsSupported)
             {
 #if UNITY_EDITOR
@@ -85,6 +91,7 @@ namespace CandyFlick
 
         public bool PlaceGround()
         {
+            if(LanGround)return PlaceLanGround();
             if(game.ScreenState != GameScreen.Playing || CandyFlickUI.PopupActive || groundAnchor || !TryGroundHit(out var hit)) return false;
             // CreateHitTestAnchor keeps the native plane association, instead of
             // guessing a point at a fixed camera distance or storing a camera-relative pose.
@@ -99,17 +106,20 @@ namespace CandyFlick
         // created anchor can need another SDK frame before its first observation.
         void LoseTracking()
         {
+            if(LanGround){InterruptLanGround();return;}
             if(GroundMode && groundAnchorWasTracked) RepositionGround();
             else SetTracking(false);
         }
         public void RepositionGround()
         {
             if(!running || !GroundMode) return;
+            if(LanGround){if(game.LAN.IsHost)game.LAN.ResetGroundCalibration();return;}
             game.CancelCandyGesture(); ClearGroundAnchor(); SetTracking(false);
             Status = "Move your phone slowly to find a flat surface.";
         }
         void ClearGroundAnchor()
         {
+            ClearLanGroundAnchors();
             if(groundAnchor)
             {
                 groundAnchor.UnconfigureAnchor();

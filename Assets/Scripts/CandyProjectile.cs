@@ -15,6 +15,7 @@ namespace CandyFlick
         // before Update. Contacts in the landing step itself cannot count as a catch.
         public bool CanBeEatenAt(double contactTime) => IsShot && (!collisioned || LandingPhysicsTime > contactTime);
         CandyFlickGame game;
+        CandySkinVisual skinVisual;
         Transform shadow;
         GameObject superEffect;
         Renderer childCandy;
@@ -34,7 +35,7 @@ namespace CandyFlick
             Body.interpolation = RigidbodyInterpolation.None;
             Body.collisionDetectionMode = CollisionDetectionMode.Discrete;
             Body.maxAngularVelocity = 7; // Unity 4 DynamicsManager; Unity 6 defaults to 50.
-            restorePosition = transform.position;
+            restorePosition = transform.position;skinVisual=CandySkinSettings.Visual(transform);
             childCandy = transform.Find("zCandy").GetComponent<Renderer>();
             normalShader = childCandy.sharedMaterial.shader;
             shadow = transform.Find("Shadow"); superEffect = transform.Find("aSuperEffect").gameObject;
@@ -45,6 +46,7 @@ namespace CandyFlick
 
         public void LaunchImpulse(Vector3 force, Vector3 torque, bool super)
         {
+            skinVisual.SetGrounded(false,0);skinVisual.SetFade(1);
             RingBonus = 0; saved = collisioned = false; alpha = 1; LandingPhysicsTime = double.PositiveInfinity;
             Body.isKinematic = false;
             Body.linearVelocity = Body.angularVelocity = Vector3.zero;
@@ -79,7 +81,7 @@ namespace CandyFlick
                     if (shadow) shadow.GetComponent<Renderer>().enabled = false;
                     childCandy.material.shader = Shader.Find("Transparent/VertexLit");
                     Color color = childCandy.material.color; color.a = alpha;
-                    childCandy.material.color = color; alpha -= Time.deltaTime * 2;
+                    childCandy.material.color = color;skinVisual.SetFade(alpha); alpha -= Time.deltaTime * 2;
                 }
                 if (elapsed >= 4f) Restore();
             }
@@ -89,7 +91,7 @@ namespace CandyFlick
         public void Restore()
         {
             if (!Body) return;
-            superEffect.SetActive(false);
+            superEffect.SetActive(false);skinVisual.SetGrounded(false,0);skinVisual.SetFade(1);
             if (trail) { trail.enabled = false; trail.sharedMaterial = normalTrail; trail.time = .3f; trail.startWidth = 70; trail.endWidth = 30; }
             if (shadow) shadow.GetComponent<Renderer>().enabled = true;
             Body.isKinematic = true;
@@ -110,7 +112,7 @@ namespace CandyFlick
             // Keep the native one-shot landing sound. The modern floor sits at the
             // table surface, so also exclude landed candies from subsequent catches.
             if (collision.gameObject.name != "Floor" || collisioned) return;
-            collisioned = true; LandingPhysicsTime = Time.fixedTimeAsDouble;
+            collisioned = true; LandingPhysicsTime = Time.fixedTimeAsDouble;skinVisual.SetGrounded(true,collision.collider.bounds.max.y);
             game.Play(game.assets.misses[new System.Random().Next(0, game.assets.misses.Length - 1)]);
         }
     }

@@ -17,6 +17,7 @@ namespace CandyFlick
         }
         public bool CanTapGroundPlacement(Vector2 point) =>
             game.ScreenState==GameScreen.Playing && game.IsAR && game.ar.GroundMode &&
+            (!game.IsLanMatch||game.LAN.IsHost) &&
             !game.ar.GroundPlaced && !game.ar.Tracking && !PopupActive && !hideGui && !transition.Waiting &&
             Input.touchCount<=1 && fullScreen.Contains(point) && !R("GamePlayScreen$$GetPauseRect",true).Contains(point);
         void HandleGroundPlacementTap()

@@ -21,15 +21,21 @@ namespace CandyFlickEditor
             {
                 switch (command)
                 {
+                    case "CandyTest": CandySkinValidation.Run(); break;
+                    case "CandyAssets": CandySkinAssetsBuilder.Build(); break;
                     case "Prepare": ProjectBuilder.PrepareProject(); break;
                     case "SkinsImport": TimeTravelSkinBuilder.Build(); break;
                     case "SkinMenuAssets": SkinMenuAssetsBuilder.Build(); break;
                     case "MenuTest": SkinMenuValidation.Run(); break;
+                    case "LanCheck": LanValidation.RunWithoutCaptures(); break;
+                    case "LanTest": LanValidation.Run(); break;
+                    case "LanMusic": LanMusicBuilder.Build(); break;
                     case "MusicImport": GameplayMusicBuilder.Build(); break;
                     case "OptionsTest": ExtraOptionsValidation.Run(); break;
                     case "NonARTest": NonARValidation.Run(); break;
                     case "NonARControlsTest": NonARControlsValidation.Run(); break;
                     case "DragEdgeTest": SlingshotEdgeValidation.Run(); break;
+                    case "GroundCheck": GroundARValidation.RunWithoutCaptures(); break;
                     case "GroundARTest": GroundARValidation.Run(); break;
                     case "ARToggleTest": ARToggleValidation.Run(); break;
                     case "SuperCandyTest": SuperCandyValidation.Run(); break;

@@ -62,6 +62,8 @@ namespace CandyFlick
             if (RandomSelected) Apply((NommieSkin)UnityEngine.Random.Range(0, Names.Length));
         }
 
+        // Session appearances never overwrite the player's saved skin or Random choice.
+        public bool ApplyForSession(NommieSkin skin) => Enum.IsDefined(typeof(NommieSkin),skin) && Apply(skin);
         bool Apply(NommieSkin skin)
         {
             GameObject prefab = skin == NommieSkin.Original ? null : Resources.Load<GameObject>("TimeTravel/" + skin);

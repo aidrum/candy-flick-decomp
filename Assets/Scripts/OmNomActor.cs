@@ -65,6 +65,7 @@ namespace CandyFlick
         void Update()
         {
             if (!game || !game.CanSimulate) return;
+            if(game.IsLanMatch) { game.LAN.TickActor(); return; }
             // Resolve after all physics contacts for the step have been reported, so a
             // simultaneous floor/actor contact cannot depend on callback order.
             if (pendingCandy)
@@ -87,7 +88,10 @@ namespace CandyFlick
                 if (!canJump && Time.time - startIdleTime >= 5)
                 {
                     startIdleTime = Time.time;
-                    Fade("idle" + new System.Random().Next(2, 5));
+                    // Prehistoric's hungry/idle2 contains the missed-feed mouth
+                    // reaction. Keep only puzzled and greeting in his idle pool.
+                    int firstVariation=game.Skins.Selected==NommieSkin.Prehistoric?3:2;
+                    Fade("idle" + new System.Random().Next(firstVariation, 5));
                     animationPlayer.PlayQueued("idle");
                 }
                 // ARM 0x22a6a explicitly loads 2.0; Ghidra's NEON pseudocode loses this literal.
@@ -130,6 +134,7 @@ namespace CandyFlick
         }
         public void OnPreShoot()
         {
+            if(game.IsLanMatch)return;
             isCandyTouched = true;
             if (game.Session.round > 1 && !animationPlayer.IsPlaying("jump"))
             {
@@ -232,10 +237,10 @@ namespace CandyFlick
         {
             if (game)
             {
-                bool visible = game.ScreenState == GameScreen.Playing && (!game.IsAR || game.ar.Tracking);
+                bool visible = game.ScreenState == GameScreen.Playing && (game.IsLanMatch ? game.LAN.LocalTracking : !game.IsAR || game.ar.Tracking);
                 foreach (var renderer in pauseRenderers) renderer.enabled = visible && (!game.Skins || game.Skins.Includes(renderer));
             }
-            if (!game || !game.CanSimulate) return;
+            if (!game || !game.CanSimulate || game.IsLanMatch) return;
             if (frogMode == 3)
             {
                 transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(game.Player.position - transform.position), Time.deltaTime * 6);
