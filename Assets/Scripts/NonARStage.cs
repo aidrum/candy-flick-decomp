@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -25,11 +26,91 @@ namespace CandyFlick
         Color previousSky, previousEquator, previousGround;
         float previousAmbientIntensity, previousReflectionIntensity;
         SphericalHarmonicsL2 previousAmbientProbe;
+        [Serializable]sealed class Lens{public float aspect,x,y,cx,cy;}
+        public const string LensPreference="PortNonARCameraLens";
+        Lens lens;bool lensDirty;int projectionWidth,projectionHeight;
+	public void RememberARProjection(Matrix4x4 projection, float aspect)
+	{
+		if (float.IsFinite(aspect) && !(aspect <= 0f) && float.IsFinite(projection.m00) && float.IsFinite(projection.m11) && !(projection.m00 <= 0f) && !(projection.m11 <= 0f) && float.IsFinite(projection.m02) && float.IsFinite(projection.m12) && !(Mathf.Abs(projection.m32 + 1f) > 0.001f))
+		{
+			Lens lens = new Lens
+			{
+				aspect = aspect,
+				x = projection.m00,
+				y = projection.m11,
+				cx = projection.m02,
+				cy = projection.m12
+			};
+			if (this.lens == null || !(Mathf.Abs(this.lens.aspect - aspect) < 0.0001f) || !(Mathf.Abs(this.lens.x - lens.x) < 0.0001f) || !(Mathf.Abs(this.lens.y - lens.y) < 0.0001f) || !(Mathf.Abs(this.lens.cx - lens.cx) < 0.0001f) || !(Mathf.Abs(this.lens.cy - lens.cy) < 0.0001f))
+			{
+				this.lens = lens;
+				lensDirty = true;
+			}
+		}
+	}
+
+	public void SaveARLens()
+	{
+		if (lensDirty)
+		{
+			PlayerPrefs.SetString("PortNonARCameraLens", JsonUtility.ToJson(lens));
+			PlayerPrefs.Save();
+			lensDirty = false;
+		}
+	}
+
+	public Matrix4x4 ProjectionFor(float aspect, float near, float far)
+	{
+		float num = ((lens == null) ? (1f / Mathf.Tan(0.44505894f)) : ((lens.aspect <= 1f) ? lens.x : lens.y));
+		float num2 = ((aspect <= 1f) ? num : (num / aspect));
+		float num3 = ((aspect <= 1f) ? (num * aspect) : num);
+		Matrix4x4 result = Matrix4x4.Perspective(51f, aspect, near, far);
+		result.m00 = num2;
+		result.m11 = num3;
+		if (lens != null)
+		{
+			if (Mathf.Abs(aspect - lens.aspect) < 0.0001f)
+			{
+				result.m00 = lens.x;
+				result.m11 = lens.y;
+				result.m02 = lens.cx;
+				result.m12 = lens.cy;
+			}
+			else if (aspect <= 1f == lens.aspect <= 1f)
+			{
+				result.m02 = lens.cx * num2 / lens.x;
+				result.m12 = lens.cy * num3 / lens.y;
+			}
+		}
+		return result;
+	}
+
+	private void RefreshProjection()
+	{
+		if (Active)
+		{
+			projectionWidth = Screen.width;
+			projectionHeight = Screen.height;
+			game.GameCamera.projectionMatrix = ProjectionFor(game.GameCamera.aspect, game.GameCamera.nearClipPlane, game.GameCamera.farClipPlane);
+			game.CandyCamera.projectionMatrix = ProjectionFor(game.CandyCamera.aspect, game.CandyCamera.nearClipPlane, game.CandyCamera.farClipPlane);
+		}
+	}
+
+	private void LateUpdate()
+	{
+		if (Active && (Screen.width != projectionWidth || Screen.height != projectionHeight))
+		{
+			RefreshProjection();
+		}
+	}
+
         public void Initialize(CandyFlickGame owner)
         {
             game = owner; originalPlayerPosition = game.Player.position; originalPlayerRotation = game.Player.rotation;
             floor=game.World.Find("Floor");originalFloorPosition=floor.localPosition;
             Navigation = new NonARViewControls(owner);
+            try{lens=JsonUtility.FromJson<Lens>(PlayerPrefs.GetString(LensPreference,""));}catch(ArgumentException){lens=null;}
+            if(lens!=null&&(!float.IsFinite(lens.aspect)||lens.aspect<=0||!float.IsFinite(lens.x)||lens.x<=0||!float.IsFinite(lens.y)||lens.y<=0||!float.IsFinite(lens.cx)||!float.IsFinite(lens.cy)))lens=null;
         }
         public void Begin()
         {
@@ -55,6 +136,7 @@ namespace CandyFlick
             game.Player.SetPositionAndRotation(new Vector3(0,500,900), Quaternion.LookRotation(new Vector3(0,70,0)-new Vector3(0,500,900)));
             game.GameCamera.ResetProjectionMatrix(); game.CandyCamera.ResetProjectionMatrix();
             game.GameCamera.cullingMask |= 1 << StageLayer;
+            RefreshProjection();
             Navigation.Begin(Room.transform.Find("Cube").GetComponent<Renderer>().bounds);
         }
         public void End()

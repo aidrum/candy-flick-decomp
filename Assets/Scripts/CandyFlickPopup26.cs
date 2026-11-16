@@ -21,7 +21,7 @@ namespace CandyFlick
             Init();
             Game(42).fontSize = PopupFontSize("PopupBtnFs");
             Game(43).fontSize = PopupFontSize("PopupMessageFs");
-            popupMessage = message; popupButton = T("OK");
+            popupMessage = L(message); popupButton = T("OK");
             popupPressed = false; PopupActive = true;
         }
         int PopupFontSize(string name) => Array.Find(fontProfiles.languages[text.CurrentLanguage].sizes,

@@ -6,12 +6,13 @@ using UnityEngine;
 
 namespace CandyFlick.Multiplayer
 {
+    public enum LanControls { PlayersChoice, Slingshot, Flick }
     public enum LanPhase { Lobby, FindingCard, Playing, Paused, Finished }
     [Serializable] public sealed class LanPlayer
     {
         public int id, fed, score, baseScore, ringScore, thrown, lastSequence;
         public int avatar=LanProfiles.Default;
-        public int candyChoice,readySkin;
+        public int candyChoice,readySkin,controlMode=2;
         public string name="Player";
         public bool tracked, paused, hasPose, groundSupported, calibrated;
         public string groundReason="Ground support has not been checked.";
@@ -34,7 +35,7 @@ namespace CandyFlick.Multiplayer
     }
     [Serializable] public sealed class LanSnapshot
     {
-        public int epoch,skin,nomEvent;public bool groundMode;public LanGroundState ground=new LanGroundState();
+        public int epoch,skin,nomEvent;public LanControls controls;public bool groundMode;public LanGroundState ground=new LanGroundState();
         public LanPhase phase;public float remaining=60,actorTime;
         public Vector3 actorPosition;public Quaternion actorRotation=Quaternion.identity;
         public string actorClip="idle",eventClip="",message="";
@@ -44,7 +45,7 @@ namespace CandyFlick.Multiplayer
     [Serializable] public sealed class LanMessage
     {
         public int version=LanRules.Version,playerId=-1,epoch,sequence,candyChoice;
-        public int avatar=LanProfiles.Default;
+        public int avatar=LanProfiles.Default,controlMode=2;
         public string kind,name,text;
         public bool tracked,paused,groundSupported,calibrated;public string groundReason;public int groundGeneration;
         public Vector3 cameraPosition,candyPosition;
@@ -60,7 +61,10 @@ namespace CandyFlick.Multiplayer
     }
     public static class LanRules
     {
-        public const int Version=9,MaxPlayers=10;public const float MatchSeconds=60,ThrowInterval=.8f;
+        public const int Version=10,MaxPlayers=10;public const float MatchSeconds=60,ThrowInterval=.8f;
+        public static LanControls CleanControls(LanControls value)=>value>=LanControls.PlayersChoice&&value<=LanControls.Flick?value:LanControls.PlayersChoice;
+        public static LaunchMode CleanControlMode(int value)=>value==0?LaunchMode.Flick:LaunchMode.Slingshot;
+        public static LaunchMode EffectiveControl(LanControls rule,int preference)=>rule==LanControls.Slingshot?LaunchMode.Slingshot:rule==LanControls.Flick?LaunchMode.Flick:CleanControlMode(preference);
         public static string CleanName(string value)
         {
             string clean=new string((value??"").Where(c=>!char.IsControl(c)&&c!='<'&&c!='>').ToArray()).Trim();

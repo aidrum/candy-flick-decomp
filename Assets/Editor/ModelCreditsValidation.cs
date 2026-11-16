@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using CandyFlick;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace CandyFlickEditor
@@ -17,6 +18,9 @@ namespace CandyFlickEditor
         static ModelCreditsValidation(){if(SessionState.GetBool(Key,false)){EditorApplication.update+=Tick;Application.logMessageReceived+=OnLog;}}
         public static void Run()
         {
+            SessionState.SetBool(Key+"Audio",AudioListener.pause);
+            SessionState.SetString(Key+"Scene",EditorSceneManager.playModeStartScene?AssetDatabase.GetAssetPath(EditorSceneManager.playModeStartScene):"");
+            EditorSceneManager.playModeStartScene=AssetDatabase.LoadAssetAtPath<SceneAsset>(ProjectBuilder.ScenePath);
             Directory.CreateDirectory(Folder);if(File.Exists(Folder+"/failure.txt"))File.Delete(Folder+"/failure.txt");
             Resolution(640,1136);SessionState.SetBool(Key,true);EditorApplication.EnterPlaymode();
         }
@@ -68,19 +72,33 @@ namespace CandyFlickEditor
                 string copy=CandyFlickUI.ModelCreditText[i];
                 Check(copy.Contains("\""+names[i]+" (School Project)\"")&&copy.Contains("https://skfb.ly/"+slugs[i])&&copy.Contains("by Ole Gunnar Isager is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/)."),names[i]+": full supplied attribution, author, model URL and license URL are present");
             }
-            foreach(float height in new[]{1136f,1422f})
+            int previous=PortLocalization.Language;
+            try
             {
-                var style=new GUIStyle{font=game.assets.font,fontSize=30,wordWrap=true};
-                Rect[] entries=CandyFlickUI.ModelCreditsLayout(style,height);
-                for(int i=0;i<entries.Length;i++)
-                    Check(entries[i].yMax<=height-175&&entries[i].height>=style.CalcHeight(new GUIContent(CandyFlickUI.ModelCreditText[i]),entries[i].width)
-                        &&(i==0||entries[i-1].yMax<entries[i].y),"Full attribution fits without overlap: entry "+i+", canvas height "+height);
+                for(int language=0;language<9;language++)
+                {
+                    PortLocalization.Language=language;
+                    foreach(float height in new[]{853f,1136f,1422f})
+                    {
+                        Font font=language==6?Resources.Load<Font>("Localization/CandyFlickKorean"):language==1?game.assets.alternateFont:game.assets.font;
+                        var style=new GUIStyle{font=font,fontSize=30,wordWrap=true};
+                        Rect[] entries=CandyFlickUI.ModelCreditsLayout(style,height);
+                        for(int i=0;i<entries.Length;i++)
+                        {
+                            string copy=PortLocalization.Translate(CandyFlickUI.ModelCreditText[i]);
+                            Check(entries[i].yMax<=height-175&&entries[i].height>=style.CalcHeight(new GUIContent(copy),entries[i].width)&&(i==0||entries[i-1].yMax<entries[i].y),"Complete localized model attribution fits: "+PortLocalization.CatalogData().languages[language]+", entry "+i+", height "+height);
+                        }
+                    }
+                }
             }
+            finally{PortLocalization.Language=previous;}
         }
+
         static void OnLog(string message,string stack,LogType type){if((type==LogType.Exception||type==LogType.Error||type==LogType.Assert)&&!stack.Contains("UnityEditor.Search.SearchDatabase"))Finish(message+"\n"+stack);}
         static void Finish(string error)
         {
             SessionState.SetBool(Key,false);EditorApplication.update-=Tick;Application.logMessageReceived-=OnLog;
+            AudioListener.pause=SessionState.GetBool(Key+"Audio",false);string scene=SessionState.GetString(Key+"Scene","");EditorSceneManager.playModeStartScene=string.IsNullOrEmpty(scene)?null:AssetDatabase.LoadAssetAtPath<SceneAsset>(scene);
             if(error!=null)File.WriteAllText(Folder+"/failure.txt",error);EditorApplication.ExitPlaymode();
         }
         [Serializable]class Evidence{public string utc;public string[] checks;}

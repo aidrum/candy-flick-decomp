@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 namespace CandyFlick
@@ -24,30 +25,32 @@ namespace CandyFlick
         }
         void DrawModelCredits()
         {
-            var title=new GUIStyle(Main(43)){font=game.assets.font,fontSize=66,alignment=TextAnchor.MiddleCenter,wordWrap=false,fixedHeight=0};
+            var title=new GUIStyle(Main(43)){font=PortFont,fontSize=66,alignment=TextAnchor.MiddleCenter,wordWrap=false,fixedHeight=0};
             title.normal.textColor=Color.black;
             title.normal.background=null;
-            GUI.Label(new Rect(60,120,520,85),ModelCreditsTitle,title);
-            var body=new GUIStyle(Main(42)){font=game.assets.font,fontSize=30,alignment=TextAnchor.UpperCenter,wordWrap=true,fixedHeight=0};
+            string heading=L(ModelCreditsTitle);while(title.fontSize>28&&title.CalcSize(new GUIContent(heading)).x>520)title.fontSize--;
+            GUI.Label(new Rect(60,120,520,85),heading,title);
+            var body=new GUIStyle(Main(42)){font=PortFont,fontSize=30,alignment=TextAnchor.UpperCenter,wordWrap=true,fixedHeight=0};
             body.normal.textColor=Color.black;
             body.normal.background=null;
             Rect[] entries=ModelCreditsLayout(body,height);
-            for(int i=0;i<entries.Length;i++)GUI.Label(entries[i],ModelCreditText[i],body);
+            for(int i=0;i<entries.Length;i++)GUI.Label(entries[i],L(ModelCreditText[i]),body);
         }
         public static Rect[] ModelCreditsLayout(GUIStyle body,float availableHeight)
         {
+            string[] localized=ModelCreditText.Select(PortLocalization.Translate).ToArray();
             const float width=528,top=240,gap=30;
             float Measure()
             {
                 float sum=gap*(ModelCreditText.Length-1);
-                foreach(string entry in ModelCreditText)sum+=Mathf.Ceil(body.CalcHeight(new GUIContent(entry),width));
+                foreach(string entry in localized)sum+=Mathf.Ceil(body.CalcHeight(new GUIContent(entry),width));
                 return sum;
             }
-            while(body.fontSize>22&&(top+Measure()>availableHeight-175||body.CalcSize(new GUIContent("http://creativecommons.org/licenses/by/4.0/")).x>width))body.fontSize--;
+            while(body.fontSize>16&&(top+Measure()>availableHeight-175||body.CalcSize(new GUIContent("http://creativecommons.org/licenses/by/4.0/")).x>width))body.fontSize--;
             var rectangles=new Rect[ModelCreditText.Length];float y=top;
             for(int i=0;i<rectangles.Length;i++)
             {
-                float h=Mathf.Ceil(body.CalcHeight(new GUIContent(ModelCreditText[i]),width));
+                float h=Mathf.Ceil(body.CalcHeight(new GUIContent(localized[i]),width));
                 rectangles[i]=new Rect(56,y,width,h);y+=h+gap;
             }
             return rectangles;

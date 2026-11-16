@@ -116,7 +116,7 @@ namespace CandyFlick
         }
         LanSnapshot BuildSnapshot()
         {
-            var state=new LanSnapshot{epoch=Match.Epoch,phase=Match.Phase,remaining=Match.Remaining,skin=(int)game.Skins.Selected,groundMode=GroundMode,ground=Ground,
+            var state=new LanSnapshot{epoch=Match.Epoch,phase=Match.Phase,remaining=Match.Remaining,skin=(int)game.Skins.Selected,controls=Controls,groundMode=GroundMode,ground=Ground,
                 players=Match.Players.ToArray(),actorPosition=game.Actor.transform.position,actorRotation=game.Actor.transform.rotation,
                 actorClip=nomClip,actorTime=nomAnimation&&nomAnimation[nomClip]!=null?nomAnimation[nomClip].time:0,nomEvent=nomEvent,eventClip=eventClip};
             if(!activeMatch)return state;
@@ -161,7 +161,7 @@ namespace CandyFlick
         }
         void ClearLanWorld()
         {
-            ClearLanRings();
+            ClearRemoteSlingshots();ClearLanRings();
             foreach(var view in flying.Values.Concat(ready.Values))if(view){view.gameObject.SetActive(false);Destroy(view.gameObject);}
             flying.Clear();ready.Clear();contacts.Clear();remoteTargets.Clear();
         }

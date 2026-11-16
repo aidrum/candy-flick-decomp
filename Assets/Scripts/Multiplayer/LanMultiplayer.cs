@@ -15,7 +15,15 @@ namespace CandyFlick
         LanSnapshot remoteState=new LanSnapshot();
         bool activeMatch,helloSent,appPaused,closing;
         float nextPose,nextSnapshot,nextHeartbeat,nextLocalThrow;int shotSequence;
-        NommieSkin savedSkin;string hostAddress="";
+        NommieSkin savedSkin;LaunchMode savedControls;LanControls roomControls;string hostAddress="";
+        public LanControls Controls=>IsHost?roomControls:LanRules.CleanControls(remoteState.controls);
+        public void CycleRoomControls(){if(!IsHost||Phase!=LanPhase.Lobby)return;roomControls=(LanControls)(((int)roomControls+1)%3);nextSnapshot=0;}
+        public void SetControlPreference(LaunchMode mode)
+        {
+            if(InMatch)return;
+            if(IsHost&&Match.Players.Count>0){Match.Players[0].controlMode=(int)mode;nextSnapshot=0;}
+            else network?.Server?.Send(new LanMessage{kind="controls",controlMode=(int)mode});
+        }
 #if UNITY_ANDROID && !UNITY_EDITOR
         object multicastLock;
 #endif
@@ -75,7 +83,7 @@ namespace CandyFlick
         {
             if(network==null)OpenBrowser();if(InRoom||Connecting)return;
             if(!network.Host()){Notice=network.Error;return;}
-            hostAddress=LanTransport.LocalAddress()+":"+network.Port;LocalId=0;Match.Players.Clear();Match.Players.Add(new LanPlayer{id=0,name=PlayerName,avatar=ProfilePicture,candyChoice=game.CandySkins.Selected,groundSupported=game.GroundSupport.Supported,groundReason=game.GroundSupport.Reason});Match.Lobby();roomGround=game.GroundARModeEnabled;Notice="Waiting for players...";
+            hostAddress=LanTransport.LocalAddress()+":"+network.Port;LocalId=0;Match.Players.Clear();Match.Players.Add(new LanPlayer{id=0,name=PlayerName,avatar=ProfilePicture,candyChoice=game.CandySkins.Selected,controlMode=(int)game.ControlMode,groundSupported=game.GroundSupport.Supported,groundReason=game.GroundSupport.Reason});Match.Lobby();roomControls=LanControls.PlayersChoice;roomGround=game.GroundARModeEnabled;Notice="Waiting for players...";
         }
         public void JoinRoom(string address)
         {
@@ -90,14 +98,14 @@ namespace CandyFlick
         }
         void BeginLocalMatch(bool reuseGround=false)
         {
-            activeMatch=true;savedSkin=game.Skins.Selected;nextLocalThrow=nextPose=nextSnapshot=nextHeartbeat=0;shotSequence=0;
+            activeMatch=true;savedSkin=game.Skins.Selected;savedControls=game.ControlMode;game.ApplySessionControlMode(LanRules.EffectiveControl(Controls,(int)savedControls));nextLocalThrow=nextPose=nextSnapshot=nextHeartbeat=0;shotSequence=0;
             calibrationNotice="";
             if(IsHost&&!reuseGround)InvalidateGroundCalibration();
             game.StartGame(true);if(IsHost&&reuseGround)game.Actor.transform.SetPositionAndRotation(retainedNomPosition,retainedNomRotation);InitializeLanWorld();Notice=GroundMode?"All clients scan the host image once before ground placement.":"Find the card. The match starts when everyone is ready.";
         }
         void Update()
         {
-            if(network==null)return;SyncGroundCapability();TickRoomCalibration();double now=Time.realtimeSinceStartupAsDouble;network.Pump(now);
+            if(network==null)return;SyncGroundCapability();TickRoomCalibration();TickCalibrationSound();double now=Time.realtimeSinceStartupAsDouble;network.Pump(now);
             if(IsHost)
             {
                 foreach(var peer in network.Peers.ToArray())
@@ -115,7 +123,7 @@ namespace CandyFlick
             else if(network.Server!=null)
             {
                 var server=network.Server;
-                if(!helloSent){server.Send(new LanMessage{kind="hello",name=PlayerName,avatar=ProfilePicture,candyChoice=game.CandySkins.Selected,groundSupported=game.GroundSupport.Supported,groundReason=game.GroundSupport.Reason});helloSent=true;}
+                if(!helloSent){server.Send(new LanMessage{kind="hello",name=PlayerName,avatar=ProfilePicture,candyChoice=game.CandySkins.Selected,controlMode=(int)game.ControlMode,groundSupported=game.GroundSupport.Supported,groundReason=game.GroundSupport.Reason});helloSent=true;}
                 while(server.Messages.Count>0)ReceiveClient(server.Messages.Dequeue());
                 if(network.Server!=server)return;
                 if(server.Closed||now-server.LastSeen>10){Disconnect("The host disconnected.");return;}
@@ -149,7 +157,7 @@ namespace CandyFlick
         {
             if(activeMatch&&IsHost&&Playing)Match.Step(Time.fixedDeltaTime);
         }
-        void LateUpdate(){if(activeMatch&&IsHost)ResolveLanContacts();}
+        void LateUpdate(){if(activeMatch&&IsHost)ResolveLanContacts();if(activeMatch)RefreshRemoteSlingshots();}
         void Flush(){if(network==null)return;double now=Time.realtimeSinceStartupAsDouble;foreach(var p in network.Peers)p.Pump(now);network.Server?.Pump(now);}
         static LanMessage Decode(string text){try{return JsonUtility.FromJson<LanMessage>(text);}catch{return null;}}
         void ReceiveHost(LanPeer peer,string text)
@@ -161,13 +169,14 @@ namespace CandyFlick
                 if(Match.Phase!=LanPhase.Lobby||Match.Players.Count>=LanRules.MaxPlayers){Reject(peer,Match.Phase==LanPhase.Lobby?"This room is full.":"This match has already started.");return;}
                 if(Ground.reusable)InvalidateGroundCalibration();
                 int id=Enumerable.Range(1,LanRules.MaxPlayers-1).First(i=>Match.Players.All(p=>p.id!=i));peer.Id=id;
-                Match.Players.Add(new LanPlayer{id=id,name=LanRules.CleanName(m.name),avatar=LanProfiles.Clean(m.avatar),candyChoice=CandySkinSettings.CleanChoice(m.candyChoice),groundSupported=m.groundSupported,groundReason=CleanGroundReason(m.groundReason)});
+                Match.Players.Add(new LanPlayer{id=id,name=LanRules.CleanName(m.name),avatar=LanProfiles.Clean(m.avatar),candyChoice=CandySkinSettings.CleanChoice(m.candyChoice),controlMode=(int)LanRules.CleanControlMode(m.controlMode),groundSupported=m.groundSupported,groundReason=CleanGroundReason(m.groundReason)});
                 peer.Send(new LanMessage{kind="welcome",playerId=id,state=BuildSnapshot()});Notice="Players can join until the host starts.";return;
             }
             var player=Match.Players.Find(p=>p.id==peer.Id);if(player==null){peer.Dispose();return;}
             if(m.kind=="name"&&Match.Phase==LanPhase.Lobby)player.name=LanRules.CleanName(m.name);
             else if(m.kind=="profile"&&Match.Phase==LanPhase.Lobby){player.avatar=LanProfiles.Clean(m.avatar);nextSnapshot=0;}
             else if(m.kind=="candy"&&Match.Phase==LanPhase.Lobby){player.candyChoice=CandySkinSettings.CleanChoice(m.candyChoice);nextSnapshot=0;}
+            else if(m.kind=="controls"&&Match.Phase==LanPhase.Lobby){player.controlMode=(int)LanRules.CleanControlMode(m.controlMode);nextSnapshot=0;}
             else if(m.kind=="capability"){player.groundSupported=m.groundSupported;player.groundReason=CleanGroundReason(m.groundReason);}
             else if(m.kind=="calibration"&&!activeMatch&&Ground.reusable&&m.epoch==Epoch&&m.groundGeneration==Ground.generation)player.calibrated=m.calibrated;
             else if(m.kind=="groundLost"&&(activeMatch||Ground.reusable)&&m.epoch==Epoch&&m.groundGeneration==Ground.generation)ResetGroundCalibration();
@@ -198,12 +207,13 @@ namespace CandyFlick
             }
         }
         LanMessage LocalPose(string kind)=>new LanMessage{kind=kind,epoch=Epoch,tracked=LocalTracking,paused=LocallyPaused,calibrated=LocalCalibrated,groundGeneration=Ground.generation,
-            cameraPosition=game.Player.position,cameraRotation=game.Player.rotation,candyPosition=game.CandyGhost.position,candyRotation=game.CandyGhost.rotation};
+            controlMode=(int)(activeMatch?savedControls:game.ControlMode),cameraPosition=game.Player.position,cameraRotation=game.Player.rotation,candyPosition=game.CandyGhost.position,candyRotation=game.CandyGhost.rotation};
         void UpdatePlayerPose(LanPlayer player,LanMessage m)
         {
             player.calibrated=m.calibrated&&m.groundGeneration==Ground.generation;
             player.tracked=m.tracked&&(!GroundMode||(Ground.placed&&player.calibrated&&player.groundSupported&&m.groundGeneration==Ground.generation));player.paused=m.paused;
             if(!LanRules.ValidPose(m)){player.hasPose=false;return;}
+            player.controlMode=(int)LanRules.CleanControlMode(m.controlMode);
             player.hasPose=true;player.cameraPosition=m.cameraPosition;player.cameraRotation=m.cameraRotation.normalized;
             player.candyPosition=m.candyPosition;player.candyRotation=m.candyRotation.normalized;
         }
@@ -231,14 +241,14 @@ namespace CandyFlick
         {
             if(!activeMatch)return;activeMatch=false;ClearLanWorld();
             if(!game||!game.World||!game.Actor||!game.Skins)return;
-            game.ReturnToMenu(keepGround);game.Skins.ApplyForSession(savedSkin);game.Actor.ResetOriginal();game.GameplayMusic.clip=null;
+            game.ReturnToMenu(keepGround);game.ApplySessionControlMode(savedControls);game.Skins.ApplyForSession(savedSkin);game.Actor.ResetOriginal();game.GameplayMusic.clip=null;
         }
         public void CloseRoom()
         {
             if(closing)return;closing=true;
             if(IsHost){network.Broadcast(new LanMessage{kind="closed",text="The host closed the room."});Flush();}
             else{network?.Server?.Send(new LanMessage{kind="leave"});Flush();}
-            StopLocalMatch();if(game&&game.ar&&game.ar.RetainingLanGround)game.ar.End();hostGround=new LanGroundState();network?.Dispose();network=null;LocalId=-1;helloSent=false;Match.Players.Clear();Match.Lobby();remoteState=new LanSnapshot();lastGroundCapability=-1;ReleaseMulticast();closing=false;
+            StopLocalMatch();if(game&&game.ar&&game.ar.RetainingLanGround)game.ar.End();hostGround=new LanGroundState();calibrationSoundGeneration=-1;network?.Dispose();network=null;LocalId=-1;helloSent=false;Match.Players.Clear();Match.Lobby();remoteState=new LanSnapshot();lastGroundCapability=-1;ReleaseMulticast();closing=false;
         }
         public void LeaveRoom(){CloseRoom();game.ReturnToMenu();}
         void Disconnect(string reason){CloseRoom();network=new LanTransport();network.Browse();AcquireMulticast();Notice=reason;game.Show(GameScreen.LanLobby);}

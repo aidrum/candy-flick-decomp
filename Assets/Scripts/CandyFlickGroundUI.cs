@@ -59,11 +59,11 @@ namespace CandyFlick
         {
             var label=new GUIStyle(Game(8)) { fontSize=28,wordWrap=true,alignment=TextAnchor.MiddleCenter,
                 normal={background=null,textColor=Color.black},hover={background=null,textColor=Color.black},active={background=null,textColor=Color.black},focused={background=null,textColor=Color.black} };
-            Rect prompt=GroundPromptRect;
-            while(label.fontSize>20 && label.CalcHeight(new GUIContent(game.ar.Status),prompt.width)>prompt.height) label.fontSize--;
+            Rect prompt=GroundPromptRect;string message=L(game.ar.Status);
+            while(label.fontSize>20 && label.CalcHeight(new GUIContent(message),prompt.width)>prompt.height) label.fontSize--;
             Color saved=GUI.color;
             GUI.color=new Color(saved.r,saved.g,saved.b,saved.a*Mathf.Clamp01(searchSticker.m_Color.a*2));
-            GUI.Label(prompt,game.ar.Status,label);
+            GUI.Label(prompt,message,label);
             GUI.color=saved;
             if(game.ar.GroundPlaced) return; // Waiting for the first native anchor observation.
             GUI.color=game.ar.GroundPointAvailable?new Color(.6f,1,.4f,1):Color.white;

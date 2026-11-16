@@ -21,6 +21,11 @@ namespace CandyFlickEditor
             {
                 switch (command)
                 {
+                    case "RestoreTestAudio": UnityEngine.AudioListener.pause=SessionState.GetBool("CandyFlickLanTestAudio",false); UnityEngine.AudioListener.volume=SessionState.GetFloat("CandyFlickLanTestVolume",1); break;
+                    case "SlingshotTest": SlingshotValidation.Run(); break;
+                    case "SlingshotAssets": SlingshotAssetsBuilder.Build(); break;
+                    case "AchievementsTest": AchievementValidation.Run(); break;
+                    case "PrehistoricIdles": PrehistoricIdleCapture.Run(); break;
                     case "CandyTest": CandySkinValidation.Run(); break;
                     case "CandyAssets": CandySkinAssetsBuilder.Build(); break;
                     case "Prepare": ProjectBuilder.PrepareProject(); break;

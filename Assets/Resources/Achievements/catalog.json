@@ -1,0 +1,270 @@
+{
+  "entries": [
+    {
+      "id": "firsttaste",
+      "name": "Taste Test",
+      "description": "Feed Om Nom 10 candies",
+      "metric": "hits",
+      "target": 10,
+      "uv": [
+        0.0009765625,
+        0.763671875,
+        0.1171875,
+        0.234375
+      ]
+    },
+    {
+      "id": "candylicious",
+      "name": "Candylicious",
+      "description": "Feed Om Nom 100 candies",
+      "metric": "hits",
+      "target": 100,
+      "uv": [
+        0.1201171875,
+        0.763671875,
+        0.1171875,
+        0.234375
+      ]
+    },
+    {
+      "id": "tummydelight",
+      "name": "Yummy In The Tummy",
+      "description": "Feed Om Nom 300 candies",
+      "metric": "hits",
+      "target": 300,
+      "uv": [
+        0.2392578125,
+        0.763671875,
+        0.1171875,
+        0.234375
+      ]
+    },
+    {
+      "id": "abettertaste",
+      "name": "A Better Taste",
+      "description": "Feed Om Nom 5 super candies",
+      "metric": "super",
+      "target": 5,
+      "uv": [
+        0.3583984375,
+        0.763671875,
+        0.1171875,
+        0.234375
+      ]
+    },
+    {
+      "id": "sweetaddictiveness",
+      "name": "Sugar Addict",
+      "description": "Feed Om Nom 30 super candies",
+      "metric": "super",
+      "target": 30,
+      "uv": [
+        0.4775390625,
+        0.763671875,
+        0.1171875,
+        0.234375
+      ]
+    },
+    {
+      "id": "supertaster",
+      "name": "Supertaster",
+      "description": "Feed Om Nom 90 super candies",
+      "metric": "super",
+      "target": 90,
+      "uv": [
+        0.5966796875,
+        0.763671875,
+        0.1171875,
+        0.234375
+      ]
+    },
+    {
+      "id": "quicksnack",
+      "name": "Quick Snack",
+      "description": "Scored 100 points in one game",
+      "metric": "points",
+      "target": 100,
+      "uv": [
+        0.7158203125,
+        0.763671875,
+        0.1171875,
+        0.234375
+      ]
+    },
+    {
+      "id": "goodlunch",
+      "name": "Hardy Lunch",
+      "description": "Scored 200 points in one game",
+      "metric": "points",
+      "target": 200,
+      "uv": [
+        0.0009765625,
+        0.525390625,
+        0.1171875,
+        0.234375
+      ]
+    },
+    {
+      "id": "sweetjackpot",
+      "name": "Half Way",
+      "description": "Reach a perfect score of 300 points in one game",
+      "metric": "points",
+      "target": 300,
+      "uv": [
+        0.1201171875,
+        0.525390625,
+        0.1171875,
+        0.234375
+      ]
+    },
+    {
+      "id": "610points",
+      "name": "Sweet Jackpot",
+      "description": "Reach a perfect score of 610 points in one game",
+      "metric": "points",
+      "target": 610,
+      "uv": [
+        0.2392578125,
+        0.525390625,
+        0.1171875,
+        0.234375
+      ]
+    },
+    {
+      "id": "skilledsniper",
+      "name": "Sharp Shooter",
+      "description": "Make 3 successful shots in a row",
+      "metric": "streak",
+      "target": 3,
+      "uv": [
+        0.3583984375,
+        0.525390625,
+        0.1171875,
+        0.234375
+      ]
+    },
+    {
+      "id": "mastersniper",
+      "name": "Skittle Sniper",
+      "description": "Make 5 successful shots in a row",
+      "metric": "streak",
+      "target": 5,
+      "uv": [
+        0.4775390625,
+        0.525390625,
+        0.1171875,
+        0.234375
+      ]
+    },
+    {
+      "id": "marksman",
+      "name": "Marksman",
+      "description": "Make 10 successful shots in a row",
+      "metric": "streak",
+      "target": 10,
+      "uv": [
+        0.5966796875,
+        0.525390625,
+        0.1171875,
+        0.234375
+      ]
+    },
+    {
+      "id": "tummyteaser",
+      "name": "Tummy Teaser",
+      "description": "Miss 5 times in one game",
+      "metric": "misses",
+      "target": 5,
+      "uv": [
+        0.7158203125,
+        0.525390625,
+        0.1171875,
+        0.234375
+      ]
+    },
+    {
+      "id": "skilledtosser",
+      "name": "Boss of Toss",
+      "description": "Throw 100 candies total",
+      "metric": "throws",
+      "target": 100,
+      "uv": [
+        0.0009765625,
+        0.287109375,
+        0.1171875,
+        0.234375
+      ]
+    },
+    {
+      "id": "mastertosser",
+      "name": "Throw Master",
+      "description": "Throw 500 candies total",
+      "metric": "throws",
+      "target": 500,
+      "uv": [
+        0.1201171875,
+        0.287109375,
+        0.1171875,
+        0.234375
+      ]
+    },
+    {
+      "id": "ninjatosser",
+      "name": "Toss Ninja",
+      "description": "Throw 1000 candies total",
+      "metric": "throws",
+      "target": 1000,
+      "uv": [
+        0.2392578125,
+        0.287109375,
+        0.1171875,
+        0.234375
+      ]
+    },
+    {
+      "id": "feedingpattern",
+      "name": "Feeding Pattern",
+      "description": "Hit Miss Hit Miss Hit",
+      "metric": "pattern",
+      "target": 1,
+      "uv": [
+        0.3583984375,
+        0.287109375,
+        0.1171875,
+        0.234375
+      ]
+    },
+    {
+      "id": "ringmaster",
+      "name": "Master of the Rings",
+      "description": "Get bonus points after flying through a ring 50 times",
+      "metric": "rings",
+      "target": 50,
+      "uv": [
+        0.4775390625,
+        0.287109375,
+        0.1171875,
+        0.234375
+      ]
+    },
+    {
+      "id": "fastfood",
+      "name": "Fast Food",
+      "description": "Feed OmNom with a candy while he is on the move",
+      "metric": "moving",
+      "target": 1,
+      "uv": [
+        0.5966796875,
+        0.287109375,
+        0.1171875,
+        0.234375
+      ]
+    }
+  ],
+  "locked": [
+    0.732421875,
+    0.3232421875,
+    0.083984375,
+    0.1630859375
+  ]
+}

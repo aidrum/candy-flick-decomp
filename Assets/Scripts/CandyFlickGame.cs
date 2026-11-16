@@ -26,6 +26,7 @@ namespace CandyFlick
         public Transform Player { get; private set; }
         public Transform CandyGhost { get; private set; }
         public LanMultiplayer LAN { get; private set; }
+        public LocalAchievements Achievements {get;private set;}
         public bool IsLanMatch => LAN && LAN.InMatch;
         public bool CanSimulate => ScreenState == GameScreen.Playing && (IsLanMatch ? LAN.Playing : !IsAR || ar.Tracking);
         public bool Ready => CanSimulate && (IsLanMatch ? LAN.Ready : !Session.IsOver && !projectile && timeForNextShoot);
@@ -58,6 +59,7 @@ namespace CandyFlick
         CandyProjectile projectile;
         CandyProjectile[] candies;
         GameObject slingshot, animElastic, superGhost;
+        bool releasedElasticPending;
         Collider ghostCollider, touchPlane;
         Vector3 originalCandyPos, slingCandyPos, mousePrevious, stablePosition;
         Quaternion stableRotation;
@@ -83,6 +85,7 @@ namespace CandyFlick
             music = gameObject.AddComponent<AudioSource>(); music.clip = assets.music; music.loop = true;
             InitializeExtraOptions();
             if (MusicEnabled && !music.isPlaying) music.Play();
+            Achievements=new LocalAchievements();
             BuildWorld();
             NonARBackground = gameObject.AddComponent<NonARStage>(); NonARBackground.Initialize(this);
             PhotoVisibility = gameObject.AddComponent<PhotoCandyVisibility>();
@@ -111,6 +114,7 @@ namespace CandyFlick
             touchPlane = Player.Find("CandyTouchPlane").GetComponent<Collider>();
             slingshot = Player.Find("elastic").gameObject; animElastic = Player.Find("test").gameObject;
             animElastic.SetActive(false);
+            slingshot.AddComponent<SlingshotVisual>().Initialize(this,Player,false);
             // CorrectCandyPosition (iPhone5: y-25, z+70), then PlayerBehaviour.Start 0x24a14
             // stores startAnimPos = corrected + (0,0,-100); non-Tweaker modes place the ghost there.
             originalCandyPos = CandyGhost.localPosition + new Vector3(0, -25, 70 - 100);
@@ -157,8 +161,9 @@ namespace CandyFlick
             IsNonAR = NonARModeEnabled && !IsLanMatch; IsAR = (augmented || IsLanMatch) && !IsNonAR;
             music.Stop();
             foreach (var candy in candies) candy.Restore();
-            projectile = null; candyIndex = 0;
+            projectile = null; candyIndex = 0; releasedElasticPending = false;
             Session = new GameSession { bonus = NextGameBonus };
+            if(!IsLanMatch)Achievements.BeginGame();
             LastScore = 0; pendingResults = false; timeForNextShoot = true; hardStabilisation = false;
             Skins.RerollRandom();
             ConfigureNonARBackground(); Actor.ResetOriginal();
@@ -183,11 +188,10 @@ namespace CandyFlick
                 else ReturnToMenu();
             }
             if (ScreenState == GameScreen.Playing) Time.timeScale = IsLanMatch ? (LAN.Playing ? 1 : 0) : IsAR && !ar.Tracking ? 0 : 1;
-            // PlayerBehaviour.Update (0x24fc0) hides the released elastic as soon
-            // as a new bullet is prepared, even if the recoil clip is still playing.
-            if (animElastic.activeSelf && (Ready || ScreenState == GameScreen.Paused || !animElastic.GetComponent<Animation>().isPlaying))
-                animElastic.SetActive(false);
-            CandyGhost.gameObject.SetActive(Ready); slingshot.SetActive(Ready && ControlMode == LaunchMode.Slingshot);
+            if(Ready)releasedElasticPending=false;
+            bool released=CanSimulate&&releasedElasticPending&&ControlMode==LaunchMode.Slingshot;
+            animElastic.SetActive(released);CandyGhost.gameObject.SetActive(Ready);
+            slingshot.SetActive(CanSimulate&&ControlMode==LaunchMode.Slingshot&&(Ready||released));
             if (IsAR && ar.ConsumePlacementInput()) return;
             if (!CanSimulate) return;
             if (IsNonAR && NonARBackground.Navigation.PollInput()) return;
@@ -240,7 +244,7 @@ namespace CandyFlick
             {
                 if (isCandyTapped && TouchFlickListener26.CheckTouchPosSlingshot(point, UnityEngine.Screen.width, UnityEngine.Screen.height)) Actor.OnPreShoot();
             }
-            else if (CheckTouchPosition(point)) Actor.OnPreShoot(); // OnTouchBegan 0x25b24, non-Tweaker branch.
+            else if (CanStartFlick(point)) Actor.OnPreShoot(); // OnTouchBegan 0x25b24, non-Tweaker branch.
         }
         // PlayerBehaviour.CheckTouchPosition 0x254c4 with InitTouchRadius 0x24bb8 (IS_IPHONE: radius = width/2).
         public static bool CheckTouchPosition(Vector2 start)
@@ -250,6 +254,7 @@ namespace CandyFlick
             Vector2 center = new Vector2(width / 2, height);
             return Vector2.Distance(center, new Vector2(start.x, height - start.y)) <= width / 2;
         }
+        bool CanStartFlick(Vector2 point)=>CheckTouchPosition(point)||(IsNonAR&&ghostCollider.Raycast(GameCamera.ScreenPointToRay(point),out _,Mathf.Infinity));
         void OnTouchTweaker(TouchFlick26 touch)
         {
             if (Ready && isCandyTapped && TouchFlickListener26.CheckTouchPosSlingshot(touch.startTouch, UnityEngine.Screen.width, UnityEngine.Screen.height))
@@ -262,7 +267,7 @@ namespace CandyFlick
             => ShootCheckedTouch(touch, LaunchMath26.HoldStrength(touch.holdTime), 0, 0);
         void ShootCheckedTouch(TouchFlick26 touch, float speed, float ratio, float angle)
         {
-            if (Ready && CheckTouchPosition(touch.startTouch)) PrepareAndShootBullet(speed, ratio, angle);
+            if (Ready && CanStartFlick(touch.startTouch)) PrepareAndShootBullet(speed, ratio, angle);
         }
 
         // PrepareAndShootBullet 0x255f8 / ShootBullet 0x25fd0 / ObjectShooter.Shoot 0x26264.
@@ -278,18 +283,20 @@ namespace CandyFlick
             float speed = LaunchMath26.CalculateSpeed(rawSpeed, Player.position.y, NativeDistance);
             CandySkins.ApplyShot(projectile.transform);
             projectile.LaunchImpulse(Player.forward * speed, Vector3.up * speed * speed, Session.IsSuperCandy);
+            Achievements.ThrowCandy();
             Actor.OnBulletShoot(projectile); Player.localRotation = saved;
             hardStabilisation = true; timeForNextShoot = false;
             ShowShotFeedback();
         }
         void ShowShotFeedback()
         {
-            CandyGhost.gameObject.SetActive(false); slingshot.SetActive(false);
+            CandyGhost.gameObject.SetActive(false);
             elasticAudio.Stop();
             // Native 2.6 always forces Tweaker mode, so its unreachable Flick path never showed this
             // recoil. The port-only Flick switch has no slingshot: skip the elastic clip and sound.
             bool sling = ControlMode == LaunchMode.Slingshot;
-            if (sling) { animElastic.SetActive(true); animElastic.GetComponent<Animation>().Play(); }
+            releasedElasticPending=sling;slingshot.SetActive(sling);
+            if(sling){animElastic.SetActive(true);var recoil=animElastic.GetComponent<Animation>();recoil.Stop();recoil.wrapMode=WrapMode.ClampForever;recoil[recoil.clip.name].wrapMode=WrapMode.ClampForever;recoil.Play();}
             if (SoundEnabled)
             {
                 effects.Stop();
@@ -338,14 +345,16 @@ namespace CandyFlick
         void PrepareBulletForShoot(bool nextCandy=true)
         {
             if(nextCandy)CandySkins.PrepareNext();
-            animElastic.SetActive(false);
+            if(Ready){releasedElasticPending=false;animElastic.SetActive(false);}
             ResetCandyPos(); isCandyTapped = false; CandyGhost.gameObject.SetActive(Ready);
             if (superGhost) superGhost.SetActive(Session.IsSuperCandy);
         }
         public void ResolveShot(bool hit, int ringBonus)
         {
             if (!projectile) return;
+            bool super=Session.IsSuperCandy;
             LastScore = Session.RecordUnits(hit, shotDistance, ringBonus); projectile = null;
+            if(!IsLanMatch)Achievements.Resolve(hit,super,ringBonus>0,LastScore,Actor.Moving);
             timeForNextShoot = true; hardStabilisation = false; Boosts.CheckBoost();
             PrepareBulletForShoot(); // Refresh the next candy's super effect after the score advances.
             CandyResolved?.Invoke(hit);
@@ -386,13 +395,15 @@ namespace CandyFlick
         public void Show(GameScreen screen) { ScreenState = screen; }
         public void StopMenuMusic() { music.Stop(); }
         // Port-only preference; both gesture implementations remain the recovered 2.6 logic.
-        public void SetMode(LaunchMode mode)
+        public void SetMode(LaunchMode mode)=>ApplyControlMode(mode,true);
+        internal void ApplySessionControlMode(LaunchMode mode)=>ApplyControlMode(mode,false);
+        void ApplyControlMode(LaunchMode mode,bool persist)
         {
             if(mode != LaunchMode.Flick && mode != LaunchMode.Slingshot) return;
-            input.Cancel(); isCandyTapped = false; animElastic.SetActive(false); Actor.OnCancelShoot();
+            input.Cancel(); isCandyTapped = false; releasedElasticPending=false; animElastic.SetActive(false); Actor.OnCancelShoot();
             ControlMode = mode; input.mode = (TouchMode26)mode;
             touchPlane.gameObject.SetActive(mode == LaunchMode.Slingshot); // OnTouchModeChange 0x24e80.
-            PlayerPrefs.SetInt(ControlModePreference, (int)mode); PlayerPrefs.Save();
+            if(persist){PlayerPrefs.SetInt(ControlModePreference,(int)mode);PlayerPrefs.Save();if(LAN)LAN.SetControlPreference(mode);}
             PrepareBulletForShoot(false);
         }
         public void ToggleControlMode() => SetMode(ControlMode == LaunchMode.Slingshot ? LaunchMode.Flick : LaunchMode.Slingshot);
@@ -415,7 +426,7 @@ namespace CandyFlick
         }
         public void ResetProgress()
         {
-            NextGameBonus = 0; PlayerPrefs.DeleteAll(); SetMode(LaunchMode.Slingshot);
+            NextGameBonus = 0; PlayerPrefs.DeleteAll(); Achievements.Reload(); SetMode(LaunchMode.Slingshot);
             Skins.Select(NommieSkin.Original);CandySkins.Select(0);
             LockFpsToCamera = false; ar.RefreshFrameRate();
             HideCandyInPictures = InGameMusicEnabled = true; NonARModeEnabled = GroundARModeEnabled = false; SyncGameplayMusic();

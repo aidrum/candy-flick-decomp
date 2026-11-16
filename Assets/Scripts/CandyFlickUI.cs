@@ -163,7 +163,7 @@ namespace CandyFlick
         string T(string key) => text.GetStringByKey(key);
         void ApplyLanguageFont()
         {
-            Font font = text.CurrentLanguage == 1 ? game.assets.alternateFont : game.assets.font;
+            Font font = PortFont;
             foreach (var style in mainSkin.customStyles) style.font = font;
             foreach (var style in gameSkin.customStyles) style.font = font;
             numberStyle.font = outlineStyle.font = font;
@@ -463,6 +463,7 @@ namespace CandyFlick
             GUILayout.BeginHorizontal(); GUILayout.FlexibleSpace();
             float footerWidth=Dimension("GameOverScreen$$GetBottomBtnWidth"),footerHeight=Dimension("GameOverScreen$$GetBottomBtnHeight");
             bool achievements = GUILayout.Button("", Game(15), GUILayout.Width(footerWidth), GUILayout.Height(footerHeight));
+            Rect achievementButton=GUILayoutUtility.GetLastRect();achievementButton.position+=R("GameOverScreen$$GetBottomBtnRectGO").position;ResultsAchievementsRect=achievementButton;
             GUILayout.Space(footerWidth * .1f);
             bool leaderboard = GUILayout.Button("", Game(16), GUILayout.Width(footerWidth), GUILayout.Height(footerHeight));
             GUILayout.Space(footerWidth * .1f);
@@ -470,7 +471,7 @@ namespace CandyFlick
             GUILayout.FlexibleSpace(); GUILayout.EndHorizontal(); GUILayout.EndArea();
             if(menu) { game.Play(game.assets.button); transition.Begin(game.ReturnToMenu); }
             // Game Center is iOS-only: the original buttons stay visible but do nothing on Android.
-            if(achievements || leaderboard) game.Play(game.assets.button);
+            if(achievements)OpenAchievements(true);if(leaderboard)game.Play(game.assets.button);
         }
         IEnumerator WaitAndTurn()
         {
@@ -488,18 +489,20 @@ namespace CandyFlick
                 return;
             }
             if (Button(R("SettingScreen$$GetBackBtnRect", true), Main(33)))
-                transition.Begin(() => { if (settingsPage == "ModelCredits") settingsPage = "About"; else if (settingsPage == "GameCenter" && gameCenterFromResults) { game.Show(GameScreen.Results); settingsPage = null; } else if (settingsPage != null) settingsPage = null; else game.ReturnToMenu(); });
+                transition.Begin(() => { if (settingsPage == "ModelCredits") settingsPage = "About"; else if ((settingsPage == "GameCenter" || settingsPage == "Achievements") && gameCenterFromResults) { game.Show(GameScreen.Results); settingsPage = null; } else if (settingsPage != null) settingsPage = null; else game.ReturnToMenu(); });
+            if (settingsPage == "Achievements") { DrawAchievements(); return; }
             if (settingsPage == "About") { DrawAbout(); return; }
             if (settingsPage == "Reset") { DrawReset(); return; }
             if (settingsPage == "MoreOptions") { DrawMoreOptions(); return; }
             float width=Dimension("SettingScreen$$GetMainBtnWidth"),buttonHeight=Dimension("SettingScreen$$GetMainBtnHeight");
             float buttonScale=buttonHeight/111;
             float rows = settingsPage == "GameCenter" ? 5.3f : 6.5f;
-            GUILayout.BeginArea(new Rect(320 - width / 2, height / 2 - buttonHeight * rows / 2, width, buttonHeight * rows));
+            Rect settingsButtons=new Rect(320-width/2,height/2-buttonHeight*rows/2,width,buttonHeight*rows);
+            GUILayout.BeginArea(settingsButtons);
             GUILayout.BeginVertical();
             if (settingsPage == "GameCenter")
             {
-                GUILayout.Label("Game Center is available on iOS.", Main(42));
+                GUILayout.Label(L("Game Center is available on iOS."), Main(42));
                 if (GUILayout.Button(T("OK"), Main(1), GUILayout.Height(buttonHeight)))
                 {
                     game.Play(game.assets.button);
@@ -530,7 +533,8 @@ namespace CandyFlick
                 GUILayout.FlexibleSpace();
                 GUILayout.BeginHorizontal();
                 // Game Center is iOS-only: keep the original buttons, without a destination.
-                if (GUILayout.Button("", Main(44), GUILayout.Width(207*buttonScale), GUILayout.Height(109*buttonScale))) game.Play(game.assets.button);
+                bool achievements=GUILayout.Button("",Main(44),GUILayout.Width(207*buttonScale),GUILayout.Height(109*buttonScale));
+                Rect achievementButton=GUILayoutUtility.GetLastRect();achievementButton.position+=settingsButtons.position;SettingsAchievementsRect=achievementButton;if(achievements)OpenAchievements();
                 GUILayout.FlexibleSpace(); if (GUILayout.Button("", Main(45), GUILayout.Width(207*buttonScale), GUILayout.Height(109*buttonScale))) game.Play(game.assets.button);
                 GUILayout.EndHorizontal();
             }

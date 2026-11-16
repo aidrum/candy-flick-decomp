@@ -1,0 +1,1611 @@
+{
+  "languages": [
+    "en",
+    "ru",
+    "nl",
+    "fr",
+    "de",
+    "it",
+    "ko",
+    "br",
+    "es"
+  ],
+  "entries": [
+    {
+      "key": "LAN Multiplayer",
+      "text": [
+        "LAN Multiplayer",
+        "Игра по LAN",
+        "LAN-multiplayer",
+        "Multijoueur LAN",
+        "LAN-Mehrspieler",
+        "Multigiocatore LAN",
+        "LAN 멀티플레이",
+        "Multijogador LAN",
+        "Multijugador LAN"
+      ]
+    },
+    {
+      "key": "Name:",
+      "text": [
+        "Name:",
+        "Имя:",
+        "Naam:",
+        "Nom :",
+        "Name:",
+        "Nome:",
+        "이름:",
+        "Nome:",
+        "Nombre:"
+      ]
+    },
+    {
+      "key": "Room · {0}/{1}",
+      "text": [
+        "Room · {0}/{1}",
+        "Комната · {0}/{1}",
+        "Kamer · {0}/{1}",
+        "Salon · {0}/{1}",
+        "Raum · {0}/{1}",
+        "Stanza · {0}/{1}",
+        "방 · {0}/{1}",
+        "Sala · {0}/{1}",
+        "Sala · {0}/{1}"
+      ]
+    },
+    {
+      "key": "Nearby rooms",
+      "text": [
+        "Nearby rooms",
+        "Комнаты поблизости",
+        "Kamers in de buurt",
+        "Salons à proximité",
+        "Räume in der Nähe",
+        "Stanze vicine",
+        "주변 방",
+        "Salas próximas",
+        "Salas cercanas"
+      ]
+    },
+    {
+      "key": "(Host)",
+      "text": [
+        "(Host)",
+        "(Хост)",
+        "(Host)",
+        "(Hôte)",
+        "(Host)",
+        "(Host)",
+        "(호스트)",
+        "(Anfitrião)",
+        "(Anfitrión)"
+      ]
+    },
+    {
+      "key": "Controls: {0}",
+      "text": [
+        "Controls: {0}",
+        "Управление: {0}",
+        "Besturing: {0}",
+        "Contrôles : {0}",
+        "Steuerung: {0}",
+        "Comandi: {0}",
+        "조작: {0}",
+        "Controles: {0}",
+        "Control: {0}"
+      ]
+    },
+    {
+      "key": "Slingshot",
+      "text": [
+        "Slingshot",
+        "Рогатка",
+        "Katapult",
+        "Fronde",
+        "Schleuder",
+        "Fionda",
+        "새총",
+        "Estilingue",
+        "Tirachinas"
+      ]
+    },
+    {
+      "key": "Flick",
+      "text": [
+        "Flick",
+        "Смахивание",
+        "Veeg",
+        "Balayage",
+        "Wischen",
+        "Scorri",
+        "플릭",
+        "Deslizar",
+        "Deslizar"
+      ]
+    },
+    {
+      "key": "Player's choice",
+      "text": [
+        "Player's choice",
+        "Выбор игрока",
+        "Keuze van speler",
+        "Choix du joueur",
+        "Spielerwahl",
+        "Scelta del giocatore",
+        "플레이어 선택",
+        "Escolha do jogador",
+        "Elección del jugador"
+      ]
+    },
+    {
+      "key": "AR Mode: {0}",
+      "text": [
+        "AR Mode: {0}",
+        "Режим AR: {0}",
+        "AR-modus: {0}",
+        "Mode AR : {0}",
+        "AR-Modus: {0}",
+        "Modalità AR: {0}",
+        "AR 모드: {0}",
+        "Modo AR: {0}",
+        "Modo AR: {0}"
+      ]
+    },
+    {
+      "key": "Ground",
+      "text": [
+        "Ground",
+        "Поверхность",
+        "Grond",
+        "Sol",
+        "Boden",
+        "Superficie",
+        "바닥",
+        "Chão",
+        "Suelo"
+      ]
+    },
+    {
+      "key": "Image",
+      "text": [
+        "Image",
+        "Изображение",
+        "Afbeelding",
+        "Image",
+        "Bild",
+        "Immagine",
+        "이미지",
+        "Imagem",
+        "Imagen"
+      ]
+    },
+    {
+      "key": "Host address: {0}",
+      "text": [
+        "Host address: {0}",
+        "Адрес хоста: {0}",
+        "Hostadres: {0}",
+        "Adresse de l’hôte : {0}",
+        "Host-Adresse: {0}",
+        "Indirizzo host: {0}",
+        "호스트 주소: {0}",
+        "Endereço do anfitrião: {0}",
+        "Dirección del anfitrión: {0}"
+      ]
+    },
+    {
+      "key": "Start match",
+      "text": [
+        "Start match",
+        "Начать матч",
+        "Wedstrijd starten",
+        "Lancer la partie",
+        "Spiel starten",
+        "Inizia partita",
+        "경기 시작",
+        "Iniciar partida",
+        "Iniciar partida"
+      ]
+    },
+    {
+      "key": "Connect to the same Wi-Fi",
+      "text": [
+        "Connect to the same Wi-Fi",
+        "Подключитесь к одной сети Wi-Fi",
+        "Verbind met hetzelfde wifi-netwerk",
+        "Connectez-vous au même Wi-Fi",
+        "Mit demselben WLAN verbinden",
+        "Collegatevi alla stessa rete Wi-Fi",
+        "같은 Wi-Fi에 연결하세요",
+        "Conectem-se à mesma rede Wi-Fi",
+        "Conectaos a la misma red Wi-Fi"
+      ]
+    },
+    {
+      "key": "Connecting...",
+      "text": [
+        "Connecting...",
+        "Подключение...",
+        "Verbinden...",
+        "Connexion...",
+        "Verbindung wird hergestellt...",
+        "Connessione...",
+        "연결 중...",
+        "Conectando...",
+        "Conectando..."
+      ]
+    },
+    {
+      "key": "Looking for rooms...",
+      "text": [
+        "Looking for rooms...",
+        "Поиск комнат...",
+        "Kamers zoeken...",
+        "Recherche de salons...",
+        "Räume werden gesucht...",
+        "Ricerca stanze...",
+        "방 찾는 중...",
+        "Procurando salas...",
+        "Buscando salas..."
+      ]
+    },
+    {
+      "key": "Join",
+      "text": [
+        "Join",
+        "Войти",
+        "Deelnemen",
+        "Rejoindre",
+        "Beitreten",
+        "Entra",
+        "참가",
+        "Entrar",
+        "Unirse"
+      ]
+    },
+    {
+      "key": "Or enter the host address",
+      "text": [
+        "Or enter the host address",
+        "Или введите адрес хоста",
+        "Of voer het hostadres in",
+        "Ou saisissez l’adresse de l’hôte",
+        "Oder Host-Adresse eingeben",
+        "Oppure inserisci l’indirizzo host",
+        "또는 호스트 주소를 입력하세요",
+        "Ou digite o endereço do anfitrião",
+        "O introduce la dirección del anfitrión"
+      ]
+    },
+    {
+      "key": "Host room",
+      "text": [
+        "Host room",
+        "Создать комнату",
+        "Kamer maken",
+        "Créer un salon",
+        "Raum erstellen",
+        "Crea stanza",
+        "방 만들기",
+        "Criar sala",
+        "Crear sala"
+      ]
+    },
+    {
+      "key": "Waiting for players...",
+      "text": [
+        "Waiting for players...",
+        "Ожидание игроков...",
+        "Wachten op spelers...",
+        "En attente de joueurs...",
+        "Warten auf Spieler...",
+        "In attesa di giocatori...",
+        "플레이어 기다리는 중...",
+        "Aguardando jogadores...",
+        "Esperando jugadores..."
+      ]
+    },
+    {
+      "key": "Waiting for the host.",
+      "text": [
+        "Waiting for the host.",
+        "Ожидание хоста.",
+        "Wachten op de host.",
+        "En attente de l’hôte.",
+        "Warten auf den Host.",
+        "In attesa dell’host.",
+        "호스트 기다리는 중.",
+        "Aguardando o anfitrião.",
+        "Esperando al anfitrión."
+      ]
+    },
+    {
+      "key": "Waiting for the host...",
+      "text": [
+        "Waiting for the host...",
+        "Ожидание хоста...",
+        "Wachten op de host...",
+        "En attente de l’hôte...",
+        "Warten auf den Host...",
+        "In attesa dell’host...",
+        "호스트 기다리는 중...",
+        "Aguardando o anfitrião...",
+        "Esperando al anfitrión..."
+      ]
+    },
+    {
+      "key": "Waiting for the host to start.",
+      "text": [
+        "Waiting for the host to start.",
+        "Ожидание начала матча.",
+        "Wachten tot de host start.",
+        "En attente du lancement par l’hôte.",
+        "Warten, bis der Host startet.",
+        "In attesa che l’host inizi.",
+        "호스트가 시작하기를 기다리는 중.",
+        "Aguardando o anfitrião iniciar.",
+        "Esperando a que el anfitrión inicie."
+      ]
+    },
+    {
+      "key": "Match paused for everyone",
+      "text": [
+        "Match paused for everyone",
+        "Матч приостановлен для всех",
+        "Wedstrijd voor iedereen gepauzeerd",
+        "Partie en pause pour tous",
+        "Spiel für alle pausiert",
+        "Partita in pausa per tutti",
+        "모두의 경기가 일시 정지되었습니다",
+        "Partida pausada para todos",
+        "Partida pausada para todos"
+      ]
+    },
+    {
+      "key": "Move Om Nom",
+      "text": [
+        "Move Om Nom",
+        "Переместить Ам Няма",
+        "Om Nom verplaatsen",
+        "Déplacer Om Nom",
+        "Om Nom versetzen",
+        "Sposta Om Nom",
+        "옴놈 옮기기",
+        "Mover Om Nom",
+        "Mover a Om Nom"
+      ]
+    },
+    {
+      "key": "Calibrate again",
+      "text": [
+        "Calibrate again",
+        "Повторить калибровку",
+        "Opnieuw kalibreren",
+        "Recalibrer",
+        "Neu kalibrieren",
+        "Ricalibra",
+        "다시 보정",
+        "Calibrar novamente",
+        "Volver a calibrar"
+      ]
+    },
+    {
+      "key": "You win!",
+      "text": [
+        "You win!",
+        "Вы победили!",
+        "Je wint!",
+        "Vous avez gagné !",
+        "Du gewinnst!",
+        "Hai vinto!",
+        "승리!",
+        "Você venceu!",
+        "¡Has ganado!"
+      ]
+    },
+    {
+      "key": "{0} wins!",
+      "text": [
+        "{0} wins!",
+        "Победитель: {0}!",
+        "{0} wint!",
+        "{0} a gagné !",
+        "{0} gewinnt!",
+        "{0} vince!",
+        "{0} 승리!",
+        "{0} venceu!",
+        "¡Gana {0}!"
+      ]
+    },
+    {
+      "key": "Draw!",
+      "text": [
+        "Draw!",
+        "Ничья!",
+        "Gelijkspel!",
+        "Égalité !",
+        "Unentschieden!",
+        "Pareggio!",
+        "무승부!",
+        "Empate!",
+        "¡Empate!"
+      ]
+    },
+    {
+      "key": "{0} points",
+      "text": [
+        "{0} points",
+        "{0} очк.",
+        "{0} punten",
+        "{0} points",
+        "{0} Punkte",
+        "{0} punti",
+        "{0}점",
+        "{0} pontos",
+        "{0} puntos"
+      ]
+    },
+    {
+      "key": "{0}s",
+      "text": [
+        "{0}s",
+        "{0}с",
+        "{0}s",
+        "{0}s",
+        "{0}s",
+        "{0}s",
+        "{0}초",
+        "{0}s",
+        "{0}s"
+      ]
+    },
+    {
+      "key": "Back to room",
+      "text": [
+        "Back to room",
+        "Вернуться в комнату",
+        "Terug naar kamer",
+        "Retour au salon",
+        "Zurück zum Raum",
+        "Torna alla stanza",
+        "방으로 돌아가기",
+        "Voltar à sala",
+        "Volver a la sala"
+      ]
+    },
+    {
+      "key": "Profile picture",
+      "text": [
+        "Profile picture",
+        "Аватар",
+        "Profielfoto",
+        "Photo de profil",
+        "Profilbild",
+        "Immagine del profilo",
+        "프로필 사진",
+        "Foto de perfil",
+        "Foto de perfil"
+      ]
+    },
+    {
+      "key": "Back",
+      "text": [
+        "Back",
+        "Назад",
+        "Terug",
+        "Retour",
+        "Zurück",
+        "Indietro",
+        "뒤로",
+        "Voltar",
+        "Volver"
+      ]
+    },
+    {
+      "key": "The device of one or more players in the room does not support Ground mode.",
+      "text": [
+        "The device of one or more players in the room does not support Ground mode.",
+        "Устройство одного или нескольких игроков в комнате не поддерживает режим распознавания поверхностей.",
+        "Het apparaat van een of meer spelers in de kamer ondersteunt de grondmodus niet.",
+        "L’appareil d’un ou de plusieurs joueurs du salon ne prend pas en charge le mode Sol.",
+        "Das Gerät mindestens eines Spielers im Raum unterstützt den Bodenmodus nicht.",
+        "Il dispositivo di uno o più giocatori nella stanza non supporta la modalità Superficie.",
+        "방에 있는 플레이어 중 한 명 이상의 기기가 바닥 모드를 지원하지 않습니다.",
+        "O dispositivo de um ou mais jogadores da sala não é compatível com o modo Chão.",
+        "El dispositivo de uno o más jugadores de la sala no es compatible con el modo Suelo."
+      ]
+    },
+    {
+      "key": "Screen size could not be determined. Choose Image mode.",
+      "text": [
+        "Screen size could not be determined. Choose Image mode.",
+        "Не удалось определить размер экрана. Выберите режим «Изображение».",
+        "De schermgrootte kon niet worden bepaald. Kies de afbeeldingsmodus.",
+        "Impossible de déterminer la taille de l’écran. Choisissez le mode Image.",
+        "Die Bildschirmgröße konnte nicht ermittelt werden. Wähle den Bildmodus.",
+        "Impossibile determinare le dimensioni dello schermo. Scegli la modalità Immagine.",
+        "화면 크기를 확인할 수 없습니다. 이미지 모드를 선택하세요.",
+        "Não foi possível determinar o tamanho da tela. Escolha o modo Imagem.",
+        "No se pudo determinar el tamaño de la pantalla. Elige el modo Imagen."
+      ]
+    },
+    {
+      "key": "All clients scan the host image once before ground placement.",
+      "text": [
+        "All clients scan the host image once before ground placement.",
+        "Перед выбором поверхности все клиенты сканируют изображение хоста.",
+        "Alle gasten scannen eerst de afbeelding van de host voordat de plek wordt gekozen.",
+        "Tous les clients scannent l’image de l’hôte avant le placement au sol.",
+        "Alle Clients scannen vor der Bodenplatzierung einmal das Bild des Hosts.",
+        "Tutti i client scansionano l’immagine dell’host prima del posizionamento.",
+        "바닥에 배치하기 전에 모든 클라이언트가 호스트 이미지를 한 번 스캔합니다.",
+        "Todos os clientes escaneiam a imagem do anfitrião antes do posicionamento.",
+        "Todos los clientes escanean una vez la imagen del anfitrión antes de colocar a Om Nom."
+      ]
+    },
+    {
+      "key": "Find the card. The match starts when everyone is ready.",
+      "text": [
+        "Find the card. The match starts when everyone is ready.",
+        "Найдите карточку. Матч начнётся, когда все будут готовы.",
+        "Zoek de kaart. De wedstrijd begint als iedereen klaar is.",
+        "Trouvez la carte. La partie commence quand tout le monde est prêt.",
+        "Finde die Karte. Das Spiel beginnt, wenn alle bereit sind.",
+        "Trova la carta. La partita inizia quando tutti sono pronti.",
+        "카드를 찾으세요. 모두 준비되면 경기가 시작됩니다.",
+        "Encontre o cartão. A partida começa quando todos estiverem prontos.",
+        "Encuentra la tarjeta. La partida comienza cuando todos estén listos."
+      ]
+    },
+    {
+      "key": "{0} disconnected. Match cancelled.",
+      "text": [
+        "{0} disconnected. Match cancelled.",
+        "{0} отключился. Матч отменён.",
+        "{0} heeft de verbinding verbroken. Wedstrijd geannuleerd.",
+        "{0} s’est déconnecté. Partie annulée.",
+        "{0} hat die Verbindung getrennt. Spiel abgebrochen.",
+        "{0} si è disconnesso. Partita annullata.",
+        "{0}의 연결이 끊겼습니다. 경기가 취소되었습니다.",
+        "{0} desconectou. Partida cancelada.",
+        "{0} se ha desconectado. Partida cancelada."
+      ]
+    },
+    {
+      "key": "The host disconnected.",
+      "text": [
+        "The host disconnected.",
+        "Хост отключился.",
+        "De host heeft de verbinding verbroken.",
+        "L’hôte s’est déconnecté.",
+        "Der Host hat die Verbindung getrennt.",
+        "L’host si è disconnesso.",
+        "호스트의 연결이 끊겼습니다.",
+        "O anfitrião desconectou.",
+        "El anfitrión se ha desconectado."
+      ]
+    },
+    {
+      "key": "Different game version.",
+      "text": [
+        "Different game version.",
+        "Другая версия игры.",
+        "Andere spelversie.",
+        "Version du jeu différente.",
+        "Andere Spielversion.",
+        "Versione del gioco diversa.",
+        "게임 버전이 다릅니다.",
+        "Versão do jogo diferente.",
+        "La versión del juego es diferente."
+      ]
+    },
+    {
+      "key": "Join the room first.",
+      "text": [
+        "Join the room first.",
+        "Сначала войдите в комнату.",
+        "Neem eerst deel aan de kamer.",
+        "Rejoignez d’abord le salon.",
+        "Tritt zuerst dem Raum bei.",
+        "Entra prima nella stanza.",
+        "먼저 방에 참가하세요.",
+        "Entre na sala primeiro.",
+        "Primero únete a la sala."
+      ]
+    },
+    {
+      "key": "This room is full.",
+      "text": [
+        "This room is full.",
+        "Комната заполнена.",
+        "Deze kamer is vol.",
+        "Ce salon est complet.",
+        "Dieser Raum ist voll.",
+        "Questa stanza è piena.",
+        "방이 가득 찼습니다.",
+        "Esta sala está cheia.",
+        "Esta sala está llena."
+      ]
+    },
+    {
+      "key": "This match has already started.",
+      "text": [
+        "This match has already started.",
+        "Матч уже начался.",
+        "Deze wedstrijd is al begonnen.",
+        "Cette partie a déjà commencé.",
+        "Dieses Spiel hat bereits begonnen.",
+        "Questa partita è già iniziata.",
+        "이미 시작된 경기입니다.",
+        "Esta partida já começou.",
+        "Esta partida ya ha comenzado."
+      ]
+    },
+    {
+      "key": "Room closed.",
+      "text": [
+        "Room closed.",
+        "Комната закрыта.",
+        "Kamer gesloten.",
+        "Salon fermé.",
+        "Raum geschlossen.",
+        "Stanza chiusa.",
+        "방이 닫혔습니다.",
+        "Sala fechada.",
+        "Sala cerrada."
+      ]
+    },
+    {
+      "key": "The host closed the room.",
+      "text": [
+        "The host closed the room.",
+        "Хост закрыл комнату.",
+        "De host heeft de kamer gesloten.",
+        "L’hôte a fermé le salon.",
+        "Der Host hat den Raum geschlossen.",
+        "L’host ha chiuso la stanza.",
+        "호스트가 방을 닫았습니다.",
+        "O anfitrião fechou a sala.",
+        "El anfitrión ha cerrado la sala."
+      ]
+    },
+    {
+      "key": "Point your camera at the image card.",
+      "text": [
+        "Point your camera at the image card.",
+        "Наведите камеру на карточку.",
+        "Richt je camera op de kaart.",
+        "Pointez la caméra vers la carte.",
+        "Richte die Kamera auf die Bildkarte.",
+        "Punta la fotocamera verso la carta.",
+        "카메라로 이미지 카드를 비추세요.",
+        "Aponte a câmera para o cartão.",
+        "Apunta la cámara a la tarjeta."
+      ]
+    },
+    {
+      "key": "Waiting for {0}...",
+      "text": [
+        "Waiting for {0}...",
+        "Ожидание: {0}...",
+        "Wachten op {0}...",
+        "En attente de {0}...",
+        "Warten auf {0}...",
+        "In attesa di {0}...",
+        "{0} 기다리는 중...",
+        "Aguardando {0}...",
+        "Esperando a {0}..."
+      ]
+    },
+    {
+      "key": "Starting match...",
+      "text": [
+        "Starting match...",
+        "Начало матча...",
+        "Wedstrijd starten...",
+        "Lancement de la partie...",
+        "Spiel wird gestartet...",
+        "Avvio partita...",
+        "경기 시작 중...",
+        "Iniciando partida...",
+        "Iniciando partida..."
+      ]
+    },
+    {
+      "key": "If rooms do not appear, join using the host address.",
+      "text": [
+        "If rooms do not appear, join using the host address.",
+        "Если комнаты не появились, введите адрес хоста.",
+        "Verschijnen er geen kamers, gebruik dan het hostadres.",
+        "Si aucun salon n’apparaît, utilisez l’adresse de l’hôte.",
+        "Wenn keine Räume erscheinen, nutze die Host-Adresse.",
+        "Se non compaiono stanze, usa l’indirizzo host.",
+        "방이 표시되지 않으면 호스트 주소로 참가하세요.",
+        "Se nenhuma sala aparecer, entre usando o endereço do anfitrião.",
+        "Si no aparecen salas, únete con la dirección del anfitrión."
+      ]
+    },
+    {
+      "key": "Room discovery is unavailable. You can still join by address.",
+      "text": [
+        "Room discovery is unavailable. You can still join by address.",
+        "Поиск комнат недоступен. Можно войти по адресу.",
+        "Kamers zoeken is niet beschikbaar. Deelnemen via een adres kan wel.",
+        "La recherche de salons est indisponible. Vous pouvez utiliser une adresse.",
+        "Die Raumsuche ist nicht verfügbar. Du kannst über eine Adresse beitreten.",
+        "La ricerca stanze non è disponibile. Puoi entrare tramite indirizzo.",
+        "방 검색을 사용할 수 없습니다. 주소로 참가할 수 있습니다.",
+        "A busca de salas está indisponível. Você ainda pode entrar pelo endereço.",
+        "La búsqueda de salas no está disponible. Puedes unirte mediante la dirección."
+      ]
+    },
+    {
+      "key": "Could not open a room on this device.",
+      "text": [
+        "Could not open a room on this device.",
+        "Не удалось создать комнату на этом устройстве.",
+        "Kan op dit apparaat geen kamer maken.",
+        "Impossible de créer un salon sur cet appareil.",
+        "Auf diesem Gerät konnte kein Raum erstellt werden.",
+        "Impossibile creare una stanza su questo dispositivo.",
+        "이 기기에서 방을 만들 수 없습니다.",
+        "Não foi possível criar uma sala neste dispositivo.",
+        "No se pudo crear una sala en este dispositivo."
+      ]
+    },
+    {
+      "key": "Enter a local address such as 192.168.1.5.",
+      "text": [
+        "Enter a local address such as 192.168.1.5.",
+        "Введите локальный адрес, например 192.168.1.5.",
+        "Voer een lokaal adres in, zoals 192.168.1.5.",
+        "Saisissez une adresse locale, par exemple 192.168.1.5.",
+        "Gib eine lokale Adresse wie 192.168.1.5 ein.",
+        "Inserisci un indirizzo locale, ad esempio 192.168.1.5.",
+        "192.168.1.5와 같은 로컬 주소를 입력하세요.",
+        "Digite um endereço local, como 192.168.1.5.",
+        "Introduce una dirección local, como 192.168.1.5."
+      ]
+    },
+    {
+      "key": "Could not connect to this room.",
+      "text": [
+        "Could not connect to this room.",
+        "Не удалось подключиться к комнате.",
+        "Kan geen verbinding maken met deze kamer.",
+        "Impossible de rejoindre ce salon.",
+        "Verbindung zu diesem Raum fehlgeschlagen.",
+        "Impossibile connettersi a questa stanza.",
+        "이 방에 연결할 수 없습니다.",
+        "Não foi possível conectar a esta sala.",
+        "No se pudo conectar con esta sala."
+      ]
+    },
+    {
+      "key": "Connection timed out. Check the address and Wi-Fi.",
+      "text": [
+        "Connection timed out. Check the address and Wi-Fi.",
+        "Время подключения истекло. Проверьте адрес и Wi-Fi.",
+        "Verbinding verlopen. Controleer het adres en de wifi.",
+        "Délai de connexion dépassé. Vérifiez l’adresse et le Wi-Fi.",
+        "Zeitüberschreitung. Prüfe die Adresse und das WLAN.",
+        "Connessione scaduta. Controlla l’indirizzo e il Wi-Fi.",
+        "연결 시간이 초과되었습니다. 주소와 Wi-Fi를 확인하세요.",
+        "O tempo de conexão esgotou. Verifique o endereço e o Wi-Fi.",
+        "Se agotó el tiempo de conexión. Comprueba la dirección y el Wi-Fi."
+      ]
+    },
+    {
+      "key": "All other players must scan this image.\nHold your phone still.",
+      "text": [
+        "All other players must scan this image.\nHold your phone still.",
+        "Все остальные игроки должны отсканировать это изображение.\nДержите телефон неподвижно.",
+        "Alle andere spelers moeten deze afbeelding scannen.\nHoud je telefoon stil.",
+        "Tous les autres joueurs doivent scanner cette image.\nGardez votre téléphone immobile.",
+        "Alle anderen Spieler müssen dieses Bild scannen.\nHalte dein Telefon still.",
+        "Tutti gli altri giocatori devono scansionare questa immagine.\nTieni fermo il telefono.",
+        "다른 모든 플레이어가 이 이미지를 스캔해야 합니다.\n휴대폰을 움직이지 마세요.",
+        "Todos os outros jogadores devem escanear esta imagem.\nMantenha o celular parado.",
+        "Todos los demás jugadores deben escanear esta imagen.\nMantén el teléfono quieto."
+      ]
+    },
+    {
+      "key": "{0} / {1} players calibrated",
+      "text": [
+        "{0} / {1} players calibrated",
+        "{0} / {1} игроков откалибровано",
+        "{0} / {1} spelers gekalibreerd",
+        "{0} / {1} joueurs calibrés",
+        "{0} / {1} Spieler kalibriert",
+        "{0} / {1} giocatori calibrati",
+        "{0} / {1}명 보정 완료",
+        "{0} / {1} jogadores calibrados",
+        "{0} / {1} jugadores calibrados"
+      ]
+    },
+    {
+      "key": "Scan the image on the host's screen to align your phone with the shared play area.",
+      "text": [
+        "Scan the image on the host's screen to align your phone with the shared play area.",
+        "Отсканируйте изображение на экране хоста, чтобы совместить телефон с общей игровой зоной.",
+        "Scan de afbeelding op het scherm van de host om je telefoon met het gedeelde speelveld uit te lijnen.",
+        "Scannez l’image sur l’écran de l’hôte pour aligner votre téléphone sur la zone de jeu commune.",
+        "Scanne das Bild auf dem Bildschirm des Hosts, um dein Telefon am gemeinsamen Spielfeld auszurichten.",
+        "Scansiona l’immagine sullo schermo dell’host per allineare il telefono all’area di gioco condivisa.",
+        "호스트 화면의 이미지를 스캔하여 휴대폰을 공용 플레이 영역에 맞추세요.",
+        "Escaneie a imagem na tela do anfitrião para alinhar seu celular à área de jogo compartilhada.",
+        "Escanea la imagen de la pantalla del anfitrión para alinear tu teléfono con la zona de juego compartida."
+      ]
+    },
+    {
+      "key": "Ground calibration requires a supported phone. It is unavailable in the simulator.",
+      "text": [
+        "Ground calibration requires a supported phone. It is unavailable in the simulator.",
+        "Для калибровки поверхностей нужен совместимый телефон. В симуляторе она недоступна.",
+        "Grondkalibratie vereist een ondersteunde telefoon en is niet beschikbaar in de simulator.",
+        "Le calibrage au sol nécessite un téléphone compatible. Il est indisponible dans le simulateur.",
+        "Die Bodenkalibrierung erfordert ein unterstütztes Telefon. Im Simulator ist sie nicht verfügbar.",
+        "La calibrazione del suolo richiede un telefono compatibile. Non è disponibile nel simulatore.",
+        "바닥 보정에는 지원되는 휴대폰이 필요합니다. 시뮬레이터에서는 사용할 수 없습니다.",
+        "A calibração do chão exige um celular compatível. Ela não está disponível no simulador.",
+        "La calibración del suelo requiere un teléfono compatible. No está disponible en el simulador."
+      ]
+    },
+    {
+      "key": "Keep the host image in view and move your phone slightly.",
+      "text": [
+        "Keep the host image in view and move your phone slightly.",
+        "Держите изображение хоста в кадре и слегка двигайте телефон.",
+        "Houd de afbeelding van de host in beeld en beweeg je telefoon een beetje.",
+        "Gardez l’image de l’hôte en vue et bougez légèrement le téléphone.",
+        "Behalte das Bild des Hosts im Blick und bewege dein Telefon leicht.",
+        "Mantieni visibile l’immagine dell’host e muovi leggermente il telefono.",
+        "호스트 이미지를 화면에 유지하면서 휴대폰을 조금 움직이세요.",
+        "Mantenha a imagem do anfitrião visível e mova o celular um pouco.",
+        "Mantén la imagen del anfitrión a la vista y mueve un poco el teléfono."
+      ]
+    },
+    {
+      "key": "Image detected. Move your phone slightly while keeping the image in view.",
+      "text": [
+        "Image detected. Move your phone slightly while keeping the image in view.",
+        "Изображение обнаружено. Слегка двигайте телефон, удерживая изображение в кадре.",
+        "Afbeelding gevonden. Beweeg je telefoon een beetje en houd de afbeelding in beeld.",
+        "Image détectée. Bougez légèrement le téléphone en gardant l’image en vue.",
+        "Bild erkannt. Bewege dein Telefon leicht und behalte das Bild im Blick.",
+        "Immagine rilevata. Muovi leggermente il telefono mantenendo l’immagine visibile.",
+        "이미지를 감지했습니다. 이미지를 화면에 유지하면서 휴대폰을 조금 움직이세요.",
+        "Imagem detectada. Mova o celular um pouco, mantendo a imagem visível.",
+        "Imagen detectada. Mueve un poco el teléfono manteniendo la imagen a la vista."
+      ]
+    },
+    {
+      "key": "Move your phone slowly to track the surroundings.",
+      "text": [
+        "Move your phone slowly to track the surroundings.",
+        "Медленно двигайте телефон для отслеживания окружения.",
+        "Beweeg je telefoon langzaam om de omgeving te volgen.",
+        "Déplacez lentement le téléphone pour suivre les environs.",
+        "Bewege dein Telefon langsam, um die Umgebung zu erfassen.",
+        "Muovi lentamente il telefono per rilevare l’ambiente.",
+        "주변을 추적할 수 있도록 휴대폰을 천천히 움직이세요.",
+        "Mova o celular devagar para rastrear o ambiente.",
+        "Mueve el teléfono despacio para rastrear el entorno."
+      ]
+    },
+    {
+      "key": "Image detected. Waiting for ground tracking to start...",
+      "text": [
+        "Image detected. Waiting for ground tracking to start...",
+        "Изображение обнаружено. Ожидание отслеживания поверхностей...",
+        "Afbeelding gevonden. Wachten op grondtracking...",
+        "Image détectée. En attente du suivi au sol...",
+        "Bild erkannt. Warten auf die Bodenerfassung...",
+        "Immagine rilevata. In attesa del rilevamento del suolo...",
+        "이미지를 감지했습니다. 바닥 추적 시작을 기다리는 중...",
+        "Imagem detectada. Aguardando o rastreamento do chão...",
+        "Imagen detectada. Esperando al rastreo del suelo..."
+      ]
+    },
+    {
+      "key": "Waiting for ground tracking to start...",
+      "text": [
+        "Waiting for ground tracking to start...",
+        "Ожидание отслеживания поверхностей...",
+        "Wachten op grondtracking...",
+        "En attente du suivi au sol...",
+        "Warten auf die Bodenerfassung...",
+        "In attesa del rilevamento del suolo...",
+        "바닥 추적 시작을 기다리는 중...",
+        "Aguardando o rastreamento do chão...",
+        "Esperando al rastreo del suelo..."
+      ]
+    },
+    {
+      "key": "Image detected. Waiting for the host's tracking to be ready. Keep the image in view.",
+      "text": [
+        "Image detected. Waiting for the host's tracking to be ready. Keep the image in view.",
+        "Изображение обнаружено. Ожидание готовности отслеживания хоста. Держите изображение в кадре.",
+        "Afbeelding gevonden. Wachten tot de tracking van de host klaar is. Houd de afbeelding in beeld.",
+        "Image détectée. Attendez que le suivi de l’hôte soit prêt. Gardez l’image en vue.",
+        "Bild erkannt. Warte auf die Erfassung des Hosts. Behalte das Bild im Blick.",
+        "Immagine rilevata. Attendi che il rilevamento dell’host sia pronto. Mantieni l’immagine visibile.",
+        "이미지를 감지했습니다. 호스트의 추적 준비를 기다리고 있습니다. 이미지를 화면에 유지하세요.",
+        "Imagem detectada. Aguardando o rastreamento do anfitrião ficar pronto. Mantenha a imagem visível.",
+        "Imagen detectada. Esperando a que el rastreo del anfitrión esté listo. Mantén la imagen a la vista."
+      ]
+    },
+    {
+      "key": "Could not calibrate. Hold both phones still and try scanning again.",
+      "text": [
+        "Could not calibrate. Hold both phones still and try scanning again.",
+        "Не удалось выполнить калибровку. Держите оба телефона неподвижно и повторите сканирование.",
+        "Kalibreren mislukt. Houd beide telefoons stil en probeer opnieuw te scannen.",
+        "Calibrage impossible. Gardez les deux téléphones immobiles et scannez à nouveau.",
+        "Kalibrierung fehlgeschlagen. Haltet beide Telefone still und scannt erneut.",
+        "Calibrazione non riuscita. Tenete fermi entrambi i telefoni e riprovate la scansione.",
+        "보정할 수 없습니다. 두 휴대폰을 움직이지 말고 다시 스캔하세요.",
+        "Não foi possível calibrar. Mantenham os dois celulares parados e tentem escanear novamente.",
+        "No se pudo calibrar. Mantened ambos teléfonos quietos e intentad escanear de nuevo."
+      ]
+    },
+    {
+      "key": "Calibrating...",
+      "text": [
+        "Calibrating...",
+        "Калибровка...",
+        "Kalibreren...",
+        "Calibrage...",
+        "Kalibrierung...",
+        "Calibrazione...",
+        "보정 중...",
+        "Calibrando...",
+        "Calibrando..."
+      ]
+    },
+    {
+      "key": "Stabilizing the host reference. Hold your phone steady.",
+      "text": [
+        "Stabilizing the host reference. Hold your phone steady.",
+        "Стабилизация точки отсчёта хоста. Держите телефон неподвижно.",
+        "Referentie van de host stabiliseren. Houd je telefoon stil.",
+        "Stabilisation du repère de l’hôte. Gardez le téléphone immobile.",
+        "Referenz des Hosts wird stabilisiert. Halte dein Telefon still.",
+        "Stabilizzazione del riferimento dell’host. Tieni fermo il telefono.",
+        "호스트 기준점을 안정화하는 중입니다. 휴대폰을 움직이지 마세요.",
+        "Estabilizando a referência do anfitrião. Mantenha o celular parado.",
+        "Estabilizando la referencia del anfitrión. Mantén el teléfono quieto."
+      ]
+    },
+    {
+      "key": "Image detected. Keep it in view while the shared reference stabilizes.",
+      "text": [
+        "Image detected. Keep it in view while the shared reference stabilizes.",
+        "Изображение обнаружено. Держите его в кадре, пока общая точка отсчёта стабилизируется.",
+        "Afbeelding gevonden. Houd deze in beeld terwijl de gedeelde referentie stabiliseert.",
+        "Image détectée. Gardez-la en vue pendant la stabilisation du repère commun.",
+        "Bild erkannt. Behalte es im Blick, während die gemeinsame Referenz stabilisiert wird.",
+        "Immagine rilevata. Mantienila visibile mentre il riferimento condiviso si stabilizza.",
+        "이미지를 감지했습니다. 공용 기준점이 안정될 때까지 화면에 유지하세요.",
+        "Imagem detectada. Mantenha-a visível enquanto a referência compartilhada se estabiliza.",
+        "Imagen detectada. Mantenla a la vista mientras se estabiliza la referencia compartida."
+      ]
+    },
+    {
+      "key": "Host moved. Hold still while all other players scan again.",
+      "text": [
+        "Host moved. Hold still while all other players scan again.",
+        "Хост сдвинулся. Не двигайтесь, пока остальные игроки повторяют сканирование.",
+        "De host is bewogen. Blijf stil terwijl alle andere spelers opnieuw scannen.",
+        "L’hôte a bougé. Restez immobile pendant que les autres joueurs scannent à nouveau.",
+        "Der Host hat sich bewegt. Halte still, während alle anderen erneut scannen.",
+        "L’host si è mosso. Resta fermo mentre tutti gli altri giocatori ripetono la scansione.",
+        "호스트가 움직였습니다. 다른 모든 플레이어가 다시 스캔하는 동안 움직이지 마세요.",
+        "O anfitrião se moveu. Fique parado enquanto os outros jogadores escaneiam novamente.",
+        "El anfitrión se ha movido. Quédate quieto mientras los demás jugadores escanean de nuevo."
+      ]
+    },
+    {
+      "key": "Host moved. Hold your phone still while all other players scan.",
+      "text": [
+        "Host moved. Hold your phone still while all other players scan.",
+        "Хост сдвинулся. Держите телефон неподвижно, пока остальные игроки сканируют.",
+        "De host is bewogen. Houd je telefoon stil terwijl de andere spelers scannen.",
+        "L’hôte a bougé. Gardez le téléphone immobile pendant que les autres joueurs scannent.",
+        "Der Host hat sich bewegt. Halte dein Telefon still, während die anderen scannen.",
+        "L’host si è mosso. Tieni fermo il telefono mentre gli altri giocatori scansionano.",
+        "호스트가 움직였습니다. 다른 모든 플레이어가 스캔하는 동안 휴대폰을 움직이지 마세요.",
+        "O anfitrião se moveu. Mantenha o celular parado enquanto os outros jogadores escaneiam.",
+        "El anfitrión se ha movido. Mantén el teléfono quieto mientras los demás jugadores escanean."
+      ]
+    },
+    {
+      "key": "All other players must scan the image on your screen. Hold your phone still.",
+      "text": [
+        "All other players must scan the image on your screen. Hold your phone still.",
+        "Все остальные игроки должны отсканировать изображение на вашем экране. Держите телефон неподвижно.",
+        "Alle andere spelers moeten de afbeelding op je scherm scannen. Houd je telefoon stil.",
+        "Tous les autres joueurs doivent scanner l’image sur votre écran. Gardez le téléphone immobile.",
+        "Alle anderen Spieler müssen das Bild auf deinem Bildschirm scannen. Halte dein Telefon still.",
+        "Tutti gli altri giocatori devono scansionare l’immagine sul tuo schermo. Tieni fermo il telefono.",
+        "다른 모든 플레이어가 화면의 이미지를 스캔해야 합니다. 휴대폰을 움직이지 마세요.",
+        "Todos os outros jogadores devem escanear a imagem na sua tela. Mantenha o celular parado.",
+        "Todos los demás jugadores deben escanear la imagen de tu pantalla. Mantén el teléfono quieto."
+      ]
+    },
+    {
+      "key": "Everyone is calibrated. Tap to place Om Nom on this surface.",
+      "text": [
+        "Everyone is calibrated. Tap to place Om Nom on this surface.",
+        "Все откалиброваны. Коснитесь экрана, чтобы поместить Ам Няма на эту поверхность.",
+        "Iedereen is gekalibreerd. Tik om Om Nom op dit oppervlak te plaatsen.",
+        "Tout le monde est calibré. Touchez pour placer Om Nom sur cette surface.",
+        "Alle sind kalibriert. Tippe, um Om Nom auf dieser Fläche zu platzieren.",
+        "Tutti sono calibrati. Tocca per posizionare Om Nom su questa superficie.",
+        "모두 보정되었습니다. 탭하여 이 표면에 옴놈을 배치하세요.",
+        "Todos estão calibrados. Toque para colocar Om Nom nesta superfície.",
+        "Todos están calibrados. Toca para colocar a Om Nom en esta superficie."
+      ]
+    },
+    {
+      "key": "Everyone is calibrated. Aim at a flat surface to choose the play area.",
+      "text": [
+        "Everyone is calibrated. Aim at a flat surface to choose the play area.",
+        "Все откалиброваны. Наведите камеру на ровную поверхность, чтобы выбрать игровую зону.",
+        "Iedereen is gekalibreerd. Richt op een vlak oppervlak om het speelveld te kiezen.",
+        "Tout le monde est calibré. Visez une surface plane pour choisir la zone de jeu.",
+        "Alle sind kalibriert. Ziele auf eine ebene Fläche, um das Spielfeld zu wählen.",
+        "Tutti sono calibrati. Inquadra una superficie piana per scegliere l’area di gioco.",
+        "모두 보정되었습니다. 평평한 표면을 비춰 플레이 영역을 선택하세요.",
+        "Todos estão calibrados. Aponte para uma superfície plana para escolher a área de jogo.",
+        "Todos están calibrados. Apunta a una superficie plana para elegir la zona de juego."
+      ]
+    },
+    {
+      "key": "Calibrated. Wait for the host to choose the play area; keep tracking your surroundings.",
+      "text": [
+        "Calibrated. Wait for the host to choose the play area; keep tracking your surroundings.",
+        "Калибровка завершена. Ждите выбора игровой зоны хостом и продолжайте отслеживать окружение.",
+        "Gekalibreerd. Wacht tot de host het speelveld kiest en blijf de omgeving volgen.",
+        "Calibrage terminé. Attendez que l’hôte choisisse la zone de jeu et continuez à suivre les environs.",
+        "Kalibriert. Warte, bis der Host das Spielfeld wählt, und erfasse weiter die Umgebung.",
+        "Calibrazione completata. Attendi che l’host scelga l’area di gioco e continua a inquadrare l’ambiente.",
+        "보정되었습니다. 주변 추적을 유지하면서 호스트가 플레이 영역을 선택할 때까지 기다리세요.",
+        "Calibrado. Aguarde o anfitrião escolher a área de jogo e continue rastreando o ambiente.",
+        "Calibrado. Espera a que el anfitrión elija la zona de juego y sigue rastreando el entorno."
+      ]
+    },
+    {
+      "key": "Invalid shared placement. Ask the host to recalibrate.",
+      "text": [
+        "Invalid shared placement. Ask the host to recalibrate.",
+        "Неверное общее положение. Попросите хоста повторить калибровку.",
+        "Ongeldige gedeelde plaatsing. Vraag de host opnieuw te kalibreren.",
+        "Placement commun invalide. Demandez à l’hôte de recalibrer.",
+        "Ungültige gemeinsame Platzierung. Bitte den Host, neu zu kalibrieren.",
+        "Posizionamento condiviso non valido. Chiedi all’host di ricalibrare.",
+        "공용 배치가 올바르지 않습니다. 호스트에게 다시 보정하도록 요청하세요.",
+        "Posicionamento compartilhado inválido. Peça ao anfitrião para calibrar novamente.",
+        "La posición compartida no es válida. Pide al anfitrión que vuelva a calibrar."
+      ]
+    },
+    {
+      "key": "Anchoring the shared play area...",
+      "text": [
+        "Anchoring the shared play area...",
+        "Закрепление общей игровой зоны...",
+        "Gedeeld speelveld verankeren...",
+        "Ancrage de la zone de jeu commune...",
+        "Gemeinsames Spielfeld wird verankert...",
+        "Ancoraggio dell’area di gioco condivisa...",
+        "공용 플레이 영역 고정 중...",
+        "Ancorando a área de jogo compartilhada...",
+        "Anclando la zona de juego compartida..."
+      ]
+    },
+    {
+      "key": "Recovering the shared anchor. Hold your phone steady.",
+      "text": [
+        "Recovering the shared anchor. Hold your phone steady.",
+        "Восстановление общей привязки. Держите телефон неподвижно.",
+        "Gedeeld anker herstellen. Houd je telefoon stil.",
+        "Récupération de l’ancrage commun. Gardez le téléphone immobile.",
+        "Gemeinsamer Anker wird wiederhergestellt. Halte dein Telefon still.",
+        "Recupero dell’ancoraggio condiviso. Tieni fermo il telefono.",
+        "공용 앵커를 복구하는 중입니다. 휴대폰을 움직이지 마세요.",
+        "Recuperando a âncora compartilhada. Mantenha o celular parado.",
+        "Recuperando el anclaje compartido. Mantén el teléfono quieto."
+      ]
+    },
+    {
+      "key": "Could not place Om Nom. Try another flat surface.",
+      "text": [
+        "Could not place Om Nom. Try another flat surface.",
+        "Не удалось разместить Ам Няма. Попробуйте другую ровную поверхность.",
+        "Om Nom kon niet worden geplaatst. Probeer een ander vlak oppervlak.",
+        "Impossible de placer Om Nom. Essayez une autre surface plane.",
+        "Om Nom konnte nicht platziert werden. Versuche eine andere ebene Fläche.",
+        "Impossibile posizionare Om Nom. Prova un’altra superficie piana.",
+        "옴놈을 배치할 수 없습니다. 다른 평평한 표면을 찾아보세요.",
+        "Não foi possível colocar Om Nom. Tente outra superfície plana.",
+        "No se pudo colocar a Om Nom. Prueba otra superficie plana."
+      ]
+    },
+    {
+      "key": "Tracking was lost. Everyone must scan the host's screen again.",
+      "text": [
+        "Tracking was lost. Everyone must scan the host's screen again.",
+        "Отслеживание потеряно. Все должны снова отсканировать экран хоста.",
+        "Tracking verloren. Iedereen moet het scherm van de host opnieuw scannen.",
+        "Suivi perdu. Tout le monde doit scanner à nouveau l’écran de l’hôte.",
+        "Erfassung verloren. Alle müssen den Bildschirm des Hosts erneut scannen.",
+        "Rilevamento perso. Tutti devono scansionare di nuovo lo schermo dell’host.",
+        "추적이 끊겼습니다. 모두 호스트 화면을 다시 스캔해야 합니다.",
+        "O rastreamento foi perdido. Todos devem escanear a tela do anfitrião novamente.",
+        "Se perdió el rastreo. Todos deben volver a escanear la pantalla del anfitrión."
+      ]
+    },
+    {
+      "key": "Ground detection needs a supported phone. It is unavailable in the Vuforia simulator.",
+      "text": [
+        "Ground detection needs a supported phone. It is unavailable in the Vuforia simulator.",
+        "Для определения поверхности нужен совместимый телефон. В симуляторе Vuforia это недоступно.",
+        "Gronddetectie vereist een ondersteunde telefoon en werkt niet in de Vuforia-simulator.",
+        "La détection du sol nécessite un téléphone compatible. Elle est indisponible dans le simulateur Vuforia.",
+        "Die Bodenerkennung erfordert ein unterstütztes Telefon. Im Vuforia-Simulator ist sie nicht verfügbar.",
+        "Il rilevamento del suolo richiede un telefono compatibile. Non è disponibile nel simulatore Vuforia.",
+        "바닥 감지에는 지원되는 휴대폰이 필요합니다. Vuforia 시뮬레이터에서는 사용할 수 없습니다.",
+        "A detecção do chão exige um celular compatível. Ela não está disponível no simulador Vuforia.",
+        "La detección del suelo requiere un teléfono compatible. No está disponible en el simulador de Vuforia."
+      ]
+    },
+    {
+      "key": "Ground detection is unavailable. Check Google Play Services for AR, or choose AR Mode: Image.",
+      "text": [
+        "Ground detection is unavailable. Check Google Play Services for AR, or choose AR Mode: Image.",
+        "Определение поверхности недоступно. Проверьте Сервисы Google Play для AR или выберите режим AR: Изображение.",
+        "Gronddetectie is niet beschikbaar. Controleer Google Play-services voor AR of kies AR-modus: Afbeelding.",
+        "La détection du sol est indisponible. Vérifiez les Services Google Play pour la RA ou choisissez Mode AR : Image.",
+        "Die Bodenerkennung ist nicht verfügbar. Prüfe Google Play-Dienste für AR oder wähle AR-Modus: Bild.",
+        "Il rilevamento del suolo non è disponibile. Controlla Google Play Services per AR o scegli Modalità AR: Immagine.",
+        "바닥 감지를 사용할 수 없습니다. Google Play AR 서비스를 확인하거나 AR 모드: 이미지를 선택하세요.",
+        "A detecção do chão está indisponível. Verifique o Google Play Services para RA ou escolha Modo AR: Imagem.",
+        "La detección del suelo no está disponible. Comprueba Servicios de Google Play para RA o elige Modo AR: Imagen."
+      ]
+    },
+    {
+      "key": "Move your phone slowly to track your surroundings.",
+      "text": [
+        "Move your phone slowly to track your surroundings.",
+        "Медленно двигайте телефон для отслеживания окружения.",
+        "Beweeg je telefoon langzaam om je omgeving te volgen.",
+        "Déplacez lentement le téléphone pour suivre les environs.",
+        "Bewege dein Telefon langsam, um deine Umgebung zu erfassen.",
+        "Muovi lentamente il telefono per rilevare l’ambiente circostante.",
+        "주변을 추적할 수 있도록 휴대폰을 천천히 움직이세요.",
+        "Mova o celular devagar para rastrear o ambiente ao redor.",
+        "Mueve el teléfono despacio para rastrear tu entorno."
+      ]
+    },
+    {
+      "key": "Placing Om Nom...",
+      "text": [
+        "Placing Om Nom...",
+        "Размещение Ам Няма...",
+        "Om Nom plaatsen...",
+        "Placement d’Om Nom...",
+        "Om Nom wird platziert...",
+        "Posizionamento di Om Nom...",
+        "옴놈 배치 중...",
+        "Colocando Om Nom...",
+        "Colocando a Om Nom..."
+      ]
+    },
+    {
+      "key": "Surface found. Tap anywhere to place Om Nom.",
+      "text": [
+        "Surface found. Tap anywhere to place Om Nom.",
+        "Поверхность найдена. Коснитесь экрана в любом месте, чтобы разместить Ам Няма.",
+        "Oppervlak gevonden. Tik ergens om Om Nom te plaatsen.",
+        "Surface trouvée. Touchez n’importe où pour placer Om Nom.",
+        "Fläche gefunden. Tippe irgendwo, um Om Nom zu platzieren.",
+        "Superficie trovata. Tocca un punto qualsiasi per posizionare Om Nom.",
+        "표면을 찾았습니다. 아무 곳이나 탭하여 옴놈을 배치하세요.",
+        "Superfície encontrada. Toque em qualquer lugar para colocar Om Nom.",
+        "Superficie encontrada. Toca en cualquier lugar para colocar a Om Nom."
+      ]
+    },
+    {
+      "key": "Move your phone slowly and aim at a flat, well-lit surface.",
+      "text": [
+        "Move your phone slowly and aim at a flat, well-lit surface.",
+        "Медленно двигайте телефон и наведите его на ровную, хорошо освещённую поверхность.",
+        "Beweeg je telefoon langzaam en richt op een vlak, goed verlicht oppervlak.",
+        "Déplacez lentement le téléphone et visez une surface plane et bien éclairée.",
+        "Bewege dein Telefon langsam und ziele auf eine ebene, gut beleuchtete Fläche.",
+        "Muovi lentamente il telefono e inquadra una superficie piana e ben illuminata.",
+        "휴대폰을 천천히 움직이며 밝고 평평한 표면을 비추세요.",
+        "Mova o celular devagar e aponte para uma superfície plana e bem iluminada.",
+        "Mueve el teléfono despacio y apunta a una superficie plana y bien iluminada."
+      ]
+    },
+    {
+      "key": "Could not place Om Nom. Aim at the surface and try again.",
+      "text": [
+        "Could not place Om Nom. Aim at the surface and try again.",
+        "Не удалось разместить Ам Няма. Наведите камеру на поверхность и повторите попытку.",
+        "Om Nom kon niet worden geplaatst. Richt op het oppervlak en probeer opnieuw.",
+        "Impossible de placer Om Nom. Visez la surface et réessayez.",
+        "Om Nom konnte nicht platziert werden. Ziele auf die Fläche und versuche es erneut.",
+        "Impossibile posizionare Om Nom. Inquadra la superficie e riprova.",
+        "옴놈을 배치할 수 없습니다. 표면을 비추고 다시 시도하세요.",
+        "Não foi possível colocar Om Nom. Aponte para a superfície e tente novamente.",
+        "No se pudo colocar a Om Nom. Apunta a la superficie e inténtalo de nuevo."
+      ]
+    },
+    {
+      "key": "Move your phone slowly to find a flat surface.",
+      "text": [
+        "Move your phone slowly to find a flat surface.",
+        "Медленно двигайте телефон, чтобы найти ровную поверхность.",
+        "Beweeg je telefoon langzaam om een vlak oppervlak te vinden.",
+        "Déplacez lentement le téléphone pour trouver une surface plane.",
+        "Bewege dein Telefon langsam, um eine ebene Fläche zu finden.",
+        "Muovi lentamente il telefono per trovare una superficie piana.",
+        "휴대폰을 천천히 움직여 평평한 표면을 찾으세요.",
+        "Mova o celular devagar para encontrar uma superfície plana.",
+        "Mueve el teléfono despacio para encontrar una superficie plana."
+      ]
+    },
+    {
+      "key": "Move your phone slowly over a flat, well-lit surface. Aim at the surface and tap anywhere to place Om Nom.",
+      "text": [
+        "Move your phone slowly over a flat, well-lit surface. Aim at the surface and tap anywhere to place Om Nom.",
+        "Медленно двигайте телефон над ровной, хорошо освещённой поверхностью. Наведите камеру на неё и коснитесь экрана, чтобы разместить Ам Няма.",
+        "Beweeg je telefoon langzaam boven een vlak, goed verlicht oppervlak. Richt erop en tik ergens om Om Nom te plaatsen.",
+        "Déplacez lentement le téléphone au-dessus d’une surface plane et bien éclairée. Visez-la et touchez n’importe où pour placer Om Nom.",
+        "Bewege dein Telefon langsam über einer ebenen, gut beleuchteten Fläche. Ziele darauf und tippe irgendwo, um Om Nom zu platzieren.",
+        "Muovi lentamente il telefono sopra una superficie piana e ben illuminata. Inquadrala e tocca un punto qualsiasi per posizionare Om Nom.",
+        "밝고 평평한 표면 위에서 휴대폰을 천천히 움직이세요. 표면을 비추고 아무 곳이나 탭하여 옴놈을 배치하세요.",
+        "Mova o celular devagar sobre uma superfície plana e bem iluminada. Aponte para ela e toque em qualquer lugar para colocar Om Nom.",
+        "Mueve el teléfono despacio sobre una superficie plana y bien iluminada. Apunta a ella y toca en cualquier lugar para colocar a Om Nom."
+      ]
+    },
+    {
+      "key": "Starting camera…",
+      "text": [
+        "Starting camera…",
+        "Запуск камеры…",
+        "Camera starten…",
+        "Démarrage de la caméra…",
+        "Kamera wird gestartet…",
+        "Avvio fotocamera…",
+        "카메라 시작 중…",
+        "Iniciando câmera…",
+        "Iniciando cámara…"
+      ]
+    },
+    {
+      "key": "The Vuforia license key is missing from this build.",
+      "text": [
+        "The Vuforia license key is missing from this build.",
+        "В этой сборке отсутствует лицензионный ключ Vuforia.",
+        "De Vuforia-licentiesleutel ontbreekt in deze versie.",
+        "La clé de licence Vuforia manque dans cette version.",
+        "Der Vuforia-Lizenzschlüssel fehlt in dieser Version.",
+        "La chiave di licenza Vuforia manca in questa versione.",
+        "이 빌드에 Vuforia 라이선스 키가 없습니다.",
+        "A chave de licença do Vuforia está ausente nesta versão.",
+        "Falta la clave de licencia de Vuforia en esta versión."
+      ]
+    },
+    {
+      "key": "Allow camera access to play in AR.",
+      "text": [
+        "Allow camera access to play in AR.",
+        "Разрешите доступ к камере для игры в AR.",
+        "Sta cameratoegang toe om in AR te spelen.",
+        "Autorisez l’accès à la caméra pour jouer en AR.",
+        "Erlaube den Kamerazugriff, um in AR zu spielen.",
+        "Consenti l’accesso alla fotocamera per giocare in AR.",
+        "AR로 플레이하려면 카메라 접근을 허용하세요.",
+        "Permita o acesso à câmera para jogar em AR.",
+        "Permite el acceso a la cámara para jugar en AR."
+      ]
+    },
+    {
+      "key": "Camera access is required. Allow it in Android settings.",
+      "text": [
+        "Camera access is required. Allow it in Android settings.",
+        "Нужен доступ к камере. Разрешите его в настройках Android.",
+        "Cameratoegang is vereist. Sta dit toe in de Android-instellingen.",
+        "L’accès à la caméra est requis. Autorisez-le dans les paramètres Android.",
+        "Kamerazugriff ist erforderlich. Erlaube ihn in den Android-Einstellungen.",
+        "È necessario accedere alla fotocamera. Consenti l’accesso nelle impostazioni Android.",
+        "카메라 접근이 필요합니다. Android 설정에서 허용하세요.",
+        "É necessário acessar a câmera. Permita nas configurações do Android.",
+        "Se necesita acceso a la cámara. Permítelo en los ajustes de Android."
+      ]
+    },
+    {
+      "key": "Point your camera at the card.",
+      "text": [
+        "Point your camera at the card.",
+        "Наведите камеру на карточку.",
+        "Richt je camera op de kaart.",
+        "Pointez la caméra vers la carte.",
+        "Richte die Kamera auf die Karte.",
+        "Punta la fotocamera verso la carta.",
+        "카메라로 카드를 비추세요.",
+        "Aponte a câmera para o cartão.",
+        "Apunta la cámara a la tarjeta."
+      ]
+    },
+    {
+      "key": "The camera tracker could not start ({0}).",
+      "text": [
+        "The camera tracker could not start ({0}).",
+        "Не удалось запустить отслеживание камеры ({0}).",
+        "De cameratracking kon niet starten ({0}).",
+        "Impossible de démarrer le suivi de la caméra ({0}).",
+        "Die Kameraerfassung konnte nicht gestartet werden ({0}).",
+        "Impossibile avviare il rilevamento della fotocamera ({0}).",
+        "카메라 추적을 시작할 수 없습니다 ({0}).",
+        "Não foi possível iniciar o rastreamento da câmera ({0}).",
+        "No se pudo iniciar el rastreo de la cámara ({0})."
+      ]
+    },
+    {
+      "key": "Point your camera at the card to continue.",
+      "text": [
+        "Point your camera at the card to continue.",
+        "Наведите камеру на карточку для продолжения.",
+        "Richt je camera op de kaart om door te gaan.",
+        "Pointez la caméra vers la carte pour continuer.",
+        "Richte die Kamera auf die Karte, um fortzufahren.",
+        "Punta la fotocamera verso la carta per continuare.",
+        "계속하려면 카메라로 카드를 비추세요.",
+        "Aponte a câmera para o cartão para continuar.",
+        "Apunta la cámara a la tarjeta para continuar."
+      ]
+    },
+    {
+      "key": "Checking ground tracking support...",
+      "text": [
+        "Checking ground tracking support...",
+        "Проверка поддержки отслеживания поверхностей...",
+        "Ondersteuning voor grondtracking controleren...",
+        "Vérification de la compatibilité du suivi au sol...",
+        "Unterstützung der Bodenerfassung wird geprüft...",
+        "Verifica del supporto al rilevamento del suolo...",
+        "바닥 추적 지원 확인 중...",
+        "Verificando suporte ao rastreamento do chão...",
+        "Comprobando compatibilidad con el rastreo del suelo..."
+      ]
+    },
+    {
+      "key": "This device does not support ground tracking.",
+      "text": [
+        "This device does not support ground tracking.",
+        "Это устройство не поддерживает отслеживание поверхностей.",
+        "Dit apparaat ondersteunt geen grondtracking.",
+        "Cet appareil ne prend pas en charge le suivi au sol.",
+        "Dieses Gerät unterstützt keine Bodenerfassung.",
+        "Questo dispositivo non supporta il rilevamento del suolo.",
+        "이 기기는 바닥 추적을 지원하지 않습니다.",
+        "Este dispositivo não é compatível com o rastreamento do chão.",
+        "Este dispositivo no es compatible con el rastreo del suelo."
+      ]
+    },
+    {
+      "key": "Ground tracking needs a supported phone; it is unavailable in the editor.",
+      "text": [
+        "Ground tracking needs a supported phone; it is unavailable in the editor.",
+        "Для отслеживания поверхностей нужен совместимый телефон. В редакторе оно недоступно.",
+        "Grondtracking vereist een ondersteunde telefoon en werkt niet in de editor.",
+        "Le suivi au sol nécessite un téléphone compatible et est indisponible dans l’éditeur.",
+        "Die Bodenerfassung erfordert ein unterstütztes Telefon und ist im Editor nicht verfügbar.",
+        "Il rilevamento del suolo richiede un telefono compatibile e non è disponibile nell’editor.",
+        "바닥 추적에는 지원되는 휴대폰이 필요하며 에디터에서는 사용할 수 없습니다.",
+        "O rastreamento do chão exige um celular compatível e está indisponível no editor.",
+        "El rastreo del suelo requiere un teléfono compatible y no está disponible en el editor."
+      ]
+    },
+    {
+      "key": "Ground tracking requires a gyroscope. Use AR Mode: Image.",
+      "text": [
+        "Ground tracking requires a gyroscope. Use AR Mode: Image.",
+        "Для отслеживания поверхностей нужен гироскоп. Выберите режим AR: Изображение.",
+        "Grondtracking vereist een gyroscoop. Gebruik AR-modus: Afbeelding.",
+        "Le suivi au sol nécessite un gyroscope. Utilisez Mode AR : Image.",
+        "Die Bodenerfassung erfordert ein Gyroskop. Nutze AR-Modus: Bild.",
+        "Il rilevamento del suolo richiede un giroscopio. Usa Modalità AR: Immagine.",
+        "바닥 추적에는 자이로스코프가 필요합니다. AR 모드: 이미지를 사용하세요.",
+        "O rastreamento do chão exige um giroscópio. Use Modo AR: Imagem.",
+        "El rastreo del suelo requiere un giroscopio. Usa Modo AR: Imagen."
+      ]
+    },
+    {
+      "key": "Install or update Google Play Services for AR to use Ground mode.",
+      "text": [
+        "Install or update Google Play Services for AR to use Ground mode.",
+        "Установите или обновите Сервисы Google Play для AR, чтобы использовать режим распознавания поверхностей.",
+        "Installeer of update Google Play-services voor AR om de grondmodus te gebruiken.",
+        "Installez ou mettez à jour les Services Google Play pour la RA pour utiliser le mode Sol.",
+        "Installiere oder aktualisiere Google Play-Dienste für AR, um den Bodenmodus zu nutzen.",
+        "Installa o aggiorna Google Play Services per AR per usare la modalità Superficie.",
+        "바닥 모드를 사용하려면 Google Play AR 서비스를 설치하거나 업데이트하세요.",
+        "Instale ou atualize o Google Play Services para RA para usar o modo Chão.",
+        "Instala o actualiza Servicios de Google Play para RA para usar el modo Suelo."
+      ]
+    },
+    {
+      "key": "This device does not support ARCore ground tracking. Use Image mode.",
+      "text": [
+        "This device does not support ARCore ground tracking. Use Image mode.",
+        "Это устройство не поддерживает отслеживание поверхностей ARCore. Выберите режим «Изображение».",
+        "Dit apparaat ondersteunt geen ARCore-grondtracking. Gebruik de afbeeldingsmodus.",
+        "Cet appareil ne prend pas en charge le suivi au sol ARCore. Utilisez le mode Image.",
+        "Dieses Gerät unterstützt keine ARCore-Bodenerfassung. Nutze den Bildmodus.",
+        "Questo dispositivo non supporta il rilevamento del suolo ARCore. Usa la modalità Immagine.",
+        "이 기기는 ARCore 바닥 추적을 지원하지 않습니다. 이미지 모드를 사용하세요.",
+        "Este dispositivo não é compatível com o rastreamento do chão do ARCore. Use o modo Imagem.",
+        "Este dispositivo no es compatible con el rastreo del suelo de ARCore. Usa el modo Imagen."
+      ]
+    },
+    {
+      "key": "Ground tracking support could not be checked. Use Image mode or try again.",
+      "text": [
+        "Ground tracking support could not be checked. Use Image mode or try again.",
+        "Не удалось проверить поддержку отслеживания поверхностей. Выберите режим «Изображение» или повторите попытку.",
+        "Ondersteuning voor grondtracking kon niet worden gecontroleerd. Gebruik de afbeeldingsmodus of probeer opnieuw.",
+        "Impossible de vérifier la compatibilité du suivi au sol. Utilisez le mode Image ou réessayez.",
+        "Die Unterstützung der Bodenerfassung konnte nicht geprüft werden. Nutze den Bildmodus oder versuche es erneut.",
+        "Impossibile verificare il supporto al rilevamento del suolo. Usa la modalità Immagine o riprova.",
+        "바닥 추적 지원을 확인할 수 없습니다. 이미지 모드를 사용하거나 다시 시도하세요.",
+        "Não foi possível verificar o suporte ao rastreamento do chão. Use o modo Imagem ou tente novamente.",
+        "No se pudo comprobar la compatibilidad con el rastreo del suelo. Usa el modo Imagen o inténtalo de nuevo."
+      ]
+    },
+    {
+      "key": "Ground tracking is unavailable. Check Google Play Services for AR.",
+      "text": [
+        "Ground tracking is unavailable. Check Google Play Services for AR.",
+        "Отслеживание поверхностей недоступно. Проверьте Сервисы Google Play для AR.",
+        "Grondtracking is niet beschikbaar. Controleer Google Play-services voor AR.",
+        "Le suivi au sol est indisponible. Vérifiez les Services Google Play pour la RA.",
+        "Die Bodenerfassung ist nicht verfügbar. Prüfe Google Play-Dienste für AR.",
+        "Il rilevamento del suolo non è disponibile. Controlla Google Play Services per AR.",
+        "바닥 추적을 사용할 수 없습니다. Google Play AR 서비스를 확인하세요.",
+        "O rastreamento do chão está indisponível. Verifique o Google Play Services para RA.",
+        "El rastreo del suelo no está disponible. Comprueba Servicios de Google Play para RA."
+      ]
+    },
+    {
+      "key": "ARCore ground tracking is unavailable on this platform.",
+      "text": [
+        "ARCore ground tracking is unavailable on this platform.",
+        "Отслеживание поверхностей ARCore недоступно на этой платформе.",
+        "ARCore-grondtracking is niet beschikbaar op dit platform.",
+        "Le suivi au sol ARCore est indisponible sur cette plateforme.",
+        "ARCore-Bodenerfassung ist auf dieser Plattform nicht verfügbar.",
+        "Il rilevamento del suolo ARCore non è disponibile su questa piattaforma.",
+        "이 플랫폼에서는 ARCore 바닥 추적을 사용할 수 없습니다.",
+        "O rastreamento do chão do ARCore está indisponível nesta plataforma.",
+        "El rastreo del suelo de ARCore no está disponible en esta plataforma."
+      ]
+    },
+    {
+      "key": "Ground is unavailable.",
+      "text": [
+        "Ground is unavailable.",
+        "Распознавание поверхностей недоступно.",
+        "Grondmodus is niet beschikbaar.",
+        "Le mode Sol est indisponible.",
+        "Der Bodenmodus ist nicht verfügbar.",
+        "La modalità Superficie non è disponibile.",
+        "바닥 모드를 사용할 수 없습니다.",
+        "O modo Chão está indisponível.",
+        "El modo Suelo no está disponible."
+      ]
+    },
+    {
+      "key": "Ground support has not been checked.",
+      "text": [
+        "Ground support has not been checked.",
+        "Поддержка распознавания поверхностей не проверена.",
+        "Ondersteuning voor de grondmodus is niet gecontroleerd.",
+        "La compatibilité du mode Sol n’a pas été vérifiée.",
+        "Die Unterstützung des Bodenmodus wurde nicht geprüft.",
+        "Il supporto alla modalità Superficie non è stato verificato.",
+        "바닥 모드 지원을 확인하지 않았습니다.",
+        "A compatibilidade com o modo Chão não foi verificada.",
+        "No se ha comprobado la compatibilidad con el modo Suelo."
+      ]
+    },
+    {
+      "key": "Candy",
+      "text": [
+        "Candy",
+        "Конфета",
+        "Snoep",
+        "Bonbon",
+        "Bonbon",
+        "Caramella",
+        "사탕",
+        "Doce",
+        "Caramelo"
+      ]
+    },
+    {
+      "key": "Om Nom",
+      "text": [
+        "Om Nom",
+        "Ам Ням",
+        "Om Nom",
+        "Om Nom",
+        "Om Nom",
+        "Om Nom",
+        "옴놈",
+        "Om Nom",
+        "Om Nom"
+      ]
+    },
+    {
+      "key": "Random",
+      "text": [
+        "Random",
+        "Случайно",
+        "Willekeurig",
+        "Aléatoire",
+        "Zufällig",
+        "Casuale",
+        "무작위",
+        "Aleatório",
+        "Aleatorio"
+      ]
+    },
+    {
+      "key": "Model Credits",
+      "text": [
+        "Model Credits",
+        "Авторы моделей",
+        "Modellenmakers",
+        "Crédits des modèles",
+        "Modellnachweise",
+        "Crediti dei modelli",
+        "모델 제작자",
+        "Créditos dos modelos",
+        "Créditos de modelos"
+      ]
+    },
+    {
+      "key": "{0} by {1} is licensed under {2}.",
+      "text": [
+        "{0} by {1} is licensed under {2}.",
+        "{0}, автор {1}, распространяется по лицензии {2}.",
+        "{0} van {1} valt onder de licentie {2}.",
+        "{0} de {1} est distribué sous licence {2}.",
+        "{0} von {1} steht unter der Lizenz {2}.",
+        "{0} di {1} è distribuito con licenza {2}.",
+        "{1}의 {0}에는 {2} 라이선스가 적용됩니다.",
+        "{0}, de {1}, é licenciado sob {2}.",
+        "{0}, de {1}, se distribuye bajo la licencia {2}."
+      ]
+    },
+    {
+      "key": "Game Center is available on iOS.",
+      "text": [
+        "Game Center is available on iOS.",
+        "Game Center доступен на iOS.",
+        "Game Center is beschikbaar op iOS.",
+        "Game Center est disponible sur iOS.",
+        "Game Center ist auf iOS verfügbar.",
+        "Game Center è disponibile su iOS.",
+        "Game Center는 iOS에서 사용할 수 있습니다.",
+        "O Game Center está disponível no iOS.",
+        "Game Center está disponible en iOS."
+      ]
+    }
+  ]
+}

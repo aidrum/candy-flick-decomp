@@ -64,7 +64,7 @@ namespace CandyFlick
             Rect panel=LanProfilePickerRect;
             var background=new GUIStyle{border=new RectOffset(12,12,12,12),normal={background=LanInputBackground}};
             GUI.color=new Color(1,.91f,.65f);GUI.Box(panel,GUIContent.none,background);GUI.color=saved;
-            GUI.Label(new Rect(panel.x+12,panel.y+14,panel.width-24,55),"Profile picture",LanText(38));
+            GUI.Label(new Rect(panel.x+12,panel.y+14,panel.width-24,55),L("Profile picture"),LanText(38));
             Rect viewport=LanProfileGridRect;float step=(viewport.width-20)/7;
             float contentHeight=Mathf.CeilToInt(LanProfiles.Count/7f)*step;HandleLanProfileDrag(viewport,contentHeight);
             lanProfileScroll=GUI.BeginScrollView(viewport,lanProfileScroll,new Rect(0,0,viewport.width-20,contentHeight));

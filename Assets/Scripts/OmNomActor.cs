@@ -15,6 +15,7 @@ namespace CandyFlick
         Vector3 startPosition, lastPosition, targetPosition;
         Quaternion startRotation;
         float distanceToBullet, startIdleTime, startJumpTime, moveProgress;
+        public bool Moving=>moveProgress>0&&moveProgress<1;
         int frogMode, frogStatus, frogPosition, hitAudioIndex;
         bool tapped, isCandyTouched;
         float loveTouchTicker, startHeartTime;
@@ -88,10 +89,9 @@ namespace CandyFlick
                 if (!canJump && Time.time - startIdleTime >= 5)
                 {
                     startIdleTime = Time.time;
-                    // Prehistoric's hungry/idle2 contains the missed-feed mouth
-                    // reaction. Keep only puzzled and greeting in his idle pool.
-                    int firstVariation=game.Skins.Selected==NommieSkin.Prehistoric?3:2;
-                    Fade("idle" + new System.Random().Next(firstVariation, 5));
+                    var random=new System.Random();
+                    int variation=game.Skins.Selected==NommieSkin.Prehistoric?(random.Next(2)==0?2:4):random.Next(2,5);
+                    Fade("idle"+variation);
                     animationPlayer.PlayQueued("idle");
                 }
                 // ARM 0x22a6a explicitly loads 2.0; Ghidra's NEON pseudocode loses this literal.

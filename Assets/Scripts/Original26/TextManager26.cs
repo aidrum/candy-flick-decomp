@@ -23,6 +23,7 @@ namespace CandyFlick.Original26
         public void ChangeLanguage(int index)
         {
             CurrentLanguage = Mathf.Clamp(index, 0, 8);
+            CandyFlick.PortLocalization.Language = CurrentLanguage;
             PlayerPrefs.SetInt("Language", CurrentLanguage);
             table.Clear();
             using (var reader = new StringReader(sources[CurrentLanguage].text))

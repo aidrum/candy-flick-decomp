@@ -111,10 +111,16 @@ namespace CandyFlick
         {
             get{Texture2D image=Texture(DevicePath("board"));float h=Mathf.Min(height-320,850),w=Mathf.Min(560,h*image.width/image.height);h=w*image.height/image.width;return new Rect(320-w/2,175,w,h);}
         }
-        GUIStyle LanText(int size,Color? color=null,TextAnchor anchor=TextAnchor.MiddleCenter)=>new GUIStyle{font=game.assets.font,fontSize=size,wordWrap=true,alignment=anchor,richText=false,normal={textColor=color??Color.black}};
+        GUIStyle LanText(int size,Color? color=null,TextAnchor anchor=TextAnchor.MiddleCenter)=>new GUIStyle{font=PortFont,fontSize=size,wordWrap=true,alignment=anchor,richText=false,normal={textColor=color??Color.black}};
         Rect LanButtonRect(float y,float width=300){Texture image=Main(1).normal.background;return new Rect(320-width/2,y,width,width*image.height/image.width);}
+        public Rect LanControlsRect
+        {
+            get{Rect start=LanButtonRect(LanBoardRect.yMax-95,Mathf.Min(300,LanBoardRect.width-56));Rect controls=LanButtonRect(0,Mathf.Min(300,LanBoardRect.width-56));controls.y=start.y-controls.height-12;return controls;}
+        }
+        public string LanControlsLabel=>L("Controls: {0}",L(game.LAN.Controls==LanControls.Slingshot?"Slingshot":game.LAN.Controls==LanControls.Flick?"Flick":"Player's choice"));
         bool LanButton(Rect rect,string label,bool enabled=true)
         {
+            label=L(label);
             bool previous=GUI.enabled;GUI.enabled=previous&&enabled;bool tapped=Button(rect,Main(1));
             var style=new GUIStyle(Main(1)){fontSize=32};while(style.fontSize>18&&style.CalcSize(new GUIContent(label)).x>rect.width-20)style.fontSize--;
             Outline(rect,label,style);GUI.enabled=previous;return tapped;
@@ -126,8 +132,10 @@ namespace CandyFlick
         }
         bool LanJoinButton(Rect rect,string label,bool enabled=true)
         {
-            var style=new GUIStyle(gameSkin.GetStyle("short_btn")){font=game.assets.font,fontSize=30,contentOffset=Vector2.zero,
+            label=L(label);
+            var style=new GUIStyle(gameSkin.GetStyle("short_btn")){font=PortFont,fontSize=30,contentOffset=Vector2.zero,
                 normal={textColor=Color.white},hover={textColor=Color.white},active={textColor=Color.white}};
+            while(style.fontSize>16&&style.CalcSize(new GUIContent(label)).x>rect.width-16)style.fontSize--;
             bool previous=GUI.enabled;GUI.enabled=previous&&enabled;bool tapped=Button(rect,style);
             Outline(rect,label,style);GUI.enabled=previous;return tapped;
         }
@@ -141,13 +149,13 @@ namespace CandyFlick
         {
             bool enabled=GUI.enabled;GUI.enabled=enabled&&!lanProfilePicker;
             Background(Texture(DevicePath("settings")));Rect board=LanBoardRect;
-            Outline(new Rect(0,18,640,64),"LAN Multiplayer",LanText(47,Color.white));
+            Outline(new Rect(0,18,640,64),L("LAN Multiplayer"),LanText(47,Color.white));
             Rect avatar=LanProfileButtonRect;
             DrawLanProfile(avatar,game.LAN.ProfilePicture);
             if(Button(avatar,GUIStyle.none))OpenLanProfilePicker();
-            GUI.Label(new Rect(145,95,90,55),"Name:",LanText(32));
+            LanLabel(new Rect(145,95,90,55),"Name:",LanText(32));
             if(lanNameEdit==null)lanNameEdit=lanLastSaved=game.LAN.PlayerName;
-            var field=new GUIStyle(GUI.skin.textField){font=game.assets.font,fontSize=30,alignment=TextAnchor.MiddleLeft,richText=false,padding=new RectOffset(12,10,6,6),border=new RectOffset(12,12,12,12),
+            var field=new GUIStyle(GUI.skin.textField){font=PortFont,fontSize=30,alignment=TextAnchor.MiddleLeft,richText=false,padding=new RectOffset(12,10,6,6),border=new RectOffset(12,12,12,12),
                 normal={background=LanInputBackground,textColor=Color.black},hover={background=LanInputBackground,textColor=Color.black},
                 active={background=LanInputBackground,textColor=Color.black},focused={background=LanInputBackground,textColor=Color.black}};
             GUI.SetNextControlName("LAN name");lanNameEdit=GUI.TextField(LanNameRect,lanNameEdit,12,field);
@@ -157,11 +165,12 @@ namespace CandyFlick
             if(Event.current.type==EventType.KeyDown&&(Event.current.keyCode==KeyCode.Return||Event.current.keyCode==KeyCode.KeypadEnter))CommitLanName();
             GUI.DrawTexture(board,Texture(DevicePath("board")));
             float left=board.x+28,width=board.width-56,top=board.y+64;
-            GUI.Label(new Rect(left,top,width,55),game.LAN.InRoom?"Room · "+game.LAN.Players.Length+"/"+LanRules.MaxPlayers:"Nearby rooms",LanText(38));
+            LanLabel(new Rect(left,top,width,55),game.LAN.InRoom?"Room · "+game.LAN.Players.Length+"/"+LanRules.MaxPlayers:"Nearby rooms",LanText(38));
             if(game.LAN.InRoom)
             {
                 Rect start=LanButtonRect(board.yMax-95,Mathf.Min(300,width));
-                Rect mode=LanButtonRect(0,Mathf.Min(240,width));mode.y=start.y-mode.height-16;
+                Rect controls=LanControlsRect;
+                Rect mode=LanButtonRect(0,Mathf.Min(240,width));mode.y=controls.y-mode.height-12;
                 Rect address=new Rect(left,mode.y-50,width,40);
                 string roomNotice=game.LAN.GroundWarning;
                 if(string.IsNullOrEmpty(roomNotice)&&game.LAN.IsHost)
@@ -172,32 +181,33 @@ namespace CandyFlick
                 Rect noticeRect=new Rect(left,address.y-60,width,52);
                 float rosterBottom=string.IsNullOrEmpty(roomNotice)?address.y-12:noticeRect.y-12;
                 var players=game.LAN.Players;float row=Mathf.Min(66,(board.height-440)/4);if(players.Length>4)row=Mathf.Max(40,row);
-                Rect roster=new Rect(left,top+65,width,Mathf.Max(50,rosterBottom-(top+65)));float contentHeight=players.Length*row;
+                Rect roster=new Rect(left,top+65,width,Mathf.Max(32,rosterBottom-(top+65)));float contentHeight=players.Length*row;
                 HandleLanListDrag(roster,contentHeight,ref lanPlayersScroll,ref lanPlayersDrag);
                 float contentWidth=width-(contentHeight>roster.height?20:0);
                 lanPlayersScroll=GUI.BeginScrollView(roster,lanPlayersScroll,new Rect(0,0,contentWidth,contentHeight));
                 for(int i=0;i<players.Length;i++)
                 {
-                    string name=players[i].name+(players[i].id==0?" (Host)":"");
+                    string name=players[i].name+(players[i].id==0?" "+L("(Host)"):"");
                     DrawLanIdentity(new Rect(0,i*row,contentWidth,row),name,players[i].avatar,Mathf.Min(32,Mathf.RoundToInt(row*.85f)),Color.black);
                 }
                 GUI.EndScrollView();
-                string modeLabel="AR Mode: "+(game.LAN.GroundMode?"Ground":"Image");
+                string modeLabel=L("AR Mode: {0}",L(game.LAN.GroundMode?"Ground":"Image"));
                 if(game.LAN.IsHost){if(LanButton(mode,modeLabel,game.LAN.CanChooseGround))game.LAN.ToggleRoomGround();}
-                else GUI.Label(mode,modeLabel,LanText(28));
-                if(!string.IsNullOrEmpty(roomNotice))GUI.Label(noticeRect,roomNotice,LanText(23));
-                string status=game.LAN.IsHost?"Host address: "+game.LAN.HostAddress:"Waiting for the host to start.";
-                GUI.Label(address,status,LanText(23));
+                else LanLabel(mode,modeLabel,LanText(28));
+                if(game.LAN.IsHost){if(LanButton(controls,LanControlsLabel))game.LAN.CycleRoomControls();}
+                else LanLabel(controls,LanControlsLabel,LanText(25));
+                if(!string.IsNullOrEmpty(roomNotice))LanLabel(noticeRect,roomNotice,LanText(23));
+                if(game.LAN.IsHost)LanLabel(address,"Host address: "+game.LAN.HostAddress,LanText(23));
                 if(game.LAN.IsHost&&LanButton(start,"Start match",game.LAN.CanStart)) {CommitLanName();game.LAN.StartMatch();}
-                if(!game.LAN.IsHost)GUI.Label(new Rect(left,board.yMax-100,width,60),"60 seconds · Highest score wins",LanText(25));
+                if(!game.LAN.IsHost)LanLabel(LanRoomStatusRect,"Waiting for the host to start.",LanText(25));
             }
             else
             {
-                GUI.Label(new Rect(left,top+50,width,45),"Connect to the same Wi-Fi",LanText(23));
+                LanLabel(new Rect(left,top+50,width,45),"Connect to the same Wi-Fi",LanText(23));
                 Rect viewport=new Rect(left,top+100,width,Mathf.Max(70,board.height-430));
                 var rooms=game.LAN.Rooms;float row=76;
                 lanRoomsScroll=GUI.BeginScrollView(viewport,lanRoomsScroll,new Rect(0,0,width-20,Mathf.Max(viewport.height,rooms.Length*row)));
-                if(rooms.Length==0)GUI.Label(new Rect(0,0,width-20,70),game.LAN.Connecting?"Connecting...":"Looking for rooms...",LanText(28));
+                if(rooms.Length==0)LanLabel(new Rect(0,0,width-20,70),game.LAN.Connecting?"Connecting...":"Looking for rooms...",LanText(28));
                 for(int i=0;i<rooms.Length;i++)
                 {
                     var room=rooms[i];GUI.Label(new Rect(0,i*row,width-140,70),room.name+" · "+room.count+"/"+LanRules.MaxPlayers,LanText(27,null,TextAnchor.MiddleLeft));
@@ -207,16 +217,27 @@ namespace CandyFlick
                     if(join) {CommitLanName();game.LAN.JoinRoom(room.address);}
                 }
                 GUI.EndScrollView();
-                GUI.Label(new Rect(left,board.yMax-295,width,30),"Or enter the host address",LanText(22));
+                LanLabel(new Rect(left,board.yMax-295,width,30),"Or enter the host address",LanText(22));
                 lanAddress=GUI.TextField(new Rect(left,board.yMax-237,width-138,52),lanAddress,48,field);
                 if(LanJoinButton(LanJoinRect(board.xMax-148,board.yMax-247,120),"Join",!game.LAN.Connecting)) {CommitLanName();game.LAN.JoinRoom(lanAddress);}
                 if(LanButton(LanButtonRect(board.yMax-99,Mathf.Min(300,width)),"Host room",!game.LAN.Connecting)) {CommitLanName();game.LAN.HostRoom();}
             }
-            if(!game.LAN.IsHost)GUI.Label(new Rect(130,height-137,480,77),game.LAN.Notice,LanText(23));
+            if(!string.IsNullOrEmpty(LanFooterText))LanLabel(LanFooterRect,LanFooterText,LanText(23));
             if(Button(LanSkinsButtonRect,SkinsMenuButtonStyle)){CommitLanName();OpenSkins();}
             if(Button(R("SettingScreen$$GetBackBtnRect",true),Main(33))) {CommitLanName();transition.Begin(game.LAN.LeaveRoom);}
             GUI.enabled=enabled;if(lanProfilePicker)DrawLanProfilePicker();
         }
+        public Rect LanRoomStatusRect=>new Rect(LanBoardRect.x+28,LanBoardRect.yMax-100,LanBoardRect.width-56,60);
+        public Rect LanFooterRect
+        {
+            get
+            {
+                Rect back=R("SettingScreen$$GetBackBtnRect",true),skins=LanSkinsButtonRect;
+                float left=back.xMax+14,right=skins.x-14,h=Mathf.Min(112,2*Mathf.Min(back.center.y-LanBoardRect.yMax-8,height-back.center.y-8));
+                return new Rect(left,back.center.y-Mathf.Max(40,h)/2,Mathf.Max(1,right-left),Mathf.Max(40,h));
+            }
+        }
+        public string LanFooterText=>game.LAN.InRoom||game.LAN.IsHost?"":L(game.LAN.Notice);
         public Rect LanDistanceScoreRect=>R("ScoresGPView$$GetPossibleScoresRect");
         public Rect LanPlayerScoreRect(int index)
         {
@@ -259,20 +280,20 @@ namespace CandyFlick
                 Outline(distance,lan.DistanceScore.ToString());
             }
             Rect timer=players.Length>4?new Rect(distance.xMax+8,distance.center.y-30,Mathf.Min(180,CanvasWidth-distance.xMax-28),60):new Rect(CanvasWidth/2-150,distance.yMax+6,300,65);
-            Outline(timer,Mathf.CeilToInt(remaining)+"s",LanText(43,Color.white));
+            Outline(timer,L("{0}s",Mathf.CeilToInt(remaining)),LanText(43,Color.white));
             if(!lan.Playing)
             {
                 if(lan.GroundMode&&!lan.LocalTracking)
                 {
                     if(LanClientCalibrating)DrawLanClientCalibration();
-                    else if(!lan.IsHost)GUI.Label(GroundPromptRect,game.ar.Status,LanText(26));
+                    else if(!lan.IsHost)LanLabel(GroundPromptRect,game.ar.Status,LanText(26));
                     else DrawGroundSearch();
                 }
                 else if(!lan.LocalTracking)
                 {
-                    GUI.Label(R("SearchTargetScreen$$GetLabelRect",true),T("SEARCH_TARGET_LABEL"),Game(8));
+                    LanLabel(R("SearchTargetScreen$$GetLabelRect",true),T("SEARCH_TARGET_LABEL"),Game(8));
                 }
-                else GUI.Label(GroundPromptRect,lan.WaitingText,LanText(28));
+                else LanLabel(GroundPromptRect,lan.WaitingText,LanText(28));
             }
             if(game.ScreenState!=GameScreen.Paused&&Button(R("GamePlayScreen$$GetPauseRect",true),Game(11)))game.Pause();
             HandleGroundPlacementTap();
@@ -296,7 +317,7 @@ namespace CandyFlick
         void DrawLanPause()
         {
             Color saved=GUI.color;GUI.color=new Color(0,0,0,.5f);GUI.DrawTexture(fullScreen,Texture2D.whiteTexture);GUI.color=saved;
-            Outline(new Rect(CanvasWidth/2-250,height/2-100,500,110),"Match paused for everyone",LanText(38,Color.white));
+            Outline(new Rect(CanvasWidth/2-250,height/2-100,500,110),L("Match paused for everyone"),LanText(38,Color.white));
             if(game.LAN.IsHost&&game.LAN.GroundMode)
             {
                 DrawSettingsOption(LanGroundMoveRect,"Move Om Nom",()=>{if(game.LAN.MoveOmNom())game.Resume();});
@@ -311,15 +332,15 @@ namespace CandyFlick
             Background(Texture(DevicePath("settings")));Rect board=LanBoardRect;GUI.DrawTexture(board,Texture(DevicePath("board")));
             var players=game.LAN.Players.OrderByDescending(p=>p.score).ThenBy(p=>p.id).ToArray();int[] winners=LanRules.Winners(players);
             string title=winners.Length==1?(winners[0]==game.LAN.LocalId?"You win!":players.First(p=>p.id==winners[0]).name+" wins!"):"Draw!";
-            GUI.Label(new Rect(board.x+20,board.y+70,board.width-40,90),title,LanText(43));
+            LanLabel(new Rect(board.x+20,board.y+70,board.width-40,90),title,LanText(43));
             float row=Mathf.Max(56,Mathf.Min(92,(board.height-290)/4));
             Rect list=new Rect(board.x+28,board.y+185,board.width-56,Mathf.Max(80,board.height-335));float contentHeight=players.Length*row;
             HandleLanListDrag(list,contentHeight,ref lanResultsScroll,ref lanResultsDrag);float width=list.width-(contentHeight>list.height?20:0);
             lanResultsScroll=GUI.BeginScrollView(list,lanResultsScroll,new Rect(0,0,width,contentHeight));
-            for(int i=0;i<players.Length;i++)DrawLanIdentity(new Rect(0,i*row,width,row),players[i].name+"   "+players[i].score+" points",players[i].avatar,31,Color.black);
+            for(int i=0;i<players.Length;i++)DrawLanIdentity(new Rect(0,i*row,width,row),players[i].name+"   "+L("{0} points",players[i].score),players[i].avatar,31,Color.black);
             GUI.EndScrollView();
             if(game.LAN.IsHost&&LanButton(LanButtonRect(board.yMax-110,Mathf.Min(300,board.width-60)),"Back to room"))game.LAN.ReturnToRoom();
-            if(!game.LAN.IsHost)GUI.Label(new Rect(board.x+25,board.yMax-130,board.width-50,90),"Waiting for the host...",LanText(28));
+            if(!game.LAN.IsHost)LanLabel(new Rect(board.x+25,board.yMax-130,board.width-50,90),"Waiting for the host...",LanText(28));
             if(Button(R("SettingScreen$$GetBackBtnRect",true),Main(33)))transition.Begin(game.LAN.LeaveRoom);
         }
     }

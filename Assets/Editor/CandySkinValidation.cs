@@ -154,7 +154,7 @@ namespace CandyFlickEditor
                 {
                     animation.Stop();game.Actor.ResetOriginal();start.SetValue(game.Actor,Time.time-6);
                     game.Actor.SendMessage("Update");
-                    if(animation.IsPlaying("idle2")||(!animation.IsPlaying("idle3")&&!animation.IsPlaying("idle4")))throw new Exception("Prehistoric selected a missed-feed clip as an idle variation");
+                    if(animation.IsPlaying("idle3")||(!animation.IsPlaying("idle2")&&!animation.IsPlaying("idle4")))throw new Exception("Prehistoric selected a missed-feed clip as an idle variation");
                 }
                 Check(true,"Repeated actual Prehistoric idle callbacks use only puzzled/greeting, excluding the missed-feed mouth reaction");
                 Check(animation["close_sad"]!=null,"Prehistoric retains the close/sad animation for actual misses");

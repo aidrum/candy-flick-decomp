@@ -136,6 +136,7 @@ namespace CandyFlick
         {
             if(!running)return;
             RefreshFrameRate();
+            game.NonARBackground.RememberARProjection(Camera.projectionMatrix,Camera.aspect);
             if(lanRetained&&!game.IsLanMatch){UpdateRetainedLanGround();return;}
             if(LanGround){UpdateLanGroundCalibration();return;}
             if(GroundMode) { UpdateGroundTracking(); return; }
@@ -200,6 +201,7 @@ namespace CandyFlick
         }
         public void End()
         {
+            if(game&&game.NonARBackground)game.NonARBackground.SaveARLens();
             running = false;lanRetained=false;
             ClearGroundAnchor();
             if(vuforia && vuforia.DevicePoseBehaviour) vuforia.DevicePoseBehaviour.enabled = false;

@@ -7,6 +7,20 @@ namespace CandyFlick
 {
     public sealed partial class LanMultiplayer
     {
+        int calibrationSoundGeneration=-1;AudioClip calibrationSound;
+#if UNITY_EDITOR
+        public int CalibrationCueCount {get;private set;}
+#endif
+        void TickCalibrationSound()
+        {
+            if(!activeMatch||IsHost||!GroundMode||!LocalCalibrated||calibrationSoundGeneration==Ground.generation)return;
+            calibrationSoundGeneration=Ground.generation;
+            if(!calibrationSound)calibrationSound=Resources.Load<AudioClip>("LanAudio/calibrated");
+            game.Play(calibrationSound);
+#if UNITY_EDITOR
+            CalibrationCueCount++;
+#endif
+        }
         Vector3 retainedNomPosition;Quaternion retainedNomRotation=Quaternion.identity;
         bool roomGround;LanGroundState hostGround=new LanGroundState();int lastGroundCapability=-1;
         string calibrationNotice="";float calibrationNoticeUntil;
@@ -47,8 +61,8 @@ namespace CandyFlick
         {
             get
             {
-                var names=Players.Where(p=>!p.groundSupported).Select(p=>p.name).ToArray();
-                if(names.Length>0)return "Ground unavailable for "+string.Join(", ",names)+"."+(GroundMode?" Choose Image to start.":"");
+                if(!IsHost)return "";
+                if(Players.Any(p=>!p.groundSupported))return "The device of one or more players in the room does not support Ground mode.";
                 if(GroundMode&&HostMarkerWidth<=0)return "Screen size could not be determined. Choose Image mode.";
                 return "";
             }

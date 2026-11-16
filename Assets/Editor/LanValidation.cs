@@ -16,10 +16,11 @@ namespace CandyFlickEditor
     public static class LanValidation
     {
         const string Key="CandyFlickLanTest",Folder="Documentation/LAN";
-        static readonly string[] prefs={CandySkinSettings.Preference,LanMultiplayer.NamePreference,LanMultiplayer.ProfilePreference,CandyFlickGame.NonARPreference,CandyFlickGame.GroundARPreference,CandyFlickGame.InGameMusicPreference,"IsMusic",TimeTravelSkins.Preference};
+        static readonly string[] prefs={CandySkinSettings.Preference,LanMultiplayer.NamePreference,LanMultiplayer.ProfilePreference,CandyFlickGame.NonARPreference,CandyFlickGame.GroundARPreference,CandyFlickGame.InGameMusicPreference,"IsMusic","IsSound","Language",TimeTravelSkins.Preference};
         static readonly List<string> checks=new List<string>();
         static readonly List<Bot> bots=new List<Bot>();
         static CandyFlickGame game;static CandyFlickUI ui;static int stage;static double next,deadline;static bool finishing;
+        static int languageIndex,calibrationCueBefore;static bool calibrationSoundWasEnabled;
         static int fakeHelloAvatar=-1,fakeProfileAvatar=-1;static int[] resultScores;static int cachedGeneration,cachedPlacement;static Vector3 cachedNom,cachedOffset;
         static readonly Dictionary<int,int> heldCandySkins=new Dictionary<int,int>();
         static LanTransport fakeHost;static LanSnapshot fakeState;static LanPeer fakePeer;static float clock;static int fedBefore;static int hitRingId,hitRingGeneration;static float scoredDistance;static int priorGroundGeneration;static int expiredRingId,secondRingId,unclaimedRingId;static Vector3 collectedPosition,unclaimedPosition;static LanCandyView expiryCandy;static LanCandyView floorCandy,feedCandy;static string oldSkin;static Action afterCapture;
@@ -30,10 +31,12 @@ namespace CandyFlickEditor
         static void Capture(string name){if(CaptureEnabled)ScreenCapture.CaptureScreenshot(name);}
         static void Start(bool capture)
         {
+            SessionState.SetBool(Key+"SaveHad",PlayerPrefs.HasKey(LocalAchievements.SaveKey));SessionState.SetString(Key+"Save",PlayerPrefs.GetString(LocalAchievements.SaveKey,""));
+            SessionState.SetBool(Key+"LensHad",PlayerPrefs.HasKey(NonARStage.LensPreference));SessionState.SetString(Key+"Lens",PlayerPrefs.GetString(NonARStage.LensPreference,""));
             SessionState.SetBool(Key+"Capture",capture);
             Directory.CreateDirectory(Folder);if(File.Exists(Folder+"/failure.txt"))File.Delete(Folder+"/failure.txt");
             foreach(string pref in prefs){SessionState.SetBool(Key+pref+"Had",PlayerPrefs.HasKey(pref));if(pref==LanMultiplayer.NamePreference)SessionState.SetString(Key+pref,PlayerPrefs.GetString(pref));else SessionState.SetInt(Key+pref,PlayerPrefs.GetInt(pref));}
-            PlayerPrefs.DeleteKey(CandySkinSettings.Preference);PlayerPrefs.DeleteKey(LanMultiplayer.ProfilePreference);PlayerPrefs.SetString(LanMultiplayer.NamePreference,"");PlayerPrefs.SetInt(CandyFlickGame.NonARPreference,1);PlayerPrefs.SetInt(CandyFlickGame.GroundARPreference,1);
+            PlayerPrefs.SetInt("Language",0);PlayerPrefs.DeleteKey(CandySkinSettings.Preference);PlayerPrefs.DeleteKey(LanMultiplayer.ProfilePreference);PlayerPrefs.SetString(LanMultiplayer.NamePreference,"");PlayerPrefs.SetInt(CandyFlickGame.NonARPreference,1);PlayerPrefs.SetInt(CandyFlickGame.GroundARPreference,1);
             PlayerPrefs.SetInt(CandyFlickGame.InGameMusicPreference,0);PlayerPrefs.SetInt("IsMusic",1);PlayerPrefs.SetInt(TimeTravelSkins.Preference,(int)NommieSkin.Disco);PlayerPrefs.Save();
             SessionState.SetFloat(Key+"Volume",AudioListener.volume);SessionState.SetBool(Key+"Audio",AudioListener.pause);
             SessionState.SetString(Key+"Scene",EditorSceneManager.playModeStartScene?AssetDatabase.GetAssetPath(EditorSceneManager.playModeStartScene):"");
@@ -76,7 +79,7 @@ namespace CandyFlickEditor
                         Check(menuStyle.normal.background==normal&&menuStyle.active.background==pressed,"Main menu LAN control uses the supplied normal and pressed graphics");
                         game.LAN.OpenBrowser();break;
                     case 2:
-                        Check(game.LAN.ProfilePicture==LanProfiles.Default,"New players start with the normal Om Nom profile picture");ProfileLayout();Capture(Folder+"/finder-phone.png");afterCapture=()=>Click(ui.LanProfileButtonRect.center);stage=300;break;
+                        Check(game.LAN.ProfilePicture==LanProfiles.Default,"New players start with the normal Om Nom profile picture");ProfileLayout();typeof(LanMultiplayer).GetProperty("Notice").SetValue(game.LAN,"Connecting...");Check(ui.LanFooterText=="Connecting...","Connection status is displayed in the browser footer");Capture(Folder+"/finder-phone.png");afterCapture=()=>Click(ui.LanProfileButtonRect.center);stage=300;break;
                     case 300:
                         Check(PickerOpen,"Clicking the profile picture opens its selector");Capture(Folder+"/profiles-phone.png");afterCapture=ProfileDrag;stage=304;deadline=EditorApplication.timeSinceStartup+5;break;
                     case 304:
@@ -93,11 +96,20 @@ namespace CandyFlickEditor
                         Check(game.LAN.CanStart&&game.LAN.Players.Select(p=>p.id).Distinct().Count()==4,"Host plus three clients fill four unique slots");
                         Check(game.LAN.Players[0].avatar==LanProfiles.Count-1&&bots.All(b=>game.LAN.Players.First(p=>p.id==b.Id).avatar==LanProfiles.Clean(b.Avatar)),"Join messages preserve profile IDs and replace invalid remote IDs with normal Om Nom");
                         Check(bots.All(b=>game.LAN.Players.First(p=>p.id==b.Id).candyChoice==b.CandyChoice),"Each joining player retains their own donut, cupcake or Random candy preference");
-                        Check(game.LAN.GroundWarning.Contains("Guest2"),"Host is warned about an unsupported Ground player even in Image mode");
+                        Check(game.LAN.GroundWarning=="The device of one or more players in the room does not support Ground mode.","Host is warned about an unsupported Ground player even in Image mode");
                         game.LAN.ToggleRoomGround();Check(!game.LAN.CanStart,"Ground Start waits for every device's support");
-                        Check(!game.LAN.StartMatch()&&game.LAN.Phase==LanPhase.Lobby&&!game.LAN.InMatch&&game.LAN.GroundWarning.Contains("Choose Image to start"),"Unavailable ARCore blocks the actual Start command and explains the Image fallback");bots[1].SetGroundSupport(true);game.LAN.ToggleRoomGround();
+                        Check(!game.LAN.StartMatch()&&game.LAN.Phase==LanPhase.Lobby&&!game.LAN.InMatch&&!string.IsNullOrEmpty(game.LAN.GroundWarning),"Unavailable ARCore blocks the actual Start command with a compact host-only warning");bots[1].SetGroundSupport(true);game.LAN.ToggleRoomGround();
                         game.LAN.SetProfilePicture(22);bots[1].ChangeProfile(20);deadline=EditorApplication.timeSinceStartup+5;
-                        Capture(Folder+"/room-four-players.png");afterCapture=()=>Resolution(768,1024);break;
+                        Capture(Folder+"/room-four-players.png");afterCapture=()=>{bots[1].SetGroundSupport(false);languageIndex=0;stage=6100;};break;
+                    case 6100:
+                        SetLanguage(languageIndex);stage=6101;break;
+                    case 6101:
+                        Check(ui.LanFooterText==""&&ui.LanRoomStatusRect.y==ui.LanBoardRect.yMax-100,"Room status uses its clipboard position without duplicate footer text in "+PortLocalization.CatalogData().languages[languageIndex]);
+                        var randomStyle=(GUIStyle)typeof(CandyFlickUI).GetMethod("RandomSkinTextStyle",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(ui,new object[]{new Rect(0,0,176,150)});
+                        Check(randomStyle.CalcSize(new GUIContent(PortLocalization.Translate("Random"))).x<=158,"Localized Random text fits the skin card in "+PortLocalization.CatalogData().languages[languageIndex]);
+                        if(languageIndex==6)Check(((GUIStyle)typeof(CandyFlickUI).GetMethod("LanText",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(ui,new object[]{23,null,TextAnchor.MiddleCenter})).font.HasCharacter('\uc0ac'),"Korean LAN labels use the bundled Hangul font");
+                        Capture(Folder+"/room-"+PortLocalization.CatalogData().languages[languageIndex]+".png");
+                        afterCapture=()=>{if(++languageIndex<9)stage=6100;else{SetLanguage(0);bots[1].SetGroundSupport(true);Resolution(768,1024);stage=5;}};break;
                     case 5:
                         if(bots.Any(b=>b.State==null||b.State.players.First(p=>p.id==0).avatar!=22||b.State.players.First(p=>p.id==bots[1].Id).avatar!=20)){WaitFor(false,"Lobby profile changes did not reach all clients");return;}
                         Check(true,"Host and client profile changes replicate to every peer before the match");ProfileLayout();Capture(Folder+"/room-four-players-tablet.png");afterCapture=()=>Click(ui.LanProfileButtonRect.center);stage=302;break;
@@ -266,6 +278,7 @@ namespace CandyFlickEditor
                     case 20: game.LAN.ReturnToRoom();Check(!game.IsLanMatch&&game.LAN.Players.Length==4,"Host returns all four players to the room for a rematch");
                         game.LAN.ToggleRoomGround();game.LAN.EditorCalibrationOverride=true;Check(game.LAN.StartMatch(),"Host starts a local Ground calibration match");stage=200;break;
                     case 200:
+                        Check(game.LAN.CalibrationCueCount==0,"The host never plays the client calibration cue");
                         game.GameCamera.clearFlags=CameraClearFlags.SolidColor;game.GameCamera.backgroundColor=Color.black;
                         CalibrationMath();Check(game.LAN.ShowHostCalibration&&!game.LAN.Ground.placed&&game.LAN.Remaining==60,"Host shows the newer image before any Ground gameplay or timer starts");
                         Check(ui.LanCalibrationImage==Resources.Load<Texture2D>("images/all/marker")&&ui.LanCalibrationImage.name!="marker_old","Host calibration uses the newer CF image");
@@ -396,13 +409,14 @@ namespace CandyFlickEditor
                         Check(game.CandyGhost.GetComponent<CandySkinVisual>().Skin==2,"A changed host-selected Random result updates the local held model");
                         Check(game.LAN.Players.First(p=>p.id==0).score==95&&game.Session.shots==0,"Client scores come from host snapshots without changing normal round progress");
                         Check(game.World.GetComponentsInChildren<LanRingView>().Single().State.hit,"Client follows replicated ring hits instead of awarding them locally");
-                        Capture(Folder+"/playing-wide.png");afterCapture=()=>{fakeState.groundMode=true;fakeState.phase=LanPhase.Lobby;fakePeer.Send(new LanMessage{kind="room",state=fakeState});deadline=EditorApplication.timeSinceStartup+5;stage=210;};break;
+                        Capture(Folder+"/playing-wide.png");afterCapture=()=>{fakeState.groundMode=true;fakeState.players[0].groundSupported=false;fakeState.phase=LanPhase.Lobby;fakePeer.Send(new LanMessage{kind="room",state=fakeState});deadline=EditorApplication.timeSinceStartup+5;stage=210;};break;
                     case 210:
                         if(game.IsLanMatch){WaitFor(false,"Client did not return to the Ground room fixture");return;}
+                        Check(game.LAN.GroundWarning==""&&ui.LanFooterText=="","Clients see neither the host-only Ground warning nor duplicate room footer text");
                         game.LAN.ToggleRoomGround();Check(game.LAN.GroundMode,"Clients cannot change the host's AR room mode");game.LAN.EditorCalibrationOverride=false;
                         fakeState.epoch=78;fakeState.phase=LanPhase.FindingCard;fakeState.remaining=60;
                         foreach(var player in fakeState.players){player.score=player.fed=0;}fakeState.candies=Array.Empty<LanCandyState>();fakeState.rings=Array.Empty<LanRingState>();fakeState.ground=new LanGroundState{generation=7,originReady=true,markerWidth=.06f};
-                        fakePeer.Send(new LanMessage{kind="begin",state=fakeState});deadline=EditorApplication.timeSinceStartup+5;break;
+                        Capture(Folder+"/client-room.png");afterCapture=()=>{fakeState.players[0].groundSupported=true;fakePeer.Send(new LanMessage{kind="begin",state=fakeState});deadline=EditorApplication.timeSinceStartup+5;};break;
                     case 211:
                         if(!game.IsLanMatch){WaitFor(false,"Ground client did not enter calibration");return;}
                         game.GameCamera.clearFlags=CameraClearFlags.SolidColor;game.GameCamera.backgroundColor=Color.black;
@@ -410,12 +424,15 @@ namespace CandyFlickEditor
                         Call(game.ar,"SetTracking",false);
                         Check(!game.LAN.LocalTracking&&!game.LAN.Ready&&ui.LanScanRectangleShown,"Uncalibrated clients get the card scan frame without starting gameplay");
                         Check(!game.LAN.SetHostOriginReady(7)&&!game.LAN.PublishGroundPlacement(Vector3.zero,Quaternion.identity,7),"Clients cannot choose the shared origin or ground position");Capture(Folder+"/ground-client-calibration.png");
+                        calibrationCueBefore=game.LAN.CalibrationCueCount;calibrationSoundWasEnabled=game.SoundEnabled;if(!game.SoundEnabled)game.ToggleSound();
                         afterCapture=()=>game.LAN.EditorCalibrationOverride=true;break;
                     case 212:
+                        Check(game.LAN.CalibrationCueCount==calibrationCueBefore+1&&Resources.Load<AudioClip>("LanAudio/calibrated")&&game.GetComponents<AudioSource>().Any(a=>a.isPlaying&&!a.loop),"A calibrated Ground client plays the supplied star_3 cue once through the sound-effects path");
                         Check(!ui.LanScanRectangleShown&&!game.LAN.Ready,"Calibrated clients lose the scan frame and wait for the host's placement");
                         fakeState.ground.placed=true;fakeState.ground.offset=new Vector3(.2f,-.4f,.3f);fakeState.ground.rotation=Quaternion.Euler(90,0,0);fakeState.phase=LanPhase.Playing;
                         fakePeer.Send(new LanMessage{kind="state",state=fakeState});deadline=EditorApplication.timeSinceStartup+5;break;
                     case 213:
+                        Check(game.LAN.CalibrationCueCount==calibrationCueBefore+1,"Remaining calibrated does not repeat the completion sound");
                         if(!game.LAN.LocalTracking){WaitFor(false,"Calibrated client did not accept shared placement");return;}
                         Call(game.ar,"SetTracking",true);
                         Check(game.LAN.Ground.offset==fakeState.ground.offset&&game.Session.shots==0,"Client uses host-relative Ground metadata without changing solo progress");
@@ -423,6 +440,9 @@ namespace CandyFlickEditor
                         fakePeer.Send(new LanMessage{kind="state",state=fakeState});break;
                     case 214:
                         Check(!game.LAN.LocalTracking&&!game.LAN.Ready&&ui.LanScanRectangleShown,"A reset requires the client to scan the host's new calibration generation again");
+                        game.LAN.EditorCalibrationOverride=true;Call(game.LAN,"TickCalibrationSound");Call(game.LAN,"TickCalibrationSound");
+                        Check(game.LAN.CalibrationCueCount==calibrationCueBefore+2,"A fresh calibration generation plays once, while repeated calibrated updates stay silent");
+                        if(game.SoundEnabled!=calibrationSoundWasEnabled)game.ToggleSound();
                         game.LAN.EditorCalibrationOverride=null;fakePeer.Dispose();deadline=EditorApplication.timeSinceStartup+5;stage=31;break;
                     case 31:
                         if(game.IsLanMatch){WaitFor(false,"Lost host did not cleanly exit the match");return;}
@@ -512,15 +532,22 @@ namespace CandyFlickEditor
             Vector2 scroll=(Vector2)typeof(CandyFlickUI).GetField("lanProfileScroll",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(ui);
             return viewport.position+((Rect)Call(ui,"LanProfileChoiceRect",id)).center-scroll;
         }
+        static void SetLanguage(int language)
+        {
+            var manager=(CandyFlick.Original26.TextManager26)typeof(CandyFlickUI).GetField("text",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(ui);
+            manager.ChangeLanguage(language);Call(ui,"ApplyLanguageFont");
+        }
         static void ProfileLayout()
         {
-            Rect back=(Rect)Call(ui,"R","SettingScreen$$GetBackBtnRect",true),skins=ui.LanSkinsButtonRect;
+            Rect footer=ui.LanFooterRect,back=(Rect)typeof(CandyFlickUI).GetMethod("R",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(ui,new object[]{"SettingScreen$$GetBackBtnRect",true}),skins=ui.LanSkinsButtonRect;
+            Check(footer.xMin>back.xMax&&footer.xMax<skins.xMin&&Mathf.Abs(footer.center.x-(back.xMax+skins.xMin)/2)<.01f,"LAN footer is centered in the width between Back and Skins at "+Screen.width+"x"+Screen.height);
             Check(skins.center.x>320&&Mathf.Abs(skins.center.y-back.center.y)<.01f&&skins.xMax<=640&&skins.yMax<=Screen.safeArea.height/CandyFlickUI.CanvasScale(Screen.safeArea)&&!skins.Overlaps(ui.LanBoardRect),"LAN skins button fits bottom right opposite Back at "+Screen.width+"x"+Screen.height);
             Check(ui.LanProfileButtonRect.xMax<ui.LanNameRect.x&&!ui.LanProfileButtonRect.Overlaps(ui.LanNameRect),"Profile picture fits left of the name textbox at "+Screen.width+"x"+Screen.height);
             Check(ui.LanProfilePickerRect.y>=0&&ui.LanProfilePickerRect.yMax<=Screen.safeArea.height/CandyFlickUI.CanvasScale(Screen.safeArea),"Profile picker fits the usable screen at "+Screen.width+"x"+Screen.height);
         }
         static void Rules()
         {
+            checks.AddRange(PortLocalizationValidation.Check(game));
             Frames();
             var atlas=Resources.Load<Texture2D>(LanProfiles.Resource);
             Check(atlas&&atlas.width==1024&&atlas.height==1024&&LanProfiles.Count==60,"All 60 bundled profile pictures load from one 1024-square atlas");
@@ -616,6 +643,8 @@ namespace CandyFlickEditor
             if(finishing)return;finishing=true;SessionState.SetBool(Key,false);EditorApplication.update-=Tick;Application.logMessageReceived-=OnLog;
             foreach(var bot in bots)bot.net.Dispose();bots.Clear();fakeHost?.Dispose();if(game){game.Actor.enabled=true;game.LAN.CloseRoom();game.LAN.EditorTrackingOverride=null;game.LAN.EditorCalibrationOverride=null;game.LAN.EditorMarkerWidthOverride=null;game.ReturnToMenu();}
             foreach(string pref in prefs){if(SessionState.GetBool(Key+pref+"Had",false)){if(pref==LanMultiplayer.NamePreference)PlayerPrefs.SetString(pref,SessionState.GetString(Key+pref,""));else PlayerPrefs.SetInt(pref,SessionState.GetInt(Key+pref,0));}else PlayerPrefs.DeleteKey(pref);}PlayerPrefs.Save();
+            if(SessionState.GetBool(Key+"SaveHad",false))PlayerPrefs.SetString(LocalAchievements.SaveKey,SessionState.GetString(Key+"Save",""));else PlayerPrefs.DeleteKey(LocalAchievements.SaveKey);
+            if(SessionState.GetBool(Key+"LensHad",false))PlayerPrefs.SetString(NonARStage.LensPreference,SessionState.GetString(Key+"Lens",""));else PlayerPrefs.DeleteKey(NonARStage.LensPreference);PlayerPrefs.Save();
             AudioListener.volume=SessionState.GetFloat(Key+"Volume",1);AudioListener.pause=SessionState.GetBool(Key+"Audio",false);
             string previous=SessionState.GetString(Key+"Scene","");EditorSceneManager.playModeStartScene=string.IsNullOrEmpty(previous)?null:AssetDatabase.LoadAssetAtPath<SceneAsset>(previous);
             if(error!=null)File.WriteAllText(Folder+"/failure.txt",error);EditorApplication.ExitPlaymode();

@@ -28,7 +28,7 @@ namespace CandyFlick
         public Rect MoreHideCandyRect=>MoreOptionRect(2);
         public Rect MoreMusicRect=>MoreOptionRect(3);
         public Rect MoreARModeRect=>MoreOptionRect(4);
-        public string ARModeLabel=>"AR Mode: "+(game.GroundARModeEnabled?"Ground":"Image");
+        public string ARModeLabel=>L("AR Mode: {0}",L(game.GroundARModeEnabled?"Ground":"Image"));
         public Rect MenuSkinsRect=>MenuLowerButtonRect(MenuDownloadRect,false);
         GUIStyle SkinsMenuButtonStyle { get { InitSkinMenu(); return skinsMenuButton; } }
         void InitSkinMenu()
@@ -40,7 +40,7 @@ namespace CandyFlick
             skinsMenuButton=new GUIStyle { normal={background=Load("skins_btn")}, hover={background=Load("skins_btn")}, active={background=Load("skins_btn_pressed")} };
             skinCard=new GUIStyle {normal={background=Load("skin_btn_bg")}};
             selectedSkinCard=new GUIStyle {normal={background=Load("skin_btn_bg_selected")}};
-            skinTitle=new GUIStyle {font=game.assets.font,fontSize=76,alignment=TextAnchor.MiddleCenter,normal={textColor=Color.white}};
+            skinTitle=new GUIStyle {font=PortFont,fontSize=76,alignment=TextAnchor.MiddleCenter,normal={textColor=Color.white}};
             randomSkinLabel=new GUIStyle(skinTitle){fontSize=46};
         }
         public void OpenSkins()
@@ -80,12 +80,20 @@ namespace CandyFlick
         }
         void DrawSkinTab(Rect rect,string text,bool selected)
         {
-            var style=new GUIStyle(Main(1)){font=game.assets.font,fontSize=48,alignment=TextAnchor.MiddleCenter,fixedWidth=0,fixedHeight=0,padding=new RectOffset(),contentOffset=new Vector2(0,-6),overflow=new RectOffset(),normal={textColor=Color.white},hover={textColor=Color.white},active={textColor=Color.white}};
-            while(style.fontSize>28&&style.CalcSize(new GUIContent(text)).x>rect.width-24)style.fontSize--;
+            string label=L(text);
+            var style=new GUIStyle(Main(1)){font=PortFont,fontSize=48,alignment=TextAnchor.MiddleCenter,fixedWidth=0,fixedHeight=0,padding=new RectOffset(),contentOffset=new Vector2(0,-6),overflow=new RectOffset(),normal={textColor=Color.white},hover={textColor=Color.white},active={textColor=Color.white}};
+            while(style.fontSize>28&&style.CalcSize(new GUIContent(label)).x>rect.width-24)style.fontSize--;
             if(selected)style.normal.background=style.active.background;
             if(Button(rect,style)){candySkinTab=text=="Candy";skinScroll=Vector2.zero;skinPointerDown=skinDragging=false;}
-            Outline(rect,text,style);
+            Outline(rect,label,style);
         }
+        GUIStyle RandomSkinTextStyle(Rect rect)
+        {
+            InitSkinMenu();var style=new GUIStyle(randomSkinLabel){font=PortFont};string label=L("Random");
+            while(style.fontSize>20&&style.CalcSize(new GUIContent(label)).x>rect.width-18)style.fontSize--;
+            return style;
+        }
+        void DrawRandomSkinLabel(Rect rect)=>Outline(rect,L("Random"),RandomSkinTextStyle(rect));
         void DrawCandySkinCards()
         {
             for(int i=0;i<CandySkinSettings.Count;i++)
@@ -96,11 +104,11 @@ namespace CandyFlick
             }
             Rect random=SkinCardRect(CandySkinSettings.RandomChoice,CandySkinSettings.Count+1);
             if(Button(random,game.CandySkins.Selected==CandySkinSettings.RandomChoice?selectedSkinCard:skinCard))game.CandySkins.Select(CandySkinSettings.RandomChoice);
-            Outline(new Rect(random.x,random.y+12,random.width,150),"Random",randomSkinLabel);
+            DrawRandomSkinLabel(new Rect(random.x,random.y+12,random.width,150));
         }
         void DrawSkins()
         {
-            InitSkinMenu(); Background(skinsBackground);
+            InitSkinMenu(); skinTitle.font=randomSkinLabel.font=PortFont; Background(skinsBackground);
             DrawSkinTab(OmNomSkinTabRect,"Om Nom",!candySkinTab);DrawSkinTab(CandySkinTabRect,"Candy",candySkinTab);
             Rect viewport=SkinViewport;
             float contentHeight=candySkinTab?SkinRow*2-20:SkinGridHeight;
@@ -117,7 +125,7 @@ namespace CandyFlick
             }
             Rect randomCard=SkinCardRect(TimeTravelSkins.RandomChoice);
             if(Button(randomCard,game.Skins.RandomSelected?selectedSkinCard:skinCard))game.Skins.SelectRandom();
-            Outline(new Rect(randomCard.x,randomCard.y+12,randomCard.width,150),"Random",randomSkinLabel);
+            DrawRandomSkinLabel(new Rect(randomCard.x,randomCard.y+12,randomCard.width,150));
             }
             GUI.EndScrollView();
             if(Button(R("SettingScreen$$GetBackBtnRect",true),Main(33)))Back();
@@ -157,8 +165,8 @@ namespace CandyFlick
             DrawSettingsOption(MoreARModeRect,ARModeLabel,game.ToggleGroundARMode,game.GroundARModeEnabled||game.GroundSupport.Supported);
             if(!game.GroundSupport.Supported)
             {
-                var hint=new GUIStyle{font=game.assets.font,fontSize=22,alignment=TextAnchor.UpperCenter,wordWrap=true,normal={textColor=Color.black}};
-                GUI.Label(new Rect(MoreARModeRect.x,MoreARModeRect.yMax+6,MoreARModeRect.width,64),game.GroundSupport.Reason,hint);
+                var hint=new GUIStyle{font=PortFont,fontSize=22,alignment=TextAnchor.UpperCenter,wordWrap=true,normal={textColor=Color.black}};
+                GUI.Label(new Rect(MoreARModeRect.x,MoreARModeRect.yMax+6,MoreARModeRect.width,64),L(game.GroundSupport.Reason),hint);
             }
         }
         string OptionLabel(string[] labels,bool enabled)
@@ -171,6 +179,7 @@ namespace CandyFlick
         string InGameMusicLabel=>OptionLabel(new[]{"In-game music","Музыка в игре","Muziek tijdens het spelen","Musique en jeu","Musik im Spiel","Musica in partita","게임 음악","Música durante o jogo","Música durante el juego"},game.InGameMusicEnabled);
         void DrawSettingsOption(Rect rect,string label,System.Action action,bool enabled=true)
         {
+            label=L(label);
             bool previous=GUI.enabled;GUI.enabled=previous&&enabled;
             if(Button(rect,Main(1)))action();
             var style=new GUIStyle(Main(1));

@@ -62,7 +62,7 @@ namespace CandyFlick
                 else SetTutorialPage(CurrentTutorialPage == TutorialPage.CreateMarker ? TutorialPage.Start : TutorialPage.CreateMarker);
             }
             else if (settingsPage == "ModelCredits") ChangeSettingsPage("About");
-            else if (settingsPage == "GameCenter" && gameCenterFromResults)
+            else if ((settingsPage == "GameCenter" || settingsPage == "Achievements") && gameCenterFromResults)
                 transition.Begin(() => { settingsPage = null; game.Show(GameScreen.Results); });
             else if (settingsPage != null) ChangeSettingsPage(null);
             else transition.Begin(game.ReturnToMenu);

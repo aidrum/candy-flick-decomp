@@ -42,3 +42,5 @@ Tools/opencv-*.exe
 /Tools
 /Documentation
 **/VuforiaLicense.cs
+config.toml
+.vscode

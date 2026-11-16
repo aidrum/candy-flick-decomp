@@ -67,27 +67,27 @@ namespace CandyFlick
         {
             Background(Texture(DevicePath("settings")));
             Rect image=LanCalibrationImageRect;
-            GUI.Label(new Rect(CanvasWidth/2-290,image.y-130,580,112),"All other players must scan this image.\nHold your phone still.",LanText(34));
+            LanLabel(new Rect(CanvasWidth/2-290,image.y-130,580,112),"All other players must scan this image.\nHold your phone still.",LanText(34));
             GUI.DrawTexture(image,LanCalibrationImage,ScaleMode.StretchToFill);
             var lan=game.LAN;int total=lan.Players.Length-1,calibrated=0;
             foreach(var player in lan.Players)if(player.id!=0&&player.calibrated)calibrated++;
             string detail=lan.CalibrationNotice;
             if(string.IsNullOrEmpty(detail)&&!lan.Ground.originReady)detail=game.ar.Status;
-            string footer=calibrated+" / "+total+" players calibrated"+(!string.IsNullOrEmpty(detail)?"\n"+detail:"");
+            string footer=L("{0} / {1} players calibrated",calibrated,total)+(!string.IsNullOrEmpty(detail)?"\n"+L(detail):"");
             var footerStyle=LanText(30);float footerHeight=Mathf.Min(140,height-100-image.yMax-12);
             while(footerStyle.fontSize>20&&footerStyle.CalcHeight(new GUIContent(footer),580)>footerHeight)footerStyle.fontSize--;
-            GUI.Label(new Rect(CanvasWidth/2-290,image.yMax+12,580,footerHeight),footer,footerStyle);
+            LanLabel(new Rect(CanvasWidth/2-290,image.yMax+12,580,footerHeight),footer,footerStyle);
             if(game.ScreenState!=GameScreen.Paused&&Button(R("GamePlayScreen$$GetPauseRect",true),Game(11)))game.Pause();
         }
         void DrawLanClientCalibration()
         {
             Rect label=R("SearchTargetScreen$$GetLabelRect",true),button=R("SearchTargetScreen$$GetImageButtonRect",true);
             label.x-=40;label.width+=80;label.height=Mathf.Min(height-16,button.yMax-16)-label.y;
-            string message="Scan the image on the host's screen to align your phone with the shared play area.";
+            string message=L("Scan the image on the host's screen to align your phone with the shared play area.");
             string detail=game.ar.Status;
-            if(!string.IsNullOrEmpty(detail)&&!detail.StartsWith("Scan the image on the host's screen"))message+="\n\n"+detail;
+            if(!string.IsNullOrEmpty(detail)&&!detail.StartsWith("Scan the image on the host's screen"))message+="\n\n"+L(detail);
             var style=LanText(28);while(style.fontSize>20&&style.CalcHeight(new GUIContent(message),label.width)>label.height)style.fontSize--;
-            GUI.Label(label,message,style);
+            LanLabel(label,message,style);
         }
     }
 }
