@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
@@ -31,7 +31,7 @@ namespace CandyFlickEditor
             foreach(string pref in prefs){SessionState.SetBool(Key+pref+"Had",PlayerPrefs.HasKey(pref));SessionState.SetInt(Key+pref,PlayerPrefs.GetInt(pref));}
             SessionState.SetBool(Key+"SaveHad",PlayerPrefs.HasKey(LocalAchievements.SaveKey));SessionState.SetString(Key+"Save",PlayerPrefs.GetString(LocalAchievements.SaveKey,""));PlayerPrefs.DeleteKey(LocalAchievements.SaveKey);
             PlayerPrefs.SetInt(CandyFlickGame.NonARPreference,1);PlayerPrefs.SetInt(CandyFlickGame.InGameMusicPreference,0);PlayerPrefs.SetInt(CandyFlickGame.ControlModePreference,2);PlayerPrefs.SetInt(TimeTravelSkins.Preference,0);PlayerPrefs.SetInt("IsMusic",0);PlayerPrefs.SetInt("IsSound",0);PlayerPrefs.Save();
-            SessionState.SetBool(Key+"Audio",AudioListener.pause);SessionState.SetString(Key+"Scene",EditorSceneManager.playModeStartScene?AssetDatabase.GetAssetPath(EditorSceneManager.playModeStartScene):"");
+            SessionState.SetFloat(Key+"Volume",AudioListener.volume);SessionState.SetBool(Key+"Audio",AudioListener.pause);SessionState.SetString(Key+"Scene",EditorSceneManager.playModeStartScene?AssetDatabase.GetAssetPath(EditorSceneManager.playModeStartScene):"");
             EditorSceneManager.playModeStartScene=AssetDatabase.LoadAssetAtPath<SceneAsset>(ProjectBuilder.ScenePath);
             Resolution(640,1136);SessionState.SetBool(Key,true);EditorApplication.EnterPlaymode();
         }
@@ -129,7 +129,7 @@ namespace CandyFlickEditor
                     case 8:if(ui.SettingsPage!=null){Wait(false,"Achievements Back did not return to main Settings");return;}Check(game.ScreenState==GameScreen.Settings,"Achievements opened from Settings return to Settings");game.Show(GameScreen.Results);break;
                     case 9:Click(ui.ResultsAchievementsRect.center);deadline=EditorApplication.timeSinceStartup+8;break;
                     case 10:if(ui.SettingsPage!="Achievements"){Wait(false,"Results achievement button did not open its menu");return;}Check(game.ScreenState==GameScreen.Settings,"Original results achievement button opens the local menu");ui.Back();deadline=EditorApplication.timeSinceStartup+8;break;
-                    case 11:if(game.ScreenState!=GameScreen.Results){Wait(false,"Results achievement Back did not restore results");return;}Check(ui.SettingsPage==null,"Achievements opened from Results return to the same Results screen");game.ReturnToMenu();game.Achievements.BeginGame();for(int i=0;i<10;i++)game.Achievements.Resolve(true,i==9,i<4,i<4?65:i==9?100:50,false);ui.OpenAchievements();deadline=EditorApplication.timeSinceStartup+8;break;
+                    case 11:if(game.ScreenState!=GameScreen.Results){Wait(false,"Results achievement Back did not restore results");return;}Check(ui.SettingsPage==null,"Achievements opened from Results return to the same Results screen");game.ReturnToMenu();game.Achievements.BeginGame();for(int i=0;i<10;i++)game.Achievements.Resolve(true,i==9,i<4,i<4?65:i==9?100:50,false);game.Achievements.Reload();ui.OpenAchievements();deadline=EditorApplication.timeSinceStartup+8;break;
                     case 12:if(ui.SettingsPage!="Achievements"){Wait(false,"Mixed achievement menu did not open");return;}Check(game.Achievements.UnlockedCount>0&&game.Achievements.UnlockedCount<20,"Menu supports mixed locked and unlocked achievement art");Capture("mixed-phone");break;
                     case 13:Resolution(768,1024);break;
                     case 14:LayoutChecks();Capture("mixed-tablet");break;
@@ -137,10 +137,65 @@ namespace CandyFlickEditor
                     case 16:LayoutChecks();Capture("mixed-wide");break;
                     case 17:Resolution(640,1440);break;
                     case 18:LayoutChecks();Capture("mixed-tall");break;
+                    case 19:
+                        game.ReturnToMenu();PlayerPrefs.DeleteKey(LocalAchievements.SaveKey);game.Achievements.Reload();Resolution(640,1136);game.StartGame();game.Pause();AudioListener.pause=false;AudioListener.volume=0;if(!game.SoundEnabled)game.ToggleSound();
+                        game.Achievements.Resolve(true,false,false,5,true);break;
+                    case 20:
+                        Check(ui.ActiveAchievementNotification?.id=="fastfood"&&ui.PendingAchievementNotifications==0,"A newly earned achievement starts its notification after saving progress");
+                        Check(Time.timeScale==0&&ui.AchievementNotificationAlpha>.95f,"Achievement fade-in uses unscaled time while gameplay is paused");
+                        Check(game.GetComponents<AudioSource>().Any(a=>a.isPlaying&&!a.loop)&&(AudioClip)typeof(CandyFlickUI).GetField("achievementNotificationSound",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(ui)==Resources.Load<AudioClip>("LanAudio/calibrated"),"Starting an achievement notification plays the shared calibration star sound");NotificationLayout();Capture("notification-phone");break;
+                    case 21:
+                        typeof(CandyFlickUI).GetField("achievementNotificationStarted",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(ui,Time.unscaledTime-2.34f);
+                        Check(ui.AchievementNotificationAlpha>.35f&&ui.AchievementNotificationAlpha<.65f,"The notification fades out smoothly before disappearing");Capture("notification-fade");break;
+                    case 22:
+                        Check(ui.ActiveAchievementNotification==null,"The notification disappears when its short display interval finishes");
+                        game.Achievements.Resolve(true,false,false,5,true);game.Achievements.Reload();
+                        Check(ui.PendingAchievementNotifications==0&&ui.ActiveAchievementNotification==null,"Already unlocked achievements and reloading progress do not replay notifications");
+                        game.Achievements.Resolve(true,false,false,610,false);break;
+                    case 23:
+                        Check(ui.ActiveAchievementNotification!=null&&ui.PendingAchievementNotifications==3,"Four achievements earned together queue without overlapping or dropping entries");
+                        var seen=new HashSet<string>();
+                        while(ui.ActiveAchievementNotification!=null)
+                        {
+                            Check(seen.Add(ui.ActiveAchievementNotification.id),"Each queued achievement is displayed once: "+ui.ActiveAchievementNotification.id);
+                            typeof(CandyFlickUI).GetField("achievementNotificationStarted",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(ui,Time.unscaledTime-3);
+                            Call(ui,"UpdateAchievementNotifications");
+                        }
+                        Check(seen.Count==4,"All four score achievements are shown from the same result");Resolution(768,1024);break;
+                    case 24:NotificationFixture();NotificationLayout();Capture("notification-tablet");break;
+                    case 25:Resolution(1920,1080);break;
+                    case 26:NotificationFixture();NotificationLayout();Capture("notification-wide");break;
+                    case 27:Resolution(640,1440);break;
+                    case 28:NotificationFixture();NotificationLayout();Capture("notification-tall");break;
+                    case 29:
+                        game.Achievements.Reload();Check(ui.ActiveAchievementNotification==null&&ui.PendingAchievementNotifications==0,"Reload/reset clears any pending achievement notifications");
+                        game.ToggleSound();for(int i=0;i<5;i++)game.Achievements.Resolve(false,false,false,0,false);break;
+                    case 30:Check(!game.SoundEnabled&&ui.ActiveAchievementNotification?.id=="tummyteaser"&&!game.GetComponents<AudioSource>().Any(a=>a.isPlaying&&!a.loop),"Muted sound keeps the unlock notification visible without playing the star cue");break;
                     default:File.WriteAllText("Documentation/achievements-validation.json",JsonUtility.ToJson(new Evidence{utc=DateTime.UtcNow.ToString("o"),checks=checks.ToArray()},true));Finish(null);break;
                 }
             }
             catch(Exception error){Finish(error.ToString());}
+        }
+        static void NotificationFixture()
+        {
+            Call(ui,"ClearAchievementNotifications");
+            typeof(CandyFlickUI).GetField("activeAchievementNotification",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(ui,Entry(game.Achievements,"ringmaster"));
+            typeof(CandyFlickUI).GetField("achievementNotificationStarted",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(ui,Time.unscaledTime-.5f);
+        }
+        static void NotificationLayout()
+        {
+            Rect box=ui.AchievementNotificationRect,safe=Screen.safeArea;
+            float ratio=(float)Screen.width/Screen.height;
+            Check((ratio>.75f?Mathf.Abs(box.width/Screen.height-.705f)<.0001f:Mathf.Abs(box.width/Screen.width-.94f)<.0001f)&&Mathf.Abs(Screen.width-box.xMax)<.1f&&Mathf.Abs(Screen.height-box.yMax)<.1f,"Notification nearly spans portrait screens, caps at 3:4 and touches the actual bottom-right screen edges at "+Screen.width+"x"+Screen.height);
+            float scale=CandyFlickUI.CanvasScale(safe),width=box.width/scale,h=box.height/scale;
+            foreach(var entry in game.Achievements.Definitions.entries)
+            {
+                object[] args={entry,width,h,null,null,null,null};Call(ui,"AchievementNotificationTextLayout",args);
+                var name=(Rect)args[3];var description=(Rect)args[4];var nameStyle=(GUIStyle)args[5];var descriptionStyle=(GUIStyle)args[6];
+                if(name.yMax>description.y||description.yMax>h*.95f+.1f||nameStyle.normal.textColor!=Color.white||descriptionStyle.normal.textColor!=Color.black)throw new Exception("Notification text overflow/style: "+entry.id+" at "+Screen.width+"x"+Screen.height);
+            }
+            Check(true,"All twenty official titles/descriptions fit with the achievement menu's colors at "+Screen.width+"x"+Screen.height);
+            Check(File.ReadAllBytes("Assets/Resources/Achievements/notification.png").SequenceEqual(File.ReadAllBytes("D:/Downloads/menu_notification.png")),"Notification background keeps the supplied pixels unchanged");
         }
         static void OnLog(string message,string stack,LogType type){if((type==LogType.Error||type==LogType.Exception||type==LogType.Assert)&&!stack.Contains("UnityEditor.Search.SearchDatabase"))Finish(message+"\n"+stack);}
         static void Finish(string error)
@@ -149,8 +204,9 @@ namespace CandyFlickEditor
             if(game)game.ReturnToMenu();
             foreach(string pref in prefs){if(SessionState.GetBool(Key+pref+"Had",false))PlayerPrefs.SetInt(pref,SessionState.GetInt(Key+pref,0));else PlayerPrefs.DeleteKey(pref);}
             if(SessionState.GetBool(Key+"SaveHad",false))PlayerPrefs.SetString(LocalAchievements.SaveKey,SessionState.GetString(Key+"Save",""));else PlayerPrefs.DeleteKey(LocalAchievements.SaveKey);PlayerPrefs.Save();
-            AudioListener.pause=SessionState.GetBool(Key+"Audio",false);string scene=SessionState.GetString(Key+"Scene","");EditorSceneManager.playModeStartScene=string.IsNullOrEmpty(scene)?null:AssetDatabase.LoadAssetAtPath<SceneAsset>(scene);
+            AudioListener.volume=SessionState.GetFloat(Key+"Volume",1);AudioListener.pause=SessionState.GetBool(Key+"Audio",false);string scene=SessionState.GetString(Key+"Scene","");EditorSceneManager.playModeStartScene=string.IsNullOrEmpty(scene)?null:AssetDatabase.LoadAssetAtPath<SceneAsset>(scene);
             if(error!=null)File.WriteAllText(Folder+"/failure.txt",error);EditorApplication.ExitPlaymode();
+            if(Application.isBatchMode)EditorApplication.delayCall+=()=>EditorApplication.Exit(error==null?0:1);
         }
         [Serializable]class Evidence{public string utc;public string[] checks;}
     }

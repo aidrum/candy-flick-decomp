@@ -21,6 +21,7 @@ namespace CandyFlickEditor
             {
                 switch (command)
                 {
+                    case "PhotoCheck": PhotoModeValidation.Run(); break;
                     case "RestoreTestAudio": UnityEngine.AudioListener.pause=SessionState.GetBool("CandyFlickLanTestAudio",false); UnityEngine.AudioListener.volume=SessionState.GetFloat("CandyFlickLanTestVolume",1); break;
                     case "SlingshotTest": SlingshotValidation.Run(); break;
                     case "SlingshotAssets": SlingshotAssetsBuilder.Build(); break;

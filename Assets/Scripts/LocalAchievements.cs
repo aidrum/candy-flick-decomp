@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -15,6 +15,9 @@ namespace CandyFlick
         [Serializable] sealed class Save {public int hits,super,rings,throws;public List<Record> records=new List<Record>();}
         public Catalog Definitions {get;}
         Save saved;
+        readonly List<Entry> newlyEarned=new List<Entry>();
+        public event Action<Entry> Earned;
+        public event Action Reloaded;
         int points,hitsRow,misses,feedingIndex;bool feedingPattern;
         public LocalAchievements()
         {
@@ -25,7 +28,7 @@ namespace CandyFlick
         {
             try{saved=JsonUtility.FromJson<Save>(PlayerPrefs.GetString(SaveKey,""));}catch(ArgumentException){saved=null;}
             if(saved==null)saved=new Save();if(saved.records==null)saved.records=new List<Record>();
-            BeginGame();
+            newlyEarned.Clear();BeginGame();Reloaded?.Invoke();
         }
         public void BeginGame(){points=hitsRow=misses=feedingIndex=0;feedingPattern=true;}
         public int Progress(Entry entry)=>Mathf.Clamp(saved.records.FirstOrDefault(r=>r!=null&&r.id==entry.id)?.best??0,0,entry.target);
@@ -38,10 +41,17 @@ namespace CandyFlick
             {
                 int best=Mathf.Clamp(value,0,entry.target);var record=saved.records.FirstOrDefault(r=>r!=null&&r.id==entry.id);
                 if(record==null){record=new Record{id=entry.id};saved.records.Add(record);}
+                bool wasUnlocked=record.best>=entry.target;
                 record.best=Math.Max(record.best,best);
+                if(!wasUnlocked&&record.best>=entry.target)newlyEarned.Add(entry);
             }
         }
-        void SaveProgress(){PlayerPrefs.SetString(SaveKey,JsonUtility.ToJson(saved));PlayerPrefs.Save();}
+        void SaveProgress()
+        {
+            PlayerPrefs.SetString(SaveKey,JsonUtility.ToJson(saved));PlayerPrefs.Save();
+            var earned=newlyEarned.ToArray();newlyEarned.Clear();
+            foreach(var entry in earned)Earned?.Invoke(entry);
+        }
         public void ThrowCandy(){saved.throws=Increment(saved.throws);Report("throws",saved.throws);SaveProgress();}
         public void Resolve(bool hit,bool super,bool ringBonus,int score,bool moving)
         {

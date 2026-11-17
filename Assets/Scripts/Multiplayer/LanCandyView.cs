@@ -36,7 +36,7 @@ namespace CandyFlick
         void OnCollisionEnter(Collision collision)
         {
             if(!Flying||!multiplayer||!multiplayer.IsHost)return;
-            if(collision.gameObject.name=="Floor"&&!Landed){SetLanded(true,collision.collider.bounds.max.y);LandedAt=Time.fixedTimeAsDouble;}
+            if(collision.gameObject.name=="Floor"&&!Landed){SetLanded(true,collision.collider.bounds.max.y);LandedAt=Time.fixedTimeAsDouble;multiplayer.LanMissed(Owner);}
             if(collision.gameObject.GetComponent<OmNomActor>())multiplayer.QueueLanContact(this,Time.fixedTimeAsDouble);
         }
     }

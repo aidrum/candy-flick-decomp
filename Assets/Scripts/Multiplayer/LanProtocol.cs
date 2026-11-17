@@ -14,7 +14,7 @@ namespace CandyFlick.Multiplayer
         public int avatar=LanProfiles.Default;
         public int candyChoice,readySkin,controlMode=2;
         public string name="Player";
-        public bool tracked, paused, hasPose, groundSupported, calibrated;
+        public bool tracked, paused, hasPose, groundSupported, calibrated, stretching;
         public string groundReason="Ground support has not been checked.";
         public float nextThrow;
         public Vector3 cameraPosition, candyPosition;
@@ -46,7 +46,8 @@ namespace CandyFlick.Multiplayer
     {
         public int version=LanRules.Version,playerId=-1,epoch,sequence,candyChoice;
         public int avatar=LanProfiles.Default,controlMode=2;
-        public string kind,name,text;
+        public string kind,name,text,sound;
+        public int clipIndex;public bool stretching;
         public bool tracked,paused,groundSupported,calibrated;public string groundReason;public int groundGeneration;
         public Vector3 cameraPosition,candyPosition;
         public Quaternion cameraRotation=Quaternion.identity,candyRotation=Quaternion.identity;
@@ -61,7 +62,7 @@ namespace CandyFlick.Multiplayer
     }
     public static class LanRules
     {
-        public const int Version=10,MaxPlayers=10;public const float MatchSeconds=60,ThrowInterval=.8f;
+        public const int Version=11,MaxPlayers=10;public const float MatchSeconds=60,ThrowInterval=.8f;
         public static LanControls CleanControls(LanControls value)=>value>=LanControls.PlayersChoice&&value<=LanControls.Flick?value:LanControls.PlayersChoice;
         public static LaunchMode CleanControlMode(int value)=>value==0?LaunchMode.Flick:LaunchMode.Slingshot;
         public static LaunchMode EffectiveControl(LanControls rule,int preference)=>rule==LanControls.Slingshot?LaunchMode.Slingshot:rule==LanControls.Flick?LaunchMode.Flick:CleanControlMode(preference);
@@ -94,7 +95,7 @@ namespace CandyFlick.Multiplayer
         {
             if(Players.Count<2||Players.Count>LanRules.MaxPlayers||Phase!=LanPhase.Lobby)return false;
             Epoch++;Remaining=60;began=false;Phase=LanPhase.FindingCard;
-            foreach(var p in Players){p.fed=p.score=p.baseScore=p.ringScore=p.thrown=p.lastSequence=0;p.nextThrow=0;p.tracked=p.paused=p.hasPose=false;if(!keepCalibration)p.calibrated=false;}
+            foreach(var p in Players){p.fed=p.score=p.baseScore=p.ringScore=p.thrown=p.lastSequence=0;p.nextThrow=0;p.tracked=p.paused=p.hasPose=p.stretching=false;if(!keepCalibration)p.calibrated=false;}
             return true;
         }
         public void RefreshGate()

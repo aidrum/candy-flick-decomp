@@ -54,7 +54,7 @@ namespace CandyFlick
         }
         public void ToggleARMode()
         {
-            if(ScreenState!=GameScreen.Paused || IsLanMatch)return;
+            if(ScreenState!=GameScreen.Paused || IsLanMatch || IsPhotoMode)return;
             bool nonAR=!IsNonAR;
             float previousClearance=IsNonAR?NonARStage.GroundClearance:0;
             CancelCandyGesture();NonARBackground.Navigation.Cancel();PhotoVisibility.End();ar.End();
@@ -75,11 +75,12 @@ namespace CandyFlick
         void StartGameplayMusic()
         {
             gameplayMusicSession = true; GameplayMusic.Stop(); gameplayMusicPaused = false;
-            if (IsLanMatch || (InGameMusicEnabled && MusicEnabled)) PickGameplayTrack();
+            if (IsPhotoMode || IsLanMatch || (InGameMusicEnabled && MusicEnabled)) PickGameplayTrack();
             SyncGameplayMusic();
         }
         void PickGameplayTrack()
         {
+            if(IsPhotoMode) { GameplayMusic.clip=Resources.Load<AudioClip>(PhotoTrackResource); return; }
             if(IsLanMatch) { GameplayMusic.clip=Resources.Load<AudioClip>(LanMultiplayer.TrackResource); return; }
             if (gameplayTracks == null) gameplayTracks = Resources.LoadAll<AudioClip>("GameplayMusic");
             if (gameplayTracks.Length > 0) GameplayMusic.clip = gameplayTracks[Random.Range(0, gameplayTracks.Length)];
@@ -91,10 +92,10 @@ namespace CandyFlick
         void SyncGameplayMusic()
         {
             if (!GameplayMusic) return;
-            if (!gameplayMusicSession || (!InGameMusicEnabled && !IsLanMatch) || !MusicEnabled)
+            if (!gameplayMusicSession || (!InGameMusicEnabled && !IsLanMatch && !IsPhotoMode) || !MusicEnabled)
             { GameplayMusic.Stop(); gameplayMusicPaused = false; return; }
             if (!GameplayMusic.clip) PickGameplayTrack();
-            if (CanSimulate || ScreenState == GameScreen.Results)
+            if (IsPhotoMode || CanSimulate || ScreenState == GameScreen.Results)
             {
                 if (gameplayMusicPaused) { GameplayMusic.UnPause(); gameplayMusicPaused = false; }
                 else if (!GameplayMusic.isPlaying && GameplayMusic.clip) GameplayMusic.Play();

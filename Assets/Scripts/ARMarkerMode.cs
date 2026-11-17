@@ -48,7 +48,8 @@ namespace CandyFlick
         }
         public void Begin()
         {
-            bool desiredGround=game.IsLanMatch?game.LAN.GroundMode:game.GroundARModeEnabled;
+            PhotoSupportFailure=null;
+            bool desiredGround=game.IsPhotoMode || (game.IsLanMatch?game.LAN.GroundMode:game.GroundARModeEnabled);
             bool keepGround = running && GroundMode && desiredGround;
             if(!keepGround) ClearGroundAnchor();
             GroundMode = desiredGround;
@@ -136,9 +137,10 @@ namespace CandyFlick
         {
             if(!running)return;
             RefreshFrameRate();
-            game.NonARBackground.RememberARProjection(Camera.projectionMatrix,Camera.aspect);
+            if(!game.IsPhotoMode)game.NonARBackground.RememberARProjection(Camera.projectionMatrix,Camera.aspect);
             if(lanRetained&&!game.IsLanMatch){UpdateRetainedLanGround();return;}
             if(LanGround){UpdateLanGroundCalibration();return;}
+            if(game.IsPhotoMode){UpdatePhotoTracking();return;}
             if(GroundMode) { UpdateGroundTracking(); return; }
             ImageTargetBehaviour observed = null;
             foreach(var target in targets)
@@ -201,7 +203,7 @@ namespace CandyFlick
         }
         public void End()
         {
-            if(game&&game.NonARBackground)game.NonARBackground.SaveARLens();
+            if(game&&game.NonARBackground&&!game.IsPhotoMode)game.NonARBackground.SaveARLens();
             running = false;lanRetained=false;
             ClearGroundAnchor();
             if(vuforia && vuforia.DevicePoseBehaviour) vuforia.DevicePoseBehaviour.enabled = false;

@@ -157,7 +157,7 @@ namespace CandyFlick
         {
             if(activeMatch&&IsHost&&Playing)Match.Step(Time.fixedDeltaTime);
         }
-        void LateUpdate(){if(activeMatch&&IsHost)ResolveLanContacts();if(activeMatch)RefreshRemoteSlingshots();}
+        void LateUpdate(){if(activeMatch&&IsHost)ResolveLanContacts();if(activeMatch){RefreshRemoteSlingshots();RefreshLanAudio();}}
         void Flush(){if(network==null)return;double now=Time.realtimeSinceStartupAsDouble;foreach(var p in network.Peers)p.Pump(now);network.Server?.Pump(now);}
         static LanMessage Decode(string text){try{return JsonUtility.FromJson<LanMessage>(text);}catch{return null;}}
         void ReceiveHost(LanPeer peer,string text)
@@ -190,6 +190,7 @@ namespace CandyFlick
             var m=Decode(text);if(m==null||m.version!=LanRules.Version){Disconnect("Different game version.");return;}
             if(m.kind=="reject"||m.kind=="closed"){Disconnect(m.text??"Room closed.");return;}
             if(m.kind=="welcome")LocalId=m.playerId;
+            if(m.kind=="sound"){ReceiveLanSound(m);return;}
             if(m.state==null)return;
             if(m.kind=="begin")
             {
@@ -207,14 +208,14 @@ namespace CandyFlick
             }
         }
         LanMessage LocalPose(string kind)=>new LanMessage{kind=kind,epoch=Epoch,tracked=LocalTracking,paused=LocallyPaused,calibrated=LocalCalibrated,groundGeneration=Ground.generation,
-            controlMode=(int)(activeMatch?savedControls:game.ControlMode),cameraPosition=game.Player.position,cameraRotation=game.Player.rotation,candyPosition=game.CandyGhost.position,candyRotation=game.CandyGhost.rotation};
+            stretching=game.LanElasticMoving,controlMode=(int)(activeMatch?savedControls:game.ControlMode),cameraPosition=game.Player.position,cameraRotation=game.Player.rotation,candyPosition=game.CandyGhost.position,candyRotation=game.CandyGhost.rotation};
         void UpdatePlayerPose(LanPlayer player,LanMessage m)
         {
             player.calibrated=m.calibrated&&m.groundGeneration==Ground.generation;
             player.tracked=m.tracked&&(!GroundMode||(Ground.placed&&player.calibrated&&player.groundSupported&&m.groundGeneration==Ground.generation));player.paused=m.paused;
             if(!LanRules.ValidPose(m)){player.hasPose=false;return;}
             player.controlMode=(int)LanRules.CleanControlMode(m.controlMode);
-            player.hasPose=true;player.cameraPosition=m.cameraPosition;player.cameraRotation=m.cameraRotation.normalized;
+            player.stretching=m.stretching;player.hasPose=true;player.cameraPosition=m.cameraPosition;player.cameraRotation=m.cameraRotation.normalized;
             player.candyPosition=m.candyPosition;player.candyRotation=m.candyRotation.normalized;
         }
         public void Throw(float strength,float ratio,float angle)
@@ -229,6 +230,7 @@ namespace CandyFlick
             UpdatePlayerPose(player,m);
             if(!Match.AcceptThrow(player.id,m.epoch,m.sequence))return;
             SpawnHostCandy(player,Mathf.Clamp(m.strength,0,10000),Mathf.Clamp01(m.ratio),Mathf.Clamp(m.angle,-89,89));
+            player.stretching=false;PublishLanSound("launch",player.id,UnityEngine.Random.Range(0,Mathf.Max(1,game.assets.swishes.Length-1)));
         }
         public void ReturnToRoom(string reason="Waiting for the host.")
         {

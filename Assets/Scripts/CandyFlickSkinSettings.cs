@@ -29,7 +29,16 @@ namespace CandyFlick
         public Rect MoreMusicRect=>MoreOptionRect(3);
         public Rect MoreARModeRect=>MoreOptionRect(4);
         public string ARModeLabel=>L("AR Mode: {0}",L(game.GroundARModeEnabled?"Ground":"Image"));
-        public Rect MenuSkinsRect=>MenuLowerButtonRect(MenuDownloadRect,false);
+        public Rect MenuPhotoRect=>MenuLowerButtonRect(MenuDownloadRect,false);
+        public Rect MenuSkinsRect
+        {
+            get
+            {
+                Rect left=MenuPhotoRect,right=MenuMultiplayerRect;
+                float size=left.width;
+                return new Rect((left.xMax+right.x-size)/2,(MenuDownloadRect.y+left.yMax-size)/2,size,size);
+            }
+        }
         GUIStyle SkinsMenuButtonStyle { get { InitSkinMenu(); return skinsMenuButton; } }
         void InitSkinMenu()
         {
@@ -46,7 +55,7 @@ namespace CandyFlick
         public void OpenSkins()
         {
             if(game.IsLanMatch)return;
-            InitSkinMenu();bool fromLan=game.ScreenState==GameScreen.LanLobby;skinsFromLan=fromLan;
+            InitSkinMenu();photoSkinPicker=false;bool fromLan=game.ScreenState==GameScreen.LanLobby;skinsFromLan=fromLan;
             transition.Begin(()=>
             {
                 // A host may start while a client is opening this screen.
@@ -56,6 +65,7 @@ namespace CandyFlick
         }
         void CloseSkins()
         {
+            if(photoSkinPicker){transition.Begin(()=>{photoSkinPicker=false;game.Pause();game.Show(GameScreen.Paused);});return;}
             bool returnToLan=skinsFromLan;
             transition.Begin(()=>
             {
@@ -109,7 +119,8 @@ namespace CandyFlick
         void DrawSkins()
         {
             InitSkinMenu(); skinTitle.font=randomSkinLabel.font=PortFont; Background(skinsBackground);
-            DrawSkinTab(OmNomSkinTabRect,"Om Nom",!candySkinTab);DrawSkinTab(CandySkinTabRect,"Candy",candySkinTab);
+            if(photoSkinPicker)Outline(new Rect(28,25,584,105),"Select Om Nom",new GUIStyle(skinTitle){fontSize=64});
+            else {DrawSkinTab(OmNomSkinTabRect,"Om Nom",!candySkinTab);DrawSkinTab(CandySkinTabRect,"Candy",candySkinTab);}
             Rect viewport=SkinViewport;
             float contentHeight=candySkinTab?SkinRow*2-20:SkinGridHeight;
             HandleSkinDrag(viewport,contentHeight);
@@ -119,12 +130,14 @@ namespace CandyFlick
             for(int i=0;i<TimeTravelSkins.Names.Length;i++)
             {
                 Rect card=SkinCardRect(i);
-                if(Button(card,!game.Skins.RandomSelected&&(int)game.Skins.Selected==i?selectedSkinCard:skinCard))game.Skins.Select((NommieSkin)i);
+                if(Button(card,!photoSkinPicker&&!game.Skins.RandomSelected&&(int)game.Skins.Selected==i?selectedSkinCard:skinCard))
+                {if(photoSkinPicker)ChoosePhotoSkin((NommieSkin)i);else game.Skins.Select((NommieSkin)i);}
                 // Keep the portrait above the selected card's checkmark.
                 if(skinPortraits)GUI.DrawTextureWithTexCoords(new Rect(card.center.x-75,card.y+12,150,150),skinPortraits,SkinPortraitUv(i),true);
             }
             Rect randomCard=SkinCardRect(TimeTravelSkins.RandomChoice);
-            if(Button(randomCard,game.Skins.RandomSelected?selectedSkinCard:skinCard))game.Skins.SelectRandom();
+            if(Button(randomCard,!photoSkinPicker&&game.Skins.RandomSelected?selectedSkinCard:skinCard))
+            {if(photoSkinPicker)ChoosePhotoSkin((NommieSkin)Random.Range(0,TimeTravelSkins.Names.Length));else game.Skins.SelectRandom();}
             DrawRandomSkinLabel(new Rect(randomCard.x,randomCard.y+12,randomCard.width,150));
             }
             GUI.EndScrollView();

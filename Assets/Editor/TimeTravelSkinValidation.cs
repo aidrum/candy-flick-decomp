@@ -16,6 +16,7 @@ namespace CandyFlickEditor
         const string Key = "CandyFlickTimeTravelValidation";
         static CandyFlickGame game;
         static int stage;
+        static Vector3 originalActorScale,originalColliderSize;
         static int reaction = -1;
         static readonly string[] reactions = { "open", "close_eat", "touch_left", "jump" };
         static double next;
@@ -64,11 +65,17 @@ namespace CandyFlickEditor
                     game.StartGame(); Time.timeScale = 0;
                     // Keep live desktop input and Actor.Update from interrupting sampled poses.
                     game.enabled=false; game.Actor.enabled=false; game.GetComponent<CandyFlickUI>().enabled=false;
+                    originalActorScale=game.Actor.transform.localScale;
+                    originalColliderSize=game.Actor.GetComponent<BoxCollider>().bounds.size;
                 }
                 if (stage < 8)
                 {
                     var skin = (NommieSkin)stage;
                     game.Skins.Select(skin);
+                    Physics.SyncTransforms();
+                    Check(game.Actor.transform.localScale==originalActorScale,skin+" retains the original actor scale");
+                    Check(Vector3.Distance(game.Actor.GetComponent<BoxCollider>().bounds.size,originalColliderSize)<.01f,skin+" retains the same gameplay hitbox as Original");
+                    if(skin==NommieSkin.Prehistoric)Check(Vector3.Distance(game.Skins.Visual.transform.localScale,Vector3.one*TimeTravelSkins.PrehistoricSize)<.001f,"Prehistoric enlarges only the cosmetic model by 25 percent");
                     Check(game.Skins.Selected == skin && PlayerPrefs.GetInt(TimeTravelSkins.Preference) == stage, skin + " selected and saved");
                     TimeTravelAudioValidation.CheckSkin(game,skin);
                     TimeTravelMotionValidation.Validate(game,Capture);
@@ -101,6 +108,7 @@ namespace CandyFlickEditor
                     Capture(skin.ToString());
                     if (skin == NommieSkin.Prehistoric)
                     {
+                        CaptureSizeComparison();
                         Transform jaw = game.Skins.Visual.GetComponentsInChildren<Transform>().Single(t=>t.name=="Bip_jaw");
                         Quaternion idleJaw = jaw.localRotation;
                         reaction=0; SampleReaction();
@@ -121,6 +129,7 @@ namespace CandyFlickEditor
                 if (stage == 8)
                 {
                     game.Skins.Select(NommieSkin.Original);
+                    Check(game.Actor.transform.localScale==originalActorScale,"Switching from larger Prehistoric restores the original character scale");
                     Check(!game.Skins.Visual && game.Actor.GetComponentsInChildren<SkinnedMeshRenderer>().Length == 1, "Switching back restores original body with no accessory");
                     Check(!game.Actor.GetComponent<Animation>()["idle"].clip.name.StartsWith("Prehistoric"), "Original animation bindings restored");
                     game.Skins.Select(NommieSkin.Pirate);
@@ -174,6 +183,36 @@ namespace CandyFlickEditor
             {
                 var jaw=game.Skins.Visual.GetComponentsInChildren<Transform>().Single(t=>t.name=="Bip_jaw");
                 Check(Quaternion.Angle(jaw.localRotation,new Quaternion(0,0,-.213f,.977f))<5, "Prehistoric excited/jump pose closes its jaw after mouth-open");
+            }
+        }
+        static void CaptureSizeComparison()
+        {
+            var actors=new List<GameObject>();var camera=new GameObject("Character size comparison camera").AddComponent<Camera>();
+            var target=new RenderTexture(1000,600,24);RenderTexture previous=RenderTexture.active;
+            try
+            {
+                foreach(var entry in new[]{(NommieSkin.Prehistoric,-190f),(NommieSkin.Original,190f)})
+                {
+                    var template=Resources.Load<GameObject>("Original26/Geometry").transform.Find("OmNom@All-1");
+                    var actor=UnityEngine.Object.Instantiate(template.gameObject);actors.Add(actor);
+                    var skins=actor.AddComponent<TimeTravelSkins>();skins.Initialize(game.assets);skins.ApplyForSession(entry.Item1);
+                    actor.transform.SetPositionAndRotation(new Vector3(entry.Item2,0,0),Quaternion.Euler(0,180,0));
+                    var animation=actor.GetComponent<Animation>();animation.Stop();animation.Play("idle");animation["idle"].time=.3f;animation.Sample();
+                    foreach(var child in actor.GetComponentsInChildren<Transform>(true))child.gameObject.layer=31;
+                    foreach(var renderer in actor.GetComponentsInChildren<Renderer>(true)){renderer.enabled=skins.Includes(renderer);renderer.forceRenderingOff=false;}
+                    foreach(var renderer in actor.GetComponentsInChildren<SkinnedMeshRenderer>(true))renderer.forceMatrixRecalculationPerRender=true;
+                }
+                camera.cullingMask=1<<31;camera.clearFlags=CameraClearFlags.SolidColor;camera.backgroundColor=new Color(.16f,.19f,.23f);
+                camera.nearClipPlane=1;camera.farClipPlane=2500;camera.fieldOfView=35;
+                camera.transform.position=new Vector3(0,190,-850);camera.transform.LookAt(new Vector3(0,150,0));camera.targetTexture=target;
+                camera.Render();RenderTexture.active=target;
+                var image=new Texture2D(1000,600,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1000,600),0,0);image.Apply();
+                File.WriteAllBytes("Documentation/TimeTravel/Prehistoric-size-comparison.png",image.EncodeToPNG());UnityEngine.Object.DestroyImmediate(image);
+            }
+            finally
+            {
+                RenderTexture.active=previous;camera.targetTexture=null;target.Release();UnityEngine.Object.DestroyImmediate(target);UnityEngine.Object.DestroyImmediate(camera.gameObject);
+                foreach(var actor in actors)UnityEngine.Object.DestroyImmediate(actor);
             }
         }
         static void Capture(string name)

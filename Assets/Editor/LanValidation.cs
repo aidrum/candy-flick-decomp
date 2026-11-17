@@ -37,7 +37,7 @@ namespace CandyFlickEditor
             Directory.CreateDirectory(Folder);if(File.Exists(Folder+"/failure.txt"))File.Delete(Folder+"/failure.txt");
             foreach(string pref in prefs){SessionState.SetBool(Key+pref+"Had",PlayerPrefs.HasKey(pref));if(pref==LanMultiplayer.NamePreference)SessionState.SetString(Key+pref,PlayerPrefs.GetString(pref));else SessionState.SetInt(Key+pref,PlayerPrefs.GetInt(pref));}
             PlayerPrefs.SetInt("Language",0);PlayerPrefs.DeleteKey(CandySkinSettings.Preference);PlayerPrefs.DeleteKey(LanMultiplayer.ProfilePreference);PlayerPrefs.SetString(LanMultiplayer.NamePreference,"");PlayerPrefs.SetInt(CandyFlickGame.NonARPreference,1);PlayerPrefs.SetInt(CandyFlickGame.GroundARPreference,1);
-            PlayerPrefs.SetInt(CandyFlickGame.InGameMusicPreference,0);PlayerPrefs.SetInt("IsMusic",1);PlayerPrefs.SetInt(TimeTravelSkins.Preference,(int)NommieSkin.Disco);PlayerPrefs.Save();
+            PlayerPrefs.SetInt(CandyFlickGame.InGameMusicPreference,0);PlayerPrefs.SetInt("IsMusic",1);PlayerPrefs.SetInt("IsSound",1);PlayerPrefs.SetInt(TimeTravelSkins.Preference,(int)NommieSkin.Disco);PlayerPrefs.Save();
             SessionState.SetFloat(Key+"Volume",AudioListener.volume);SessionState.SetBool(Key+"Audio",AudioListener.pause);
             SessionState.SetString(Key+"Scene",EditorSceneManager.playModeStartScene?AssetDatabase.GetAssetPath(EditorSceneManager.playModeStartScene):"");
             EditorSceneManager.playModeStartScene=AssetDatabase.LoadAssetAtPath<SceneAsset>(ProjectBuilder.ScenePath);
@@ -207,6 +207,9 @@ namespace CandyFlickEditor
                         Check(candies.Length==3&&candies.All(c=>!c.Body.isKinematic),"Three simultaneous client throws are simulated as host rigidbodies");
                         Check(candies.All(c=>c.Skin==heldCandySkins[c.Owner]),"Every shot uses the held server-selected candy instead of rerolling on clients");
                         Check(bots.All(b=>b.State.candies.Where(c=>!c.ready).All(c=>c.skin==heldCandySkins[c.owner])),"Flying candy skin IDs replicate consistently to every client");
+                        Check(bots.All(b=>b.Sounds.Count(s=>s.sound=="launch")==3),"Reliable launcher cues reach all three TCP clients for simultaneous throws");
+                        Check(game.GetComponentsInChildren<AudioSource>().Count(a=>a.gameObject.name.StartsWith("LAN launcher audio "))==9,"The host handles simultaneous remote launch cues with independent per-player audio sources");
+                        var notes=(Dictionary<int,int>)typeof(LanMultiplayer).GetField("collectionNotes",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(game.LAN);notes[bots[1].Id]=5;notes[bots[2].Id]=8;
                         foreach(var candy in candies){candy.Body.useGravity=false;candy.Body.linearVelocity=Vector3.zero;candy.Body.isKinematic=true;}
                         feedCandy=candies.First(c=>c.Owner==bots[0].Id);floorCandy=candies.First(c=>c.Owner==bots[1].Id);expiryCandy=candies.First(c=>c.Owner==bots[2].Id);break;
                     case 14:
@@ -251,6 +254,8 @@ namespace CandyFlickEditor
                         Check(floorCandy.Skin==2&&floorCandy.GetComponent<MeshCollider>().enabled&&floorCandy.GetComponent<SphereCollider>()==null,"LAN cupcakes retain the same floor collider as the other candies");
                         Check(feedCandy==null,"Eaten donut is removed normally after using the original airborne hitbox");
                         Check(game.LAN.Players.First(p=>p.id==bots[0].Id).fed==1,"A real host mouth contact credits the correct remote player exactly once");
+                        var missNotes=(Dictionary<int,int>)typeof(LanMultiplayer).GetField("collectionNotes",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(game.LAN);
+                        Check(missNotes[bots[1].Id]==0&&missNotes[bots[2].Id]==0,"Both an actual floor landing and an expired airborne candy reset their own reward sequence");
                         var scorer=game.LAN.Players.First(p=>p.id==bots[0].Id);
                         Check(scorer.baseScore==GameRules.DistanceScoreUnits(scoredDistance)&&scorer.ringScore==15&&scorer.score==scorer.baseScore+15,"Host catch credits original distance-at-launch points plus the ring bonus to the candy owner");
                         fedBefore=game.LAN.Players.First(p=>p.id==bots[1].Id).fed;floorCandy.Body.useGravity=false;floorCandy.Body.position=game.Actor.Mouth;floorCandy.Body.linearVelocity=Vector3.zero;break;
@@ -258,8 +263,13 @@ namespace CandyFlickEditor
                         Check(game.LAN.Players.First(p=>p.id==bots[1].Id).fed==fedBefore,"A candy already on the floor cannot score when moved to Om Nom");
                         Check(bots.All(b=>b.State.players.First(p=>p.id==bots[0].Id).fed==1),"Host feed scores replicate to every client");
                         Check(bots.All(b=>b.State.players.First(p=>p.id==bots[0].Id).score==GameRules.DistanceScoreUnits(scoredDistance)+15),"Distance and ring score totals replicate to all three clients");
-                        break;
+                        CollectionAudioChecks();break;
                     case 18:
+                        var rewardNotes=bots[0].Sounds.Where(s=>s.sound=="collect").Select(s=>s.clipIndex).ToArray();
+                        if(rewardNotes.Length<game.assets.hits.Length+4){WaitFor(false,"Owner did not receive its ordered collection notes");return;}
+                        Check(rewardNotes.SequenceEqual(new[]{0}.Concat(Enumerable.Range(1,game.assets.hits.Length+2).Select(n=>Math.Min(n,game.assets.hits.Length-1))).Concat(new[]{0})),"TCP reward notes rise from hit_01 to hit_10, cap at the highest, then return to hit_01 after a miss");
+                        Check(bots.All(b=>b.Sounds.Where(s=>s.sound=="collect").All(s=>s.playerId==b.Id)),"Candy collection cues are sent only to their owning player");
+                        Check(bots.All(b=>b.Sounds.Any(s=>s.sound=="nom"&&s.text=="eat")),"Every TCP client receives Om Nom eating sounds separately from the private reward note");
                         var replacement=game.World.GetComponentsInChildren<LanRingView>().First(r=>r.State.id==hitRingId);
                         Check(replacement.State.generation==hitRingGeneration+1&&!replacement.State.hit&&replacement.GetComponent<Collider>().enabled&&Vector3.Distance(replacement.State.position,collectedPosition)>=40,"Eating the collector immediately moves its ring to a different place");
                         var remainingRings=game.World.GetComponentsInChildren<LanRingView>();
@@ -365,7 +375,7 @@ namespace CandyFlickEditor
                         var pair=game.World.GetComponentsInChildren<LanRingView>();
                         Check(pair.Length==2&&Vector3.Dot(new Vector3(pair[0].State.position.x,0,pair[0].State.position.z).normalized,new Vector3(pair[1].State.position.x,0,pair[1].State.position.z).normalized)<-.9f,"Two players produce two rings on opposite sides of Om Nom");
                         game.LAN.ReturnToRoom();game.LAN.CloseRoom();foreach(var bot in bots)bot.net.Dispose();bots.Clear();game.ReturnToMenu();Resolution(768,1024);stage=21;break;
-                    case 21: CheckMenuLayout();Check(!ui.MenuSoloPlayRect.Overlaps(ui.MenuSkinsRect)&&!ui.MenuSkinsRect.Overlaps(ui.MenuMultiplayerRect),"Tablet menu buttons do not overlap");Check(ui.MenuMultiplayerRect.yMax<=ui.ReferenceHeight,"Tablet lower menu row fits");Capture(Folder+"/menu-tablet.png");break;
+                    case 21: CheckMenuLayout();Check(!ui.MenuSoloPlayRect.Overlaps(ui.MenuSkinsRect)&&Vector2.Distance(ui.MenuSkinsRect.center,ui.MenuMultiplayerRect.center)>.82f*ui.MenuSkinsRect.width,"Tablet menu buttons do not overlap");Check(ui.MenuMultiplayerRect.yMax<=ui.ReferenceHeight,"Tablet lower menu row fits");Capture(Folder+"/menu-tablet.png");break;
                     case 22: game.LAN.OpenBrowser();Capture(Folder+"/finder-tablet.png");break;
                     case 23: game.LAN.LeaveRoom();Resolution(1920,1080);break;
                     case 24: CheckMenuLayout();Capture(Folder+"/menu-wide.png");break;
@@ -400,7 +410,7 @@ namespace CandyFlickEditor
                         Check(replica.Skin==2&&game.CandyGhost.GetComponent<CandySkinVisual>().Skin==1,"Client renders the replicated cupcake and held donut without a local Random draw");
                         Check(replica.Body.isKinematic&&replica.GetComponentsInChildren<Collider>().All(c=>!c.enabled),"Client candy replicas do not simulate physics or award collisions");
                         Check(Vector3.Distance(game.Actor.transform.position,fakeState.actorPosition)<5,"Client follows the host-computed Om Nom position");
-                        HudChecks();
+                        HudChecks();ClientAudioChecks();
                         Check(game.World.GetComponentsInChildren<LanCandyView>().Any(v=>v.Id==-1&&!v.Flying),"Client renders the host's candy before it is thrown");
                         var clientRing=game.World.GetComponentsInChildren<LanRingView>().Single();
                         Check(clientRing.State.id==2&&!clientRing.GetComponent<Collider>().enabled,"Client renders the host ring pose with trigger authority disabled");
@@ -454,7 +464,7 @@ namespace CandyFlickEditor
                         Check(game.Session.Remaining==10&&!game.IsLanMatch,"Normal mode retains its original ten-candy round");game.ReturnToMenu();Resolution(640,960);break;
                     case 32:
                         CheckMenuLayout();
-                        Check(!ui.MenuSoloPlayRect.Overlaps(ui.MenuSkinsRect)&&!ui.MenuSkinsRect.Overlaps(ui.MenuMultiplayerRect)&&ui.MenuMultiplayerRect.yMax<=960,"Short-phone solo, skins and LAN buttons fit without overlap");
+                        Check(!ui.MenuSoloPlayRect.Overlaps(ui.MenuSkinsRect)&&Vector2.Distance(ui.MenuSkinsRect.center,ui.MenuMultiplayerRect.center)>.82f*ui.MenuSkinsRect.width&&ui.MenuMultiplayerRect.yMax<=960,"Short-phone solo, skins and LAN icons fit");
                         Capture(Folder+"/menu-short-phone.png");
                         File.WriteAllText("Documentation/lan-validation.json",JsonUtility.ToJson(new Evidence{utc=DateTime.UtcNow.ToString("o"),checks=checks.ToArray(),limit="Real IPv4 loopback sockets with host plus three clients and a separate client-world fixture; synthetic image-card tracking. Unity Game view captures only when requested; no desktop captures. Synthetic calibration/device tracking only. Physical host-screen size, camera-to-display offset, ground detection and multi-phone alignment need device testing. No player build."},true));Finish(null);break;
                 }
@@ -490,6 +500,55 @@ namespace CandyFlickEditor
             }
             game.Player.position=saved;
         }
+        static void ClientAudioChecks()
+        {
+            bool sound=game.SoundEnabled;if(!sound)game.ToggleSound();
+            var host=game.LAN.Players.First(p=>p.id==0);
+            host.hasPose=host.stretching=true;host.candyPosition=game.Player.position+Vector3.right*500;host.controlMode=2;
+            Call(game.LAN,"RefreshLanAudio");
+            var sources=game.GetComponentsInChildren<AudioSource>().Where(a=>a.gameObject.name=="LAN launcher audio 0").ToArray();
+            var stretch=sources.Single(a=>a.clip==game.assets.elasticStretch);
+            var release=sources.Single(a=>a.clip==game.assets.elasticShoot);
+            var swish=sources.Single(a=>a!=stretch&&a!=release);
+            Check(stretch.isPlaying&&stretch.loop&&stretch.volume==1,"Client plays a remote stretch loop from the replicated moving-elastic state");
+            host.candyPosition=game.Player.position+Vector3.right*5000;Call(game.LAN,"RefreshLanAudio");
+            Check(Mathf.Abs(stretch.volume-.1f)<.001f,"Moving away attenuates the actual client stretch AudioSource");
+            host.controlMode=0;Call(game.LAN,"RefreshLanAudio");Check(!stretch.isPlaying,"Remote Flick controls never play an elastic stretch loop");
+            host.controlMode=2;host.tracked=false;Call(game.LAN,"RefreshLanAudio");Check(!stretch.isPlaying,"Remote tracking loss stops stretching audio");
+            host.tracked=true;game.Pause();Call(game.LAN,"RefreshLanAudio");Check(!stretch.isPlaying,"Local pause stops remote launcher audio");game.Resume();
+            Call(game.LAN,"RefreshLanAudio");Check(stretch.isPlaying,"Tracked play resumes an actively moving remote elastic");
+            game.ToggleSound();Call(game.LAN,"RefreshLanAudio");Check(!stretch.isPlaying,"Sound mute stops existing remote stretch loops");game.ToggleSound();host.stretching=false;Call(game.LAN,"RefreshLanAudio");
+            var effects=(AudioSource)typeof(CandyFlickGame).GetField("effects",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(game);effects.Stop();
+            Action<LanMessage> receive=m=>Call(game.LAN,"ReceiveClient",JsonUtility.ToJson(m));
+            var cue=new LanMessage{kind="sound",epoch=game.LAN.Epoch,playerId=0,sound="collect",clipIndex=0};
+            receive(cue);Check(!effects.isPlaying,"Actual client sound handler rejects other players' candy reward cues");
+            cue.playerId=game.LAN.LocalId;cue.sound="collect";receive(cue);Check(effects.isPlaying,"Actual client plays its own host-selected collection note");effects.Stop();
+            cue.epoch--;receive(cue);Check(!effects.isPlaying,"Stale match sound messages cannot play in a later match");cue.epoch++;
+            cue.playerId=0;cue.sound="nom";cue.text="eat";receive(cue);Check(effects.isPlaying,"Shared Om Nom close and chew sounds play even when another player fed him");effects.Stop();
+            cue.sound="launch";cue.candyPosition=game.Player.position+Vector3.right*5000;cue.controlMode=0;receive(cue);
+            Check(swish.isPlaying&&!release.isPlaying&&Mathf.Abs(swish.volume-.1f)<.001f,"Remote Flick launch plays its distance-attenuated swish without elastic recoil audio");swish.Stop();
+            cue.controlMode=2;receive(cue);Check(swish.isPlaying&&release.isPlaying,"Remote slingshot launch plays both the swish and elastic release");swish.Stop();release.Stop();
+            cue.playerId=game.LAN.LocalId;receive(cue);Check(!swish.isPlaying&&!release.isPlaying,"The owner's immediate local shot feedback is not duplicated by its network echo");
+            game.ToggleSound();cue.playerId=0;receive(cue);Check(!swish.isPlaying&&!release.isPlaying,"Muted clients do not start remote one-shot sounds");game.ToggleSound();
+            if(!sound)game.ToggleSound();
+        }
+        static void CollectionAudioChecks()
+        {
+            Check(bots[0].Sounds.Count(s=>s.sound=="collect")==1&&bots[0].Sounds.Single(s=>s.sound=="collect").clipIndex==0,"A real host mouth contact sends the first reward note only to the candy owner");
+            Check(bots[1].Sounds.All(s=>s.sound!="collect")&&bots[2].Sounds.All(s=>s.sound!="collect"),"Other clients receive no reward cue for that successful feed");
+            var notes=(Dictionary<int,int>)typeof(LanMultiplayer).GetField("collectionNotes",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(game.LAN);
+            bool sound=game.SoundEnabled;if(sound)game.ToggleSound();
+            for(int i=0;i<game.assets.hits.Length+2;i++)Call(game.LAN,"LanCollected",bots[0].Id);
+            Check(notes[bots[0].Id]==game.assets.hits.Length-1,"The host's reward sequence caps instead of wrapping even with its own sound muted");
+            Call(game.LAN,"LanCollected",bots[1].Id);
+            Check(notes[bots[1].Id]==1&&notes[bots[0].Id]==game.assets.hits.Length-1,"Each player's reward sequence advances independently");
+            Call(game.LAN,"LanMissed",bots[0].Id);Call(game.LAN,"LanCollected",bots[0].Id);
+            Check(notes[bots[0].Id]==1,"One miss resets only the missing player's next reward note");
+            if(sound)game.ToggleSound();
+            float near=(float)typeof(LanMultiplayer).GetMethod("LauncherVolume",BindingFlags.NonPublic|BindingFlags.Static).Invoke(null,new object[]{500f});
+            float far=(float)typeof(LanMultiplayer).GetMethod("LauncherVolume",BindingFlags.NonPublic|BindingFlags.Static).Invoke(null,new object[]{5000f});
+            Check(near==1&&Mathf.Abs(far-.1f)<.001f,"Launcher attenuation uses native metres: full volume at half a metre, one tenth at five metres");
+        }
         static void RelocationChecks()
         {
             var saved=UnityEngine.Random.state;var quadrants=new HashSet<int>();
@@ -510,9 +569,9 @@ namespace CandyFlickEditor
         }
         static void CheckMenuLayout()
         {
-            Check(Mathf.Abs(ui.MenuSkinsRect.center.x-ui.MenuDownloadRect.center.x)<.01f&&ui.MenuSkinsRect.y>ui.MenuDownloadRect.yMax,"Skins sits directly below Download at "+Screen.width+"x"+Screen.height);
+            Check(Mathf.Abs(ui.MenuPhotoRect.center.x-ui.MenuDownloadRect.center.x)<.01f&&ui.MenuPhotoRect.y>ui.MenuDownloadRect.yMax,"Photo Mode sits directly below Download at "+Screen.width+"x"+Screen.height);
             Check(Mathf.Abs(ui.MenuMultiplayerRect.center.x-ui.MenuSettingsRect.center.x)<.01f&&ui.MenuMultiplayerRect.y>ui.MenuSettingsRect.yMax,"LAN sits directly below Settings at "+Screen.width+"x"+Screen.height);
-            Check(Mathf.Abs(ui.MenuMultiplayerRect.y-ui.MenuSkinsRect.y)<.01f&&!ui.MenuMultiplayerRect.Overlaps(ui.MenuSkinsRect)&&Mathf.Max(ui.MenuMultiplayerRect.yMax,ui.MenuSkinsRect.yMax)<=Screen.safeArea.height/CandyFlickUI.CanvasScale(Screen.safeArea)-16+.01f,"Lower menu row stays aligned and on-screen at "+Screen.width+"x"+Screen.height);
+            Check(Mathf.Abs(ui.MenuMultiplayerRect.y-ui.MenuPhotoRect.y)<.01f&&!ui.MenuMultiplayerRect.Overlaps(ui.MenuPhotoRect)&&Mathf.Max(ui.MenuMultiplayerRect.yMax,ui.MenuPhotoRect.yMax)<=Screen.safeArea.height/CandyFlickUI.CanvasScale(Screen.safeArea)-16+.01f,"Lower menu row stays aligned and on-screen at "+Screen.width+"x"+Screen.height);
             if(ui.ArtworkFamily=="ipad2")
             {
                 var native=(Rect)Call(ui,"R","MainScreen$$GetSettingRect",false);
@@ -620,13 +679,14 @@ namespace CandyFlickEditor
         sealed class Bot
         {
             public readonly LanTransport net=new LanTransport();readonly string name;bool hello;float nextPose,nextPing;int seq;
+            public readonly List<LanMessage> Sounds=new List<LanMessage>();
             public int Id=-1,Avatar=LanProfiles.Default,CandyChoice;public bool Tracked,Rejected,GroundSupported=true,Calibrated;public int? GenerationOverride;public LanSnapshot State;
             public Bot(string name){this.name=name;}
             public void Pump()
             {
                 double now=Time.realtimeSinceStartupAsDouble;net.Pump(now);var peer=net.Server;if(peer==null)return;
                 if(!hello){hello=true;peer.Send(new LanMessage{kind="hello",name=name,avatar=Avatar,candyChoice=CandyChoice,groundSupported=GroundSupported});}
-                while(peer.Messages.Count>0){var m=JsonUtility.FromJson<LanMessage>(peer.Messages.Dequeue());if(m.kind=="welcome")Id=m.playerId;if(m.kind=="reject")Rejected=true;if(m.state!=null){if(m.state.groundMode&&(State==null||(m.state.epoch!=State.epoch&&!m.state.ground.reusable)||m.state.ground.generation!=State.ground.generation))Calibrated=false;State=m.state;}}
+                while(peer.Messages.Count>0){var m=JsonUtility.FromJson<LanMessage>(peer.Messages.Dequeue());if(m.kind=="sound")Sounds.Add(m);if(m.kind=="welcome")Id=m.playerId;if(m.kind=="reject")Rejected=true;if(m.state!=null){if(m.state.groundMode&&(State==null||(m.state.epoch!=State.epoch&&!m.state.ground.reusable)||m.state.ground.generation!=State.ground.generation))Calibrated=false;State=m.state;}}
                 if(Id>0&&Time.unscaledTime>=nextPing){nextPing=Time.unscaledTime+1;peer.Send(new LanMessage{kind="ping"});}
                 if(Id>0&&State!=null&&State.phase!=LanPhase.Lobby&&Time.unscaledTime>=nextPose){nextPose=Time.unscaledTime+.03f;peer.Send(Pose("pose"));}
                 peer.Pump(now);

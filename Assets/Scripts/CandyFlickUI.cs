@@ -50,6 +50,7 @@ namespace CandyFlick
             LoadDeviceLayout();
             initialized = true;
             ApplyLanguageFont();
+            game.Achievements.Earned+=QueueAchievementNotification;game.Achievements.Reloaded+=ClearAchievementNotifications;
             game.GameStarted += ResetHud;
             game.CandyResolved += OnCandyResolved;
             game.BoostPassed += OnBoostPassed;
@@ -79,6 +80,7 @@ namespace CandyFlick
         // GamePlayScreen.RestartBtnTapped 0x30f28 / WaitForAnimation: flash, then restart at the white peak.
         void RestartTapped()
         {
+            if(game.IsPhotoMode)return;
             if (restartPending) return;
             restartPending = true;
             flashStart = Time.unscaledTime;
@@ -189,15 +191,17 @@ namespace CandyFlick
         void Update()
         {
             if (!initialized) return;
+            UpdateAchievementNotifications();
             bool showMenu = game.ScreenState == GameScreen.Menu;
             if (menuShadow && menuShadow.gameObject.activeSelf != showMenu)
             { menuShadow.gameObject.SetActive(showMenu); if (showMenu) menuShadowAnimation.Play(); }
             UpdateResetHolding();
             bool inGame = game.ScreenState == GameScreen.Playing || game.ScreenState == GameScreen.Paused;
-            bool searching = inGame && game.IsAR && (game.IsLanMatch ? !game.LAN.Playing : !game.ar.Tracking);
+            bool searching = inGame && game.IsAR && (game.IsPhotoMode ? PhotoPlacementPrompt || !game.ar.Tracking : game.IsLanMatch ? !game.LAN.Playing : !game.ar.Tracking);
             if (searching != searchShown || (searching && (searchGround != GroundSearchArtwork || searchLocalTracking != (game.IsLanMatch&&game.LAN.LocalTracking)))) SetSearchScreen(searching, inGame);
             if (searchHideTime >= 0 && Time.unscaledTime >= searchHideTime) SetSearchScreen(false, false);
             UpdateUnscaledAnimations();
+            UpdatePhotoHighlight();
             if (!game.CanSimulate) return;
             if (!freezeScores) { possibleNumber = game.PossibleScore; totalNumber = game.Session.total; }
             if (showTotalEffect)
@@ -319,6 +323,7 @@ namespace CandyFlick
                 GUI.DrawTexture(fullScreen, Texture2D.whiteTexture); GUI.color = color;
             }
             DrawWhiteFlash(); // Above everything, including the popup and fades.
+            if(!hideGui)DrawAchievementNotification();
             GUI.matrix = saved;
             cameraEffect.Draw(); // CameraEffect.OnGUI uses raw screen pixels.
         }
@@ -330,15 +335,16 @@ namespace CandyFlick
             menuShadow.Draw(fullScreen.width, fullScreen.height); GUI.matrix = canvas;
             Color menuColor = GUI.color;
             GUI.color = new Color(menuColor.r, menuColor.g, menuColor.b, 1 - menuEntryAlpha);
-            if (Button(MenuSoloPlayRect, Main(23)))
+            if (RoundMenuButton(MenuSoloPlayRect, Main(23)))
             {
                 game.StopMenuMusic();
                 transition.Begin(MenuPlay);
             }
-            if (Button(MenuSettingsRect, Main(24))) transition.Begin(() => { settingsPage = null; game.Show(GameScreen.Settings); });
-            if (Button(MenuDownloadRect, Main(40))) transition.Begin(() => OpenTutorial(true, false));
-            if (Button(MenuSkinsRect, SkinsMenuButtonStyle)) OpenSkins();
-            if (Button(MenuMultiplayerRect, LanMenuButtonStyle)) OpenLanMenu();
+            if (RoundMenuButton(MenuSettingsRect, Main(24))) transition.Begin(() => { settingsPage = null; game.Show(GameScreen.Settings); });
+            if (RoundMenuButton(MenuDownloadRect, Main(40))) transition.Begin(() => OpenTutorial(true, false));
+            if (RoundMenuButton(MenuSkinsRect, SkinsMenuButtonStyle)) OpenSkins();
+            if (RoundMenuButton(MenuPhotoRect, PhotoMenuButtonStyle)) OpenPhotoMode();
+            if (RoundMenuButton(MenuMultiplayerRect, LanMenuButtonStyle)) OpenLanMenu();
             GUI.color = menuColor;
             // MainScreen.OnGUI, literal at 0x34aa8: first-entry alpha decreases .05 per call.
             if(menuEntryAlpha > 0)
@@ -348,8 +354,26 @@ namespace CandyFlick
                 GUI.DrawTexture(fullScreen, Texture2D.whiteTexture); GUI.color = menuColor;
             }
         }
+        public static bool RoundMenuButtonContains(Rect rect,Vector2 point)
+        {
+            Vector2 offset=point-rect.center;offset=new Vector2(offset.x/rect.width,offset.y/rect.height);
+            return offset.sqrMagnitude<=.25f;
+        }
+        bool RoundMenuButton(Rect rect,GUIStyle style)
+        {
+            // The full-size central icon shares transparent rectangle corners with
+            // its neighbors. Only the round button face should own a press.
+            Event current=Event.current;EventType original=current.type;
+            bool ignore=original==EventType.MouseDown&&rect.Contains(current.mousePosition)&&!RoundMenuButtonContains(rect,current.mousePosition);
+            if(ignore)current.type=EventType.Ignore;
+            bool tapped=GUI.Button(rect,"",style);
+            if(ignore)current.type=original;
+            if(!tapped||!RoundMenuButtonContains(rect,current.mousePosition))return false;
+            game.Play(game.assets.button);return true;
+        }
         void DrawGamePlay()
         {
+            if(game.IsPhotoMode){DrawPhotoGame();return;}
             if(game.IsLanMatch)
             {
                 Matrix4x4 saved=GUI.matrix;GUI.matrix=saved*Matrix4x4.Translate(new Vector3(GameplayExtraWidth/2,0,0));
@@ -406,7 +430,9 @@ namespace CandyFlick
         // GamePlayScreen.PhotoTapped 0x313b4 and WaitAndCapture/WaitAndShowEffect/WaitAndShowGui.
         void PhotoTapped()
         {
+            if(hideGui||CaptureManager26.IsScreenShotSaving)return;
             hideGui = true; game.PhotoVisibility.Begin(game.HideCandyInPictures);
+            if(game.IsPhotoMode){game.PhotoCapturing=true;UpdatePhotoHighlight();}
             StartCoroutine(WaitAndCapture());
         }
         IEnumerator WaitAndCapture()
@@ -419,11 +445,12 @@ namespace CandyFlick
                 game.Play(game.assets.cameraShutter); cameraEffect.Begin();
                 yield return new WaitForSecondsRealtime(.45f);
             }
-            finally { hideGui = false; game.PhotoVisibility.End(); }
+            finally { hideGui = false; game.PhotoCapturing=false; game.PhotoVisibility.End(); }
         }
         void OnDisable() { if (game && game.PhotoVisibility) game.PhotoVisibility.End(); }
         void DrawPause()
         {
+            if(game.IsPhotoMode){DrawPhotoPause();return;}
             if(game.IsLanMatch) { DrawLanPause(); return; }
             GUI.color = new Color(0, 0, 0, .5f); GUI.DrawTexture(fullScreen, Texture2D.whiteTexture); GUI.color = Color.white;
             DrawARToggle();
@@ -569,6 +596,7 @@ namespace CandyFlick
         }
         void OnDestroy()
         {
+            if(game&&game.Achievements!=null){game.Achievements.Earned-=QueueAchievementNotification;game.Achievements.Reloaded-=ClearAchievementNotifications;}
             if(lanInputBackground)Destroy(lanInputBackground);if(lanScoreBackground)Destroy(lanScoreBackground);
             if(mainSkin)Destroy(mainSkin);if(gameSkin)Destroy(gameSkin);
             if (menuShadow) Destroy(menuShadow.gameObject);

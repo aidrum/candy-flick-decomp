@@ -26,6 +26,7 @@ namespace CandyFlickEditor
         public static void RunWithoutCaptures()=>Start(false);
         static void Start(bool capture)
         {
+            SessionState.SetBool(Key+"LensHad",PlayerPrefs.HasKey(NonARStage.LensPreference));SessionState.SetString(Key+"Lens",PlayerPrefs.GetString(NonARStage.LensPreference,""));
             SessionState.SetBool(Key+"Capture",capture);
             Directory.CreateDirectory(Folder);if(File.Exists(Folder+"/failure.txt"))File.Delete(Folder+"/failure.txt");
             ProjectBuilder.ConfigureVuforia();
@@ -68,6 +69,7 @@ namespace CandyFlickEditor
                 switch(stage++)
                 {
                     case 0:
+                        ExtendedCameraRange();
                         game.GroundSupport.EditorSupportOverride=false;game.GroundSupport.Refresh();
                         game.ToggleGroundARMode();Check(!game.GroundARModeEnabled&&!PlayerPrefs.HasKey(CandyFlickGame.GroundARPreference),"Unsupported devices cannot enable Ground mode or save it accidentally");
                         game.GroundSupport.EditorSupportOverride=true;game.GroundSupport.Refresh();game.ToggleGroundARMode();
@@ -146,6 +148,33 @@ namespace CandyFlickEditor
                 }
             }
             catch(Exception error){Finish(error.ToString());}
+        }
+        static void ExtendedCameraRange()
+        {
+            var player=game.Player;Vector3 savedPosition=player.position;Quaternion savedRotation=player.rotation;
+            Matrix4x4 savedGame=game.GameCamera.projectionMatrix,savedCandy=game.CandyCamera.projectionMatrix;
+            Check(game.GameCamera.farClipPlane==CandyFlickGame.GameplayFarClip&&game.CandyCamera.farClipPlane==CandyFlickGame.GameplayFarClip,"Both gameplay cameras have a finite 1 km far clipping distance");
+            Check(game.GameCamera.nearClipPlane==50&&Mathf.Abs(game.CandyCamera.nearClipPlane-.3f)<.001f,"Extending the far range preserves the original near clipping distances");
+            try
+            {
+                Bounds target=game.Actor.GetComponentInChildren<SkinnedMeshRenderer>().bounds;
+                Vector3 eye=target.center+Vector3.back*12000;Quaternion rotation=Quaternion.LookRotation(target.center-eye);
+                Matrix4x4 incoming=Matrix4x4.Perspective(51,game.GameCamera.aspect,.01f,20);incoming.m02=.08f;incoming.m12=-.03f;
+                game.SetTrackedView(eye,rotation,incoming,true);
+                foreach(var camera in new[]{game.GameCamera,game.CandyCamera})
+                {
+                    Check(GeometryUtility.TestPlanesAABB(GeometryUtility.CalculateFrustumPlanes(camera),target),"Om Nom remains inside the tracked gameplay frustum at 12 metres: "+camera.name);
+                    Check(camera.projectionMatrix.m02==incoming.m02&&camera.projectionMatrix.m12==incoming.m12&&!float.IsNaN(camera.projectionMatrix.m22)&&!float.IsInfinity(camera.projectionMatrix.m22),"Extended tracking projection retains lens offsets and finite depth values: "+camera.name);
+                }
+                Matrix4x4 previous=Matrix4x4.Perspective(51,game.GameCamera.aspect,50,5000);
+                Check(!GeometryUtility.TestPlanesAABB(GeometryUtility.CalculateFrustumPlanes(previous*game.GameCamera.worldToCameraMatrix),target),"The same 12-metre Om Nom bounds would have been clipped by the original 5-metre limit");
+                foreach(var camera in new[]{game.GameCamera,game.CandyCamera})
+                {
+                    var projection=game.NonARBackground.ProjectionFor(camera.aspect,camera.nearClipPlane,camera.farClipPlane);
+                    Check(GeometryUtility.TestPlanesAABB(GeometryUtility.CalculateFrustumPlanes(projection*camera.worldToCameraMatrix),target),"Non AR projection also retains Om Nom beyond the previous range: "+camera.name);
+                }
+            }
+            finally{player.SetPositionAndRotation(savedPosition,savedRotation);game.GameCamera.projectionMatrix=savedGame;game.CandyCamera.projectionMatrix=savedCandy;}
         }
         static void NativeLanCalibrationTargets()
         {
@@ -269,6 +298,7 @@ namespace CandyFlickEditor
             AudioListener.pause=SessionState.GetBool(Key+"AudioPause",false);
             foreach(string pref in prefs){if(SessionState.GetBool(Key+pref+"Had",false))PlayerPrefs.SetInt(pref,SessionState.GetInt(Key+pref,0));else PlayerPrefs.DeleteKey(pref);}
             if(SessionState.GetBool(Key+"HadStart",false))PlayerPrefs.SetString("ProgramStartKey",SessionState.GetString(Key+"Start",""));else PlayerPrefs.DeleteKey("ProgramStartKey");PlayerPrefs.Save();
+            if(SessionState.GetBool(Key+"LensHad",false))PlayerPrefs.SetString(NonARStage.LensPreference,SessionState.GetString(Key+"Lens",""));else PlayerPrefs.DeleteKey(NonARStage.LensPreference);PlayerPrefs.Save();
             string previous=SessionState.GetString(Key+"StartScene","");EditorSceneManager.playModeStartScene=string.IsNullOrEmpty(previous)?null:AssetDatabase.LoadAssetAtPath<SceneAsset>(previous);
             if(error!=null)File.WriteAllText(Folder+"/failure.txt",error);EditorApplication.ExitPlaymode();
         }

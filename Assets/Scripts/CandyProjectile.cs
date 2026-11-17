@@ -9,6 +9,7 @@ namespace CandyFlick
         public int RingBonus { get; private set; }
         public Rigidbody Body { get; private set; }
         public bool HasLanded => collisioned;
+        public Vector3 LastShotPosition {get;private set;}
         public double LandingPhysicsTime { get; private set; } = double.PositiveInfinity;
         public bool CanBeEaten => IsShot && !collisioned;
         // A catch from an earlier physics step still counts if a later step lands
@@ -85,12 +86,14 @@ namespace CandyFlick
                 }
                 if (elapsed >= 4f) Restore();
             }
-            if (shadow) shadow.position = new Vector3(transform.position.x, 0, transform.position.z);
+            if (shadow) shadow.position = new Vector3(transform.position.x, game.IsPhotoMode?game.PhotoGroundHeightAt(transform.position):0, transform.position.z);
         }
 
         public void Restore()
         {
             if (!Body) return;
+            if(game.IsPhotoMode&&IsShot)LastShotPosition=transform.position;
+
             superEffect.SetActive(false);skinVisual.SetGrounded(false,0);skinVisual.SetFade(1);
             if (trail) { trail.enabled = false; trail.sharedMaterial = normalTrail; trail.time = .3f; trail.startWidth = 70; trail.endWidth = 30; }
             if (shadow) shadow.GetComponent<Renderer>().enabled = true;
@@ -111,9 +114,10 @@ namespace CandyFlick
         {
             // Keep the native one-shot landing sound. The modern floor sits at the
             // table surface, so also exclude landed candies from subsequent catches.
-            if (collision.gameObject.name != "Floor" || collisioned) return;
+            if ((collision.gameObject.name != "Floor" && collision.gameObject.name != "Photo ground collider") || collisioned) return;
             collisioned = true; LandingPhysicsTime = Time.fixedTimeAsDouble;skinVisual.SetGrounded(true,collision.collider.bounds.max.y);
-            game.Play(game.assets.misses[new System.Random().Next(0, game.assets.misses.Length - 1)]);
+
+            if(!game.IsPhotoMode)game.Play(game.assets.misses[new System.Random().Next(0, game.assets.misses.Length - 1)]);
         }
     }
 }

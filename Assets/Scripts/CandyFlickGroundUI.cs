@@ -18,7 +18,7 @@ namespace CandyFlick
         public bool CanTapGroundPlacement(Vector2 point) =>
             game.ScreenState==GameScreen.Playing && game.IsAR && game.ar.GroundMode &&
             (!game.IsLanMatch||game.LAN.IsHost) &&
-            !game.ar.GroundPlaced && !game.ar.Tracking && !PopupActive && !hideGui && !transition.Waiting &&
+            (game.IsPhotoMode ? PhotoPlacementPrompt : !game.ar.GroundPlaced && !game.ar.Tracking) && !PopupActive && !hideGui && !transition.Waiting &&
             Input.touchCount<=1 && fullScreen.Contains(point) && !R("GamePlayScreen$$GetPauseRect",true).Contains(point);
         void HandleGroundPlacementTap()
         {
@@ -41,7 +41,7 @@ namespace CandyFlick
                 groundTapPressed=false;
                 if(place) { game.ar.PlaceGround(); current.Use(); }
             }
-            if(game.ScreenState!=GameScreen.Playing || !game.IsAR || game.ar.Tracking || PopupActive || Input.touchCount>1)
+            if(game.ScreenState!=GameScreen.Playing || !game.IsAR || (game.IsPhotoMode?!PhotoPlacementPrompt:game.ar.Tracking) || PopupActive || Input.touchCount>1)
                 groundTapPressed=false;
         }
         public Rect GroundPromptRect
@@ -65,7 +65,7 @@ namespace CandyFlick
             GUI.color=new Color(saved.r,saved.g,saved.b,saved.a*Mathf.Clamp01(searchSticker.m_Color.a*2));
             GUI.Label(prompt,message,label);
             GUI.color=saved;
-            if(game.ar.GroundPlaced) return; // Waiting for the first native anchor observation.
+            if(game.IsPhotoMode?!PhotoPlacementPrompt:game.ar.GroundPlaced) return; // Waiting for the first native anchor observation.
             GUI.color=game.ar.GroundPointAvailable?new Color(.6f,1,.4f,1):Color.white;
             GUI.DrawTexture(new Rect(CanvasWidth/2-18,height/2-2,36,4),Texture2D.whiteTexture);
             GUI.DrawTexture(new Rect(CanvasWidth/2-2,height/2-18,4,36),Texture2D.whiteTexture);

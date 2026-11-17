@@ -10,6 +10,7 @@ namespace CandyFlick
     public sealed class TimeTravelSkins : MonoBehaviour
     {
         public const string Preference = "PortNommieSkin";
+        public const float PrehistoricSize = 1.25f;
         public static readonly string[] Names = Enum.GetNames(typeof(NommieSkin));
         public static int RandomChoice => Names.Length;
         public bool RandomSelected { get; private set; }
@@ -86,6 +87,9 @@ namespace CandyFlick
             if (prefab)
             {
                 Visual = Instantiate(prefab, transform, false);
+                // Skins are cosmetic: enlarge the model while retaining the
+                // original actor transform, candy collider and touch hitbox.
+                if(skin == NommieSkin.Prehistoric)Visual.transform.localScale *= PrehistoricSize;
                 Visual.name = "TimeTravelSkin"; // Imported clip paths are relative to the actor Animation.
                 var imported = Visual.GetComponent<TimeTravelVisual>();
                 foreach (var binding in imported.clips)

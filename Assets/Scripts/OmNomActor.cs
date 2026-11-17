@@ -20,6 +20,8 @@ namespace CandyFlick
         bool tapped, isCandyTouched;
         float loveTouchTicker, startHeartTime;
         Renderer[] pauseRenderers;
+        TimeTravelSkins Appearance=>GetComponent<TimeTravelSkins>();
+        PhotoOmNom PhotoActor=>GetComponent<PhotoOmNom>();
         public Vector3 Mouth => transform.TransformPoint(new Vector3(0, .25f, 0));
         public void InitializeOriginal(CandyFlickGame owner)
         {
@@ -47,10 +49,10 @@ namespace CandyFlick
         }
         void Fade(string name, float seconds = .3f)
         {
-            if(game.Skins && game.Skins.Selected==NommieSkin.Prehistoric) seconds=name=="open"?.045f:.1f;
+            if(Appearance && Appearance.Selected==NommieSkin.Prehistoric) seconds=name=="open"?.045f:.1f;
             animationPlayer.CrossFade(name,seconds);
         }
-        void FrogIdle() { startIdleTime = Time.time; Fade("idle"); frogMode = 0; game.OnReadyForShoot(); }
+        void FrogIdle() { startIdleTime = Time.time; Fade("idle"); frogMode = 0; if(!game.IsPhotoMode)game.OnReadyForShoot(); }
         public void Play(string name, bool loop = false)
         {
             if (!animationPlayer[name]) return;
@@ -65,7 +67,7 @@ namespace CandyFlick
         public void OnCancelShoot() { isCandyTouched = false; }
         void Update()
         {
-            if (!game || !game.CanSimulate) return;
+            if (!game || !game.CanSimulate || (game.IsPhotoMode && (!PhotoActor || !PhotoActor.Tracked))) return;
             if(game.IsLanMatch) { game.LAN.TickActor(); return; }
             // Resolve after all physics contacts for the step have been reported, so a
             // simultaneous floor/actor contact cannot depend on callback order.
@@ -83,14 +85,14 @@ namespace CandyFlick
                 lastStatusPhysicsTime = physicsTime;
                 UpdateFrogStatus();
             }
-            bool canJump = game.Session.round > 1;
+            bool canJump = !game.IsPhotoMode && game.Session.round > 1;
             if (frogMode == 0)
             {
                 if (!canJump && Time.time - startIdleTime >= 5)
                 {
                     startIdleTime = Time.time;
                     var random=new System.Random();
-                    int variation=game.Skins.Selected==NommieSkin.Prehistoric?(random.Next(2)==0?2:4):random.Next(2,5);
+                    int variation=Appearance.Selected==NommieSkin.Prehistoric?(random.Next(2)==0?2:4):random.Next(2,5);
                     Fade("idle"+variation);
                     animationPlayer.PlayQueued("idle");
                 }
@@ -102,14 +104,15 @@ namespace CandyFlick
         void UpdateFrogStatus()
         {
             if (frogStatus == 0 || !bullet) return;
+            if(game.IsPhotoMode&&(!bullet.IsShot||bullet.HasLanded))return;
             float distance = Vector3.Distance(transform.position, bullet.transform.position);
             if (frogStatus == 1 && distance <= 800)
             {
-                frogStatus = 2; FacePlayer(); frogMode = 1;
-                Fade("open"); game.Play(game.Skins.Sound(NommieSound.Open));
+                frogStatus = 2; if(!game.IsPhotoMode)FacePlayer(); frogMode = 1;
+                Fade("open"); game.Play(Appearance.Sound(NommieSound.Open));
             }
             // Native UpdateFrogStatus compares successive distances exactly, even after Restore.
-            if (distanceToBullet - distance == 0) BulletMiss();
+            if (!game.IsPhotoMode&&distanceToBullet - distance == 0) BulletMiss();
             else distanceToBullet = distance;
         }
         void OnCollisionEnter(Collision collision)
@@ -119,22 +122,35 @@ namespace CandyFlick
         }
         void EatCandy()
         {
-            int bonus = bullet.RingBonus;
-            bullet.Restore(); bullet = null; frogStatus = 0; frogMode = 2;
+            var candy=bullet;
+            if(game.IsPhotoMode&&!game.AcceptPhotoCandyCatch(candy))return;
+            int bonus = candy.RingBonus;
+            candy.Restore(); bullet = null; frogStatus = 0; frogMode = 2;
             Fade("close_eat", .3f);
-            game.Play(game.Skins.Sound(NommieSound.Close)); game.Play(game.Skins.Sound(NommieSound.Chew));
-            game.Play(game.assets.hits[hitAudioIndex]); hitAudioIndex = (hitAudioIndex + 1) % game.assets.hits.Length;
+            game.Play(Appearance.Sound(NommieSound.Close)); game.Play(Appearance.Sound(NommieSound.Chew));
+            if(!game.IsPhotoMode){game.Play(game.assets.hits[hitAudioIndex]); hitAudioIndex = (hitAudioIndex + 1) % game.assets.hits.Length;}
             game.ResolveShot(true, bonus);
+        }
+        internal void ForgetPhotoCandy(CandyProjectile candy)
+        {
+            if(bullet!=candy)return;
+            bullet=pendingCandy=null;frogStatus=0;
+            if(frogMode==1)FrogIdle();
+        }
+        internal void ReactToPhotoMiss()
+        {
+            frogStatus=0;frogMode=2;Fade("close_sad");
+            game.Play(Appearance.Sound(NommieSound.Close));game.Play(Appearance.Sound(NommieSound.Sad));
         }
         void BulletMiss()
         {
             bullet = pendingCandy = null; frogStatus = 0; frogMode = 2;
-            Fade("close_sad"); game.Play(game.Skins.Sound(NommieSound.Close)); game.Play(game.Skins.Sound(NommieSound.Sad));
-            game.ResolveShot(false, 0);
+            Fade("close_sad"); game.Play(Appearance.Sound(NommieSound.Close)); game.Play(Appearance.Sound(NommieSound.Sad));
+            if(!game.IsPhotoMode)game.ResolveShot(false, 0);
         }
         public void OnPreShoot()
         {
-            if(game.IsLanMatch)return;
+            if(game.IsLanMatch||game.IsPhotoMode)return;
             isCandyTouched = true;
             if (game.Session.round > 1 && !animationPlayer.IsPlaying("jump"))
             {
@@ -163,7 +179,7 @@ namespace CandyFlick
         void UpdateFrogTouching()
         {
             bool touched = false; Vector3 point = Vector3.zero; Vector2 delta = Vector2.zero;
-            bool cameraGesture = game.IsNonAR && (Input.touchCount > 1 || game.NonARBackground.Navigation.BlocksPetting);
+            bool cameraGesture = (game.IsNonAR && (Input.touchCount > 1 || game.NonARBackground.Navigation.BlocksPetting)) || (game.IsPhotoMode && (game.PhotoSelection || game.PhotoPlacing || game.PhotoCapturing || game.IsDragging || CandyFlickUI.PopupActive));
             if (cameraGesture) { tapped = false; loveTouchTicker = 0; }
             Collider collider = GetComponent<Collider>();
             for (int i = 0; !cameraGesture && i < Input.touchCount; i++)
@@ -185,7 +201,7 @@ namespace CandyFlick
                     {
                         tapped = false;
                         string side = transform.InverseTransformPoint(point).x > 0 ? "_left" : "_right";
-                        frogMode = 4; game.Play(game.Skins.Sound(NommieSound.Pet));
+                        frogMode = 4; game.Play(Appearance.Sound(NommieSound.Pet));
                         animationPlayer["touch" + side].wrapMode = WrapMode.Loop;
                         animationPlayer.Play("touch" + side + "_in"); animationPlayer.PlayQueued("touch" + side);
                     }
@@ -195,7 +211,7 @@ namespace CandyFlick
             }
             else
             {
-                if (tapped) { frogMode = 6; animationPlayer.Play("tap"); game.Play(game.Skins.Sound(NommieSound.Tap)); tapped = false; }
+                if (tapped) { frogMode = 6; animationPlayer.Play("tap"); game.Play(Appearance.Sound(NommieSound.Tap)); tapped = false; }
                 if (frogMode == 4)
                 {
                     if (animationPlayer.IsPlaying("touch_left") || animationPlayer.IsPlaying("touch_left_in")) Fade("touch_left_out");
@@ -208,7 +224,7 @@ namespace CandyFlick
         void InstantiateHeart()
         {
             startHeartTime = Time.time;
-            Vector3 position = transform.position - transform.forward * 100; position.y = 100;
+            Vector3 position = transform.position - transform.forward * 100; position.y = transform.position.y + 100;
             Vector3 angles = transform.eulerAngles; angles.y += 180;
             var wrapper = Instantiate(Resources.Load<GameObject>("Original26/Heart"), game.World);
             var root = wrapper.transform.Find("HeartGlobalPos"); root.SetPositionAndRotation(position, Quaternion.Euler(angles));
@@ -238,9 +254,9 @@ namespace CandyFlick
             if (game)
             {
                 bool visible = game.ScreenState == GameScreen.Playing && (game.IsLanMatch ? game.LAN.LocalTracking : !game.IsAR || game.ar.Tracking);
-                foreach (var renderer in pauseRenderers) renderer.enabled = visible && (!game.Skins || game.Skins.Includes(renderer));
+                foreach (var renderer in pauseRenderers) renderer.enabled = visible && (!game.IsPhotoMode || (PhotoActor && PhotoActor.Tracked)) && (!Appearance || Appearance.Includes(renderer));
             }
-            if (!game || !game.CanSimulate || game.IsLanMatch) return;
+            if (!game || !game.CanSimulate || game.IsLanMatch || game.IsPhotoMode) return;
             if (frogMode == 3)
             {
                 transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(game.Player.position - transform.position), Time.deltaTime * 6);

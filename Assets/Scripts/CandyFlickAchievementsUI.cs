@@ -27,7 +27,7 @@ namespace CandyFlick
         static Rect AchievementUV(float[] uv)=>new Rect(uv[0],uv[1],uv[2],uv[3]);
         void DrawAchievements()
         {
-            if(!achievementAtlas)
+            if(!achievementTrack)
             {
                 achievementAtlas=Resources.Load<Texture2D>("Achievements/icons");achievementTrack=Resources.Load<Texture2D>("Achievements/track");
                 achievementThumb=Resources.Load<Texture2D>("Achievements/thumb");achievementThumbPressed=Resources.Load<Texture2D>("Achievements/thumb_pressed");

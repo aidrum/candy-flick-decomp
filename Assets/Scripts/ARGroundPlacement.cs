@@ -23,7 +23,7 @@ namespace CandyFlick
             // horizontal hits away from Vector3.up. With device tracking enabled,
             // DEVICE retains the gravity-aligned tracking frame and moving camera;
             // the separate LAN reference anchor still supplies shared coordinates.
-            vuforia.SetWorldCenter(GroundMode && !LanGround ? WorldCenterMode.FIRST_TARGET : WorldCenterMode.DEVICE, null);
+            vuforia.SetWorldCenter(GroundMode && !LanGround && !game.IsPhotoMode ? WorldCenterMode.FIRST_TARGET : WorldCenterMode.DEVICE, null);
             if(!GroundMode||LanGround) LoadTargets();
             ConfigureLanCalibrationTargets();
         }
@@ -92,6 +92,7 @@ namespace CandyFlick
         public bool PlaceGround()
         {
             if(LanGround)return PlaceLanGround();
+            if(game.IsPhotoMode)return PlacePhotoOmNom();
             if(game.ScreenState != GameScreen.Playing || CandyFlickUI.PopupActive || groundAnchor || !TryGroundHit(out var hit)) return false;
             // CreateHitTestAnchor keeps the native plane association, instead of
             // guessing a point at a fixed camera distance or storing a camera-relative pose.
@@ -107,6 +108,7 @@ namespace CandyFlick
         void LoseTracking()
         {
             if(LanGround){InterruptLanGround();return;}
+            if(game.IsPhotoMode){SetTracking(false);return;}
             if(GroundMode && groundAnchorWasTracked) RepositionGround();
             else SetTracking(false);
         }

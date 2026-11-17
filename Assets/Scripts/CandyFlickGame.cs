@@ -14,6 +14,7 @@ namespace CandyFlick
         public GameScreen ScreenState { get; private set; }
         public LaunchMode ControlMode { get; private set; } = LaunchMode.Slingshot;
         public const string ControlModePreference = "PortControlMode";
+        public const float GameplayFarClip = 1000000f; // 1 km at 1,000 native units per metre.
         public const string CameraFpsLockPreference = "PortLockFpsToCamera";
         public bool LockFpsToCamera { get; private set; }
         public GameSession Session { get; private set; } = new GameSession();
@@ -29,7 +30,7 @@ namespace CandyFlick
         public LocalAchievements Achievements {get;private set;}
         public bool IsLanMatch => LAN && LAN.InMatch;
         public bool CanSimulate => ScreenState == GameScreen.Playing && (IsLanMatch ? LAN.Playing : !IsAR || ar.Tracking);
-        public bool Ready => CanSimulate && (IsLanMatch ? LAN.Ready : !Session.IsOver && !projectile && timeForNextShoot);
+        public bool Ready => CanSimulate && (IsPhotoMode ? PhotoFeedTarget && !PhotoPlacing && !PhotoSelection && !PhotoCapturing && !projectile && timeForNextShoot : IsLanMatch ? LAN.Ready : !Session.IsOver && !projectile && timeForNextShoot);
         public bool SoundEnabled { get; private set; }
         public bool MusicEnabled { get; private set; }
         public int Best => PlayerPrefs.GetInt("BestScore", 0);
@@ -40,7 +41,7 @@ namespace CandyFlick
         public bool IsDragging => isCandyTapped && input.IsTouchBegan;
         public Vector2 DragStart => input.Start;
         public Vector2 DragNow => input.Position;
-        public float NativeDistance => LaunchMath26.HorizontalDistance(Player.position, Actor.transform.position);
+        public float NativeDistance => LaunchMath26.HorizontalDistance(Player.position, PhotoFeedTarget ? PhotoFeedTarget.transform.position : Actor.transform.position);
         public float ShotDistance => NativeDistance / 100f;
         public float ScoreDistance => LaunchMath26.HorizontalDistance(Player.position, World.Find("FrogPos").position);
         public float TableDistance => ShotDistance;
@@ -107,6 +108,7 @@ namespace CandyFlick
             Player = World.Find("Player");
             GameCamera = Player.Find("Camera").GetComponent<Camera>();
             CandyCamera = Player.Find("candycamera").GetComponent<Camera>();
+            GameCamera.farClipPlane = CandyCamera.farClipPlane = GameplayFarClip;
             GameCamera.tag = "MainCamera"; GameCamera.gameObject.AddComponent<AudioListener>();
             Actor = World.Find("OmNom@All-1").gameObject.AddComponent<OmNomActor>(); Actor.InitializeOriginal(this);
             Skins = Actor.gameObject.AddComponent<TimeTravelSkins>(); Skins.Initialize(assets);
@@ -156,6 +158,7 @@ namespace CandyFlick
 
         public void StartGame(bool augmented = false)
         {
+            EndPhotoMode();
             resetFeatureBonus = ScreenState == GameScreen.Playing || ScreenState == GameScreen.Paused;
             StopAllCoroutines(); input.Cancel(); Time.timeScale = 1;
             IsNonAR = NonARModeEnabled && !IsLanMatch; IsAR = (augmented || IsLanMatch) && !IsNonAR;
@@ -177,17 +180,23 @@ namespace CandyFlick
 
         void Update()
         {
+            if(IsPhotoMode&&!string.IsNullOrEmpty(ar.PhotoSupportFailure))
+            {
+                string reason=ar.PhotoSupportFailure;ReturnToMenu();GetComponent<CandyFlickUI>().ShowPhotoSupportWarning(reason);return;
+            }
             SyncGameplayMusic();
             if (Time.unscaledTime > messageUntil) Message = "";
-            if (Input.GetKeyDown(KeyCode.Escape))
+            if (Input.GetKeyDown(KeyCode.Escape) && !CandyFlickUI.PopupActive)
             {
-                if (ScreenState == GameScreen.Playing) Pause();
+                if (ScreenState == GameScreen.Playing && IsPhotoMode && PhotoSelection) DeselectPhotoActor();
+                else if (ScreenState == GameScreen.Playing) Pause();
                 else if (ScreenState == GameScreen.Paused) Resume();
                 else if (ScreenState == GameScreen.Tutorial || ScreenState == GameScreen.Help || ScreenState == GameScreen.Settings || ScreenState == GameScreen.TargetOptions || ScreenState == GameScreen.Marker || ScreenState == GameScreen.Skins)
                     GetComponent<CandyFlickUI>().Back();
                 else ReturnToMenu();
             }
             if (ScreenState == GameScreen.Playing) Time.timeScale = IsLanMatch ? (LAN.Playing ? 1 : 0) : IsAR && !ar.Tracking ? 0 : 1;
+            if(IsPhotoMode) TickPhotoMode();
             if(Ready)releasedElasticPending=false;
             bool released=CanSimulate&&releasedElasticPending&&ControlMode==LaunchMode.Slingshot;
             animElastic.SetActive(released);CandyGhost.gameObject.SetActive(Ready);
@@ -280,13 +289,23 @@ namespace CandyFlick
             shotDistance = (int)ScoreDistance;
             Quaternion saved = Player.localRotation;
             Player.localRotation = LaunchMath26.ShootRotation(Player.localEulerAngles.y, angleXRatio, angle);
-            float speed = LaunchMath26.CalculateSpeed(rawSpeed, Player.position.y, NativeDistance);
+            float speed = CalculateLaunchSpeed(rawSpeed);
             CandySkins.ApplyShot(projectile.transform);
             projectile.LaunchImpulse(Player.forward * speed, Vector3.up * speed * speed, Session.IsSuperCandy);
-            Achievements.ThrowCandy();
-            Actor.OnBulletShoot(projectile); Player.localRotation = saved;
+            if(IsPhotoMode)photoCandyResolved=false;
+            if(!IsPhotoMode) Achievements.ThrowCandy();
+            if(IsPhotoMode) { foreach(var nom in PhotoActors) if(nom.Tracked) nom.Actor.OnBulletShoot(projectile); }
+            else Actor.OnBulletShoot(projectile);
+            Player.localRotation = saved;
             hardStabilisation = true; timeForNextShoot = false;
             ShowShotFeedback();
+        }
+        internal float CalculateLaunchSpeed(float rawSpeed)
+        {
+            var target=PhotoFeedTarget;
+            float height=target?Mathf.Max(500,Player.position.y-target.transform.position.y):Player.position.y;
+            float distance=target?LaunchMath26.HorizontalDistance(Player.position,target.transform.position):NativeDistance;
+            return LaunchMath26.CalculateSpeed(rawSpeed,height,distance);
         }
         void ShowShotFeedback()
         {
@@ -299,7 +318,7 @@ namespace CandyFlick
             if(sling){animElastic.SetActive(true);var recoil=animElastic.GetComponent<Animation>();recoil.Stop();recoil.wrapMode=WrapMode.ClampForever;recoil[recoil.clip.name].wrapMode=WrapMode.ClampForever;recoil.Play();}
             if (SoundEnabled)
             {
-                effects.Stop();
+                if(!IsLanMatch&&!IsPhotoMode)effects.Stop();
                 if (sling) effects.PlayOneShot(assets.elasticShoot);
                 Play(assets.swishes[Random.Range(0, assets.swishes.Length - 1)]);
             }
@@ -321,6 +340,8 @@ namespace CandyFlick
             projection.m22 = -(far + near) / (far - near); projection.m23 = -2 * far * near / (far - near);
             camera.projectionMatrix = projection;
         }
+        float lanElasticMotionUntil;
+        internal bool LanElasticMoving => IsLanMatch && Ready && isCandyTapped && ControlMode==LaunchMode.Slingshot && Time.unscaledTime<lanElasticMotionUntil;
         void ResetCandyPos() { elasticAudio.Stop(); CandyGhost.localPosition = ControlMode == LaunchMode.Slingshot ? slingCandyPos : originalCandyPos; }
         void MoveCandyToPoint(Vector3 point)
         {
@@ -328,6 +349,7 @@ namespace CandyFlick
             CandyGhost.position = point;
             Vector3 local = Player.InverseTransformPoint(point);
             float distance = Vector3.Distance(local, previousFingerPosition);
+            if(IsLanMatch&&distance>.25f)lanElasticMotionUntil=Time.unscaledTime+.12f;
             if (distance > .25f && !elasticAudio.isPlaying)
             { elasticAudio.volume = 1; pausingElastic = false; if (SoundEnabled) elasticAudio.Play(); }
             else if (distance < .25f && elasticAudio.isPlaying)
@@ -352,6 +374,7 @@ namespace CandyFlick
         public void ResolveShot(bool hit, int ringBonus)
         {
             if (!projectile) return;
+            if(IsPhotoMode) { projectile.Restore(); projectile=null; photoCandyResolved=false; timeForNextShoot=true; hardStabilisation=false; PrepareBulletForShoot(); return; }
             bool super=Session.IsSuperCandy;
             LastScore = Session.RecordUnits(hit, shotDistance, ringBonus); projectile = null;
             if(!IsLanMatch)Achievements.Resolve(hit,super,ringBonus>0,LastScore,Actor.Moving);
@@ -382,7 +405,7 @@ namespace CandyFlick
             if(LAN && (LAN.InMatch || ScreenState==GameScreen.LanLobby)) LAN.CloseRoom();
             StopAllCoroutines(); input.Cancel(); Time.timeScale = 1;
             foreach (var candy in candies) candy.Restore();
-            projectile = null; pendingResults = false; Boosts.Reset(); if(keepGround)ar.RetainLanGround();else ar.End(); IsAR = false; SetWorldVisible(false); ScreenState = GameScreen.Menu;
+            projectile = null; pendingResults = false; Boosts.Reset(); if(keepGround)ar.RetainLanGround();else ar.End(); EndPhotoMode(); IsAR = false; SetWorldVisible(false); ScreenState = GameScreen.Menu;
             StopGameplayMusic(); PhotoVisibility.End();
             NonARBackground.End(); IsNonAR = false;
             if (MusicEnabled && !music.isPlaying) music.Play();
@@ -426,7 +449,9 @@ namespace CandyFlick
         }
         public void ResetProgress()
         {
-            NextGameBonus = 0; PlayerPrefs.DeleteAll(); Achievements.Reload(); SetMode(LaunchMode.Slingshot);
+            int language=PlayerPrefs.GetInt("Language",PortLocalization.Language);
+            NextGameBonus = 0; PlayerPrefs.DeleteAll(); PlayerPrefs.SetInt("Language",language);
+            Achievements.Reload(); SetMode(LaunchMode.Slingshot);
             Skins.Select(NommieSkin.Original);CandySkins.Select(0);
             LockFpsToCamera = false; ar.RefreshFrameRate();
             HideCandyInPictures = InGameMusicEnabled = true; NonARModeEnabled = GroundARModeEnabled = false; SyncGameplayMusic();

@@ -13,12 +13,12 @@ namespace CandyFlick
         readonly Dictionary<int,LanCandyView> ready=new Dictionary<int,LanCandyView>();
         readonly Dictionary<int,LanCandyState> remoteTargets=new Dictionary<int,LanCandyState>();
         readonly List<(LanCandyView candy,double time)> contacts=new List<(LanCandyView,double)>();
-        int nextCandy,nomEvent,seenEvent;string nomClip="idle",eventClip="";
+        int nextCandy,nomEvent;string nomClip="idle",eventClip="";
         float nomBusyUntil,nextJump,jumpStart=-1,jumpDuration;Vector3 jumpFrom,jumpTo;
         Animation nomAnimation;
         void InitializeLanWorld()
         {
-            ClearLanWorld();nextCandy=nomEvent=seenEvent=0;nomClip="idle";eventClip="";nomBusyUntil=0;nextJump=20;jumpStart=-1;
+            ClearLanWorld();nextCandy=nomEvent=0;nomClip="idle";eventClip="";nomBusyUntil=0;nextJump=20;jumpStart=-1;
             if(IsHost)foreach(var player in Match.Players)player.readySkin=CandySkinSettings.Roll(player.candyChoice);
             nomAnimation=game.Actor.GetComponent<Animation>();game.Boosts.Reset();SetNomAction("idle");InitializeLanRings();
         }
@@ -53,8 +53,8 @@ namespace CandyFlick
             {
                 var candy=contact.candy;
                 if(!candy||!flying.ContainsKey(candy.Id)||!candy.Flying||(candy.Landed&&candy.LandedAt<=contact.time)||Match.Phase!=LanPhase.Playing)continue;
-                jumpStart=-1;Match.Feed(candy.Owner,candy.ScoreDistance,candy.RingBonus);RemoveFlying(candy.Id);SetNomAction("close_eat");nomBusyUntil=Match.Elapsed+ClipLength("close_eat");
-                nomEvent++;eventClip="eat";PlayNomEvent("eat");
+                jumpStart=-1;Match.Feed(candy.Owner,candy.ScoreDistance,candy.RingBonus);LanCollected(candy.Owner);RemoveFlying(candy.Id);SetNomAction("close_eat");nomBusyUntil=Match.Elapsed+ClipLength("close_eat");
+                nomEvent++;eventClip="eat";PublishLanNomSound("eat");
             }
             contacts.Clear();
         }
@@ -62,7 +62,7 @@ namespace CandyFlick
         void RefreshLanWorld()
         {
             RefreshLanRings();
-            foreach(var candy in flying.Values.ToArray())if(Match.Elapsed-candy.Born>=4)RemoveFlying(candy.Id);
+            foreach(var candy in flying.Values.ToArray())if(Match.Elapsed-candy.Born>=4){if(!candy.Landed)LanMissed(candy.Owner);RemoveFlying(candy.Id);}
             foreach(var player in Match.Players)
             {
                 if(player.id==LocalId)continue;
@@ -95,7 +95,7 @@ namespace CandyFlick
             {
                 Vector3 toward=nearest.transform.position-game.Actor.transform.position;toward.y=0;
                 if(toward.sqrMagnitude>1)game.Actor.transform.rotation=Quaternion.Slerp(game.Actor.transform.rotation,Quaternion.LookRotation(toward),Time.deltaTime*6);
-                if(nomClip!="open"){SetNomAction("open");nomEvent++;eventClip="open";PlayNomEvent("open");}
+                if(nomClip!="open"){SetNomAction("open");nomEvent++;eventClip="open";PublishLanNomSound("open");}
             }
             else
             {
@@ -112,7 +112,7 @@ namespace CandyFlick
         void PlayNomEvent(string action)
         {
             if(action=="open")game.Play(game.Skins.Sound(NommieSound.Open));
-            else if(action=="eat"){game.Play(game.Skins.Sound(NommieSound.Close));game.Play(game.Skins.Sound(NommieSound.Chew));game.Play(game.assets.hits[UnityEngine.Random.Range(0,game.assets.hits.Length)]);}
+            else if(action=="eat"){game.Play(game.Skins.Sound(NommieSound.Close));game.Play(game.Skins.Sound(NommieSound.Chew));}
         }
         LanSnapshot BuildSnapshot()
         {
@@ -146,7 +146,6 @@ namespace CandyFlick
                 else if(Mathf.Abs(state.time-remoteState.actorTime)>.15f)state.time=remoteState.actorTime;
                 nomClip=remoteState.actorClip;
             }
-            if(remoteState.nomEvent!=seenEvent){seenEvent=remoteState.nomEvent;PlayNomEvent(remoteState.eventClip);}
         }
         void UpdateRemoteWorld()
         {
@@ -161,7 +160,7 @@ namespace CandyFlick
         }
         void ClearLanWorld()
         {
-            ClearRemoteSlingshots();ClearLanRings();
+            ClearLanAudio();ClearRemoteSlingshots();ClearLanRings();
             foreach(var view in flying.Values.Concat(ready.Values))if(view){view.gameObject.SetActive(false);Destroy(view.gameObject);}
             flying.Clear();ready.Clear();contacts.Clear();remoteTargets.Clear();
         }
