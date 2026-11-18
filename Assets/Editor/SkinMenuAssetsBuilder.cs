@@ -23,7 +23,9 @@ namespace CandyFlickEditor
             foreach(string name in new[]{"skins_bg","skins_btn","skins_btn_pressed","skin_btn_bg","skin_btn_bg_selected"})
             {
                 string path=Folder+"/"+name+".png";
-                File.Copy(Path.Combine(@"D:\Downloads\skins",name+".png"),path,true);
+                string source=Path.Combine(@"D:\Downloads\skins",name+".png");
+                if(File.Exists(source))File.Copy(source,path,true);
+                else if(!File.Exists(path))throw new FileNotFoundException("Missing skin menu artwork",path);
                 Import(path);
             }
             if(File.Exists("Documentation/SkinMenu/assets-failure.txt"))File.Delete("Documentation/SkinMenu/assets-failure.txt");
@@ -38,6 +40,7 @@ namespace CandyFlickEditor
             importer.textureType=TextureImporterType.Default;importer.mipmapEnabled=false;
             importer.alphaIsTransparency=true;importer.wrapMode=TextureWrapMode.Clamp;
             importer.textureCompression=TextureImporterCompression.Uncompressed;importer.maxTextureSize=2048;
+            if(path.EndsWith("/nommies.png"))importer.npotScale=TextureImporterNPOTScale.None;
             importer.SaveAndReimport();
         }
         static void Tick()
@@ -52,7 +55,7 @@ namespace CandyFlickEditor
                     game.StartGame();game.enabled=false;game.Actor.enabled=false;
                     game.GetComponent<CandyFlickUI>().enabled=false;
                     Time.timeScale=0;AudioListener.pause=true;Application.runInBackground=true;
-                    atlas=new Texture2D(2048,1024,TextureFormat.RGBA32,false);
+                    atlas=new Texture2D(2048,CandyFlickUI.SkinPortraitRows*512,TextureFormat.RGBA32,false);
                 }
                 if(index<TimeTravelSkins.Names.Length)
                 {
@@ -61,14 +64,14 @@ namespace CandyFlickEditor
                     animation["idle"].time=.3f;animation.Sample();game.Skins.ConstrainAntenna();
                     if(game.Skins.Visual)game.Skins.Visual.SendMessage("LateUpdate",SendMessageOptions.DontRequireReceiver);
                     Texture2D portrait=Capture();
-                    atlas.SetPixels32((index%4)*512,(1-index/4)*512,512,512,portrait.GetPixels32());
+                    atlas.SetPixels32((index%4)*512,(CandyFlickUI.SkinPortraitRows-1-index/4)*512,512,512,portrait.GetPixels32());
                     File.WriteAllBytes("Documentation/SkinMenu/"+TimeTravelSkins.Names[index]+".png",portrait.EncodeToPNG());
                     UnityEngine.Object.DestroyImmediate(portrait);index++;return;
                 }
                 atlas.Apply();string output=Folder+"/nommies.png";File.WriteAllBytes(output,atlas.EncodeToPNG());Import(output);
                 File.WriteAllText("Documentation/skin-menu-assets.json",JsonUtility.ToJson(new Evidence{
-                    utc=DateTime.UtcNow.ToString("o"),unity=Application.unityVersion,width=2048,height=1024,cell=512,
-                    skins=TimeTravelSkins.Names,method="Idle at 0.3 seconds; black/white dual render, straight-alpha matting; silhouette crop with 8% padding; four columns, two rows"
+                    utc=DateTime.UtcNow.ToString("o"),unity=Application.unityVersion,width=2048,height=atlas.height,cell=512,
+                    skins=TimeTravelSkins.Names,method="Idle at 0.3 seconds; black/white dual render, straight-alpha matting; silhouette crop with 8% padding; four columns"
                 },true));
                 Finish(null);
             }

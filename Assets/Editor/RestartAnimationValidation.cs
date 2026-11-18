@@ -81,7 +81,7 @@ namespace CandyFlickEditor
                 if(stage<21)
                 {
                     Queue(stage%2==1);game.StartGame();if(finishing)return;ValidateBindings();
-                    Check(game.Skins.RandomSelected&&PlayerPrefs.GetInt(TimeTravelSkins.Preference)==TimeTravelSkins.RandomChoice,"Random restart retains the saved Random choice");stage++;return;
+                    Check(game.Skins.RandomSelected&&PlayerPrefs.GetInt(TimeTravelSkins.Preference)==TimeTravelSkins.SavedRandomChoice,"Random restart retains the saved Random choice");stage++;return;
                 }
                 if(stage<27)
                 {

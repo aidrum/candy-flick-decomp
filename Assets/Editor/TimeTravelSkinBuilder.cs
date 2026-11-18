@@ -45,7 +45,7 @@ namespace CandyFlickEditor
                 // Match source bones by their global bind positions, since several exporter names differ.
                 foreach (NommieSkin skin in Enum.GetValues(typeof(NommieSkin)))
                 {
-                    if (skin == NommieSkin.Original) continue;
+                    if (skin == NommieSkin.Original || skin == NommieSkin.OmNelle) continue;
                     Model model = JsonUtility.FromJson<Model>(File.ReadAllText(Source + skin + ".json"));
                     bool prehistoric = skin == NommieSkin.Prehistoric;
                     float scale = prehistoric ? .53776795f / .71954298f : .01f;

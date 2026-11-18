@@ -80,7 +80,8 @@ namespace CandyFlick
             float inset=(SkinColumns-items)*188f/2;
             return new Rect(4+inset+188*(index%SkinColumns),SkinRow*row,CardWidth,CardHeight);
         }
-        public static Rect SkinPortraitUv(int index)=>new Rect((index%4)/4f,1-(index/4+1)/2f,1/4f,1/2f);
+        public static int SkinPortraitRows=>Mathf.CeilToInt(TimeTravelSkins.Names.Length/4f);
+        public static Rect SkinPortraitUv(int index)=>new Rect((index%4)/4f,1-(index/4+1)/(float)SkinPortraitRows,1/4f,1f/SkinPortraitRows);
         public Rect OmNomSkinTabRect=>SkinTabRect(58);
         public Rect CandySkinTabRect=>SkinTabRect(334);
         Rect SkinTabRect(float x)

@@ -37,6 +37,7 @@ namespace CandyFlickEditor
             foreach(NommieSkin skin in Enum.GetValues(typeof(NommieSkin)))
             {
                 if(skin==NommieSkin.Original)continue;
+                if(skin==NommieSkin.OmNelle){OmNelleAssetsBuilder.BuildVoice();continue;}
                 AudioClip Load(string suffix)
                 {
                     string path="Assets/TimeTravel/Audio/"+skin+"_"+suffix+".wav";
@@ -60,7 +61,7 @@ namespace CandyFlickEditor
                 else AssetDatabase.CreateAsset(voice,output);
             }
             AssetDatabase.SaveAssets();
-            Debug.Log("TIME_TRAVEL_AUDIO_IMPORTED: 7 voices, 42 clips");
+            Debug.Log("TIME_TRAVEL_AUDIO_IMPORTED: "+(TimeTravelSkins.Names.Length-1)+" voice profiles");
         }
     }
 }

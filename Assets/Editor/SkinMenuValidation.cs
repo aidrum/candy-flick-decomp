@@ -50,17 +50,17 @@ namespace CandyFlickEditor
                     case 0: game.ReturnToMenu();break;
                     case 1: Capture("main-menu");Click(ui.MenuSkinsRect.center);break;
                     case 2: Check(game.ScreenState==GameScreen.Skins,"Main menu skin icon opens separate Skins screen");Capture("skins-top");
-                        Check(Resources.Load<Texture2D>("SkinMenu/nommies")?.width==2048,"Eight rendered idle portraits load as a 2048x1024 atlas");
+                        Check(Resources.Load<Texture2D>("SkinMenu/nommies")?.width==2048&&Resources.Load<Texture2D>("SkinMenu/nommies").height==CandyFlickUI.SkinPortraitRows*512,"All rendered idle portraits fit the four-column atlas");
                         Click(ui.SkinViewport.position+CandyFlickUI.SkinCardRect(1).center);break;
                     case 3: Check(game.Skins.Selected==NommieSkin.Medieval&&PlayerPrefs.GetInt(TimeTravelSkins.Preference)==1,"Grid click selects and persists Medieval");
                         Pointer(EventType.ScrollWheel,ui.SkinViewport.center,new Vector2(0,24));break;
-                    case 4: Check(ui.SkinScroll.y==0&&CandyFlickUI.SkinGridHeight<=ui.SkinViewport.height,"Three-column grid fits all eight skins and clamps excess wheel scrolling");
+                    case 4: Check(ui.SkinScroll.y>0&&ui.SkinScroll.y<=CandyFlickUI.SkinGridHeight-ui.SkinViewport.height,"Expanded skin grid scrolls and clamps excess wheel scrolling");
                         Pointer(EventType.MouseDown,new Vector2(220,700));break;
                     case 5: Pointer(EventType.MouseDrag,new Vector2(220,300));break;
                     case 6: Pointer(EventType.MouseUp,new Vector2(220,300));break;
-                    case 7: Check(CandyFlickUI.SkinCardRect(7).yMax<=ui.SkinViewport.height,"Final row fits within the viewport");Check(game.Skins.Selected==NommieSkin.Medieval,"Drag does not select a card");
-                        Click(ui.SkinViewport.position+CandyFlickUI.SkinCardRect(7).center-ui.SkinScroll);break;
-                    case 8: Check(game.Skins.Selected==NommieSkin.Disco,"Final row is reachable and Disco can be selected");Capture("skins-bottom-selected");Click(new Vector2(79,1057));break;
+                    case 7: Check(CandyFlickUI.SkinCardRect(8).yMax-ui.SkinScroll.y<=ui.SkinViewport.height,"Om Nelle is reachable after scrolling");Check(game.Skins.Selected==NommieSkin.Medieval,"Drag does not select a card");
+                        Click(ui.SkinViewport.position+CandyFlickUI.SkinCardRect(8).center-ui.SkinScroll);break;
+                    case 8: Check(game.Skins.Selected==NommieSkin.OmNelle,"Om Nelle can be selected from the expanded grid");Capture("skins-bottom-selected");Click(new Vector2(79,1057));break;
                     case 9: Check(game.ScreenState==GameScreen.Menu,"Skins Back returns to main menu");Click(new Vector2(450,832));break;
                     case 10: Check(game.ScreenState==GameScreen.Settings&&ui.SettingsPage==null,"Settings opens main settings");Capture("settings-main");Click(new Vector2(320,510));break;
                     case 11: Check(ui.SettingsPage=="MoreOptions","More Options opens from main settings");controls=game.ControlMode;fps=game.LockFpsToCamera;Capture("more-options");Click(ui.MoreControlsRect.center);break;
@@ -72,7 +72,7 @@ namespace CandyFlickEditor
                     case 17: Check(game.ScreenState==GameScreen.Skins,"Skins navigation works with scaled portrait canvas");Pointer(EventType.MouseDown,new Vector2(210,700));break;
                     case 18: Pointer(EventType.MouseDrag,new Vector2(210,200));break;
                     case 19: Pointer(EventType.MouseUp,new Vector2(210,200));break;
-                    case 20: Check(ui.SkinScroll.y==0&&game.Skins.Selected==NommieSkin.Disco,"Touch-style drag clamps correctly without selection at 540x960");Capture("skins-scaled");break;
+                    case 20: Check(ui.SkinScroll.y>0&&ui.SkinScroll.y<=CandyFlickUI.SkinGridHeight-ui.SkinViewport.height&&game.Skins.Selected==NommieSkin.OmNelle,"Touch-style drag clamps correctly without selection at 540x960");Capture("skins-scaled");break;
                     case 21: GroundCandyChecks();break;
                     default:
                         File.WriteAllText("Documentation/skin-menu-validation.json",JsonUtility.ToJson(new Evidence{utc=DateTime.UtcNow.ToString("o"),unity=Application.unityVersion,checks=checks.ToArray()},true));Finish(null);break;

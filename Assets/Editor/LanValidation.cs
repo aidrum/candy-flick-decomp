@@ -389,12 +389,12 @@ namespace CandyFlickEditor
                     case 310:
                         if(fakeProfileAvatar!=41){WaitFor(false,"Actual client profile change did not reach the host");return;}
                         Check(PlayerPrefs.GetInt(LanMultiplayer.ProfilePreference,-1)==41,"Actual client profile changes send the numeric ID and save locally");
-                        fakeState=new LanSnapshot{epoch=77,skin=(int)NommieSkin.Greek,phase=LanPhase.FindingCard,remaining=60,players=new[]{new LanPlayer{id=0,name="Host",avatar=16,candyChoice=2,readySkin=2,tracked=true},new LanPlayer{id=1,name="Client",avatar=41,candyChoice=3,readySkin=1,tracked=true}},actorClip="idle"};
+                        fakeState=new LanSnapshot{epoch=77,skin=(int)NommieSkin.OmNelle,phase=LanPhase.FindingCard,remaining=60,players=new[]{new LanPlayer{id=0,name="Host",avatar=16,candyChoice=2,readySkin=2,tracked=true},new LanPlayer{id=1,name="Client",avatar=41,candyChoice=3,readySkin=1,tracked=true}},actorClip="idle"};
                         fakePeer.Send(new LanMessage{kind="begin",state=fakeState});deadline=EditorApplication.timeSinceStartup+5;stage=28;break;
                     case 28:
                         if(!game.IsLanMatch){WaitFor(false,"Client did not enter the match");return;}
                         Check(game.LAN.Players[0].avatar==16&&game.LAN.Players[1].avatar==41,"Actual client displays the host's and its own replicated profile IDs");
-                        Check(!game.LAN.IsHost&&game.IsAR&&!game.IsNonAR&&game.Skins.Selected==NommieSkin.Greek,"Client uses image AR and the host's temporary Om Nom skin");
+                        Check(!game.LAN.IsHost&&game.IsAR&&!game.IsNonAR&&game.Skins.Selected==NommieSkin.OmNelle,"Client uses image AR and the host's temporary Om Nelle skin, including the newly appended skin index");
                         // Supply the camera calibration that a physical image tracker
                         // normally provides; the loopback fixture has no AR video rig.
                         game.GameCamera.clearFlags=CameraClearFlags.SolidColor;game.GameCamera.backgroundColor=Color.black;

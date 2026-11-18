@@ -68,7 +68,7 @@ namespace CandyFlickEditor
                     originalActorScale=game.Actor.transform.localScale;
                     originalColliderSize=game.Actor.GetComponent<BoxCollider>().bounds.size;
                 }
-                if (stage < 8)
+                if (stage < TimeTravelSkins.Names.Length)
                 {
                     var skin = (NommieSkin)stage;
                     game.Skins.Select(skin);
@@ -126,7 +126,7 @@ namespace CandyFlickEditor
                     typeof(ARMarkerMode).GetProperty("Tracking").SetValue(game.ar,false);
                     stage++; return;
                 }
-                if (stage == 8)
+                if (stage == TimeTravelSkins.Names.Length)
                 {
                     game.Skins.Select(NommieSkin.Original);
                     Check(game.Actor.transform.localScale==originalActorScale,"Switching from larger Prehistoric restores the original character scale");
@@ -143,24 +143,24 @@ namespace CandyFlickEditor
                     game.ReturnToMenu(); game.Show(GameScreen.Skins);
                     return;
                 }
-                if (stage == 9)
+                if (stage == TimeTravelSkins.Names.Length+1)
                 {
                     ScreenCapture.CaptureScreenshot("Documentation/TimeTravel/skins-grid.png");
                     game.Show(GameScreen.Settings);
                     typeof(CandyFlickUI).GetField("settingsPage", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(game.GetComponent<CandyFlickUI>(), null);
                     stage++; return;
                 }
-                if (stage == 10)
+                if (stage == TimeTravelSkins.Names.Length+2)
                 {
                     ScreenCapture.CaptureScreenshot("Documentation/TimeTravel/settings-main.png");
-                    foreach(int saved in new[]{(int)NommieSkin.Pirate,(int)NommieSkin.Prehistoric,TimeTravelSkins.RandomChoice,999})
+                    foreach(int saved in new[]{(int)NommieSkin.Pirate,(int)NommieSkin.Prehistoric,(int)NommieSkin.OmNelle,TimeTravelSkins.SavedRandomChoice,999})
                     {
                         PlayerPrefs.SetInt(TimeTravelSkins.Preference,saved);
                         var clone=UnityEngine.Object.Instantiate(Resources.Load<GameObject>("Original26/Geometry"));
                         try
                         {
                             var skins=clone.transform.Find("OmNom@All-1").gameObject.AddComponent<TimeTravelSkins>(); skins.Initialize();
-                            Check(saved==TimeTravelSkins.RandomChoice
+                            Check(saved==TimeTravelSkins.SavedRandomChoice
                                 ? skins.RandomSelected && Enum.IsDefined(typeof(NommieSkin),skins.Selected)
                                 : !skins.RandomSelected && skins.Selected==(saved==999?NommieSkin.Original:(NommieSkin)saved), "Fresh actor loads saved skin "+saved+" with Random mode and invalid-value fallback");
                         }
@@ -215,7 +215,8 @@ namespace CandyFlickEditor
                 foreach(var actor in actors)UnityEngine.Object.DestroyImmediate(actor);
             }
         }
-        static void Capture(string name)
+        static void Capture(string name)=>CaptureAtAngle(name,0);
+        public static void CaptureAtAngle(string name,float yaw)
         {
             var camera = new GameObject("Skin validation camera").AddComponent<Camera>();
             var actor = game.Actor.transform;
@@ -234,7 +235,7 @@ namespace CandyFlickEditor
                 foreach (var r in skinned) r.forceMatrixRecalculationPerRender=true;
                 camera.cullingMask=1<<31; camera.clearFlags=CameraClearFlags.SolidColor;
                 camera.backgroundColor=new Color(.16f,.19f,.23f); camera.nearClipPlane=1; camera.farClipPlane=2000;
-                camera.transform.position=actor.TransformPoint(new Vector3(0,.32f,1.5f));
+                camera.transform.position=actor.TransformPoint(Quaternion.Euler(0,yaw,0)*new Vector3(0,.32f,1.5f));
                 camera.transform.LookAt(actor.TransformPoint(new Vector3(0,.29f,0)));
                 camera.fieldOfView=38; camera.targetTexture=rt; camera.Render(); RenderTexture.active=rt;
                 var image=new Texture2D(640,640,TextureFormat.RGB24,false);

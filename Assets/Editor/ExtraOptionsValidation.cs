@@ -62,17 +62,19 @@ namespace CandyFlickEditor
                     case 0:
                         Check(game.HideCandyInPictures&&game.InGameMusicEnabled,"Photo hiding and in-game music default on with no saved preferences");
                         ValidateMusic();game.ReturnToMenu();Capture("main-menu-lowered-skins");
-                        Check(ui.MenuMultiplayerRect.yMax<=1136&&Mathf.Approximately(ui.MenuMultiplayerRect.y,ui.MenuSkinsRect.y)&&!ui.MenuMultiplayerRect.Overlaps(ui.MenuSkinsRect),"Skins and LAN menu row fits above the bottom edge");Click(ui.MenuSkinsRect.center);break;
-                    case 1: Check(game.ScreenState==GameScreen.Skins,"Lowered main menu button opens skins");Click(ui.SkinViewport.position+CandyFlickUI.SkinCardRect(TimeTravelSkins.RandomChoice).center);break;
+                        Check(ui.MenuMultiplayerRect.yMax<=1136&&ui.MenuSkinsRect.yMax<=1136&&Vector2.Distance(ui.MenuMultiplayerRect.center,ui.MenuSkinsRect.center)>.82f*(ui.MenuMultiplayerRect.width+ui.MenuSkinsRect.width)/2,"Skins and LAN round buttons fit within the menu and keep separate targets");Click(ui.MenuSkinsRect.center);break;
+                    case 1: Check(game.ScreenState==GameScreen.Skins,"Lowered main menu button opens skins");
+                        typeof(CandyFlickUI).GetField("skinScroll",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(ui,new Vector2(0,Mathf.Max(0,CandyFlickUI.SkinGridHeight-ui.SkinViewport.height)));
+                        Click(ui.SkinViewport.position+CandyFlickUI.SkinCardRect(TimeTravelSkins.RandomChoice).center-ui.SkinScroll);break;
                     case 2:
-                        Check(game.Skins.RandomSelected&&PlayerPrefs.GetInt(TimeTravelSkins.Preference)==TimeTravelSkins.RandomChoice,"Text-only Random card selects and saves random mode");Capture("skins-random");
+                        Check(game.Skins.RandomSelected&&PlayerPrefs.GetInt(TimeTravelSkins.Preference)==TimeTravelSkins.SavedRandomChoice,"Text-only Random card selects and saves random mode");Capture("skins-random");
                         break;
                     case 3:
                         var skins=new HashSet<NommieSkin>();var tracks=new HashSet<string>();
                         for(int i=0;i<20;i++){game.StartGame();skins.Add(game.Skins.Selected);tracks.Add(game.GameplayMusic.clip.name);}
                         Check(skins.Count>1&&skins.All(s=>Enum.IsDefined(typeof(NommieSkin),s)),"New games choose varying valid appearances while Random remains selected");
                         Check(tracks.Count>1,"New games choose varying songs from the six supplied tracks");
-                        Check(game.Skins.RandomSelected&&PlayerPrefs.GetInt(TimeTravelSkins.Preference)==TimeTravelSkins.RandomChoice,"Rerolling keeps the saved Random choice");break;
+                        Check(game.Skins.RandomSelected&&PlayerPrefs.GetInt(TimeTravelSkins.Preference)==TimeTravelSkins.SavedRandomChoice,"Rerolling keeps the saved Random choice");break;
                     case 4: Check(game.GameplayMusic.isPlaying&&game.GameplayMusic.loop,"Enabled gameplay music plays and loops");game.Pause();break;
                     case 5: Check(!game.GameplayMusic.isPlaying,"Pause pauses gameplay music");game.Resume();break;
                     case 6:

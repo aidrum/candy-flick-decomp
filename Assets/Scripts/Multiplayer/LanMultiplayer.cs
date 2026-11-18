@@ -194,7 +194,7 @@ namespace CandyFlick
             if(m.state==null)return;
             if(m.kind=="begin")
             {
-                remoteState=m.state;if(!activeMatch)BeginLocalMatch(remoteState.groundMode&&remoteState.ground.reusable);game.Skins.ApplyForSession((NommieSkin)Mathf.Clamp(remoteState.skin,0,7));ApplyRemoteSnapshot();
+                remoteState=m.state;if(!activeMatch)BeginLocalMatch(remoteState.groundMode&&remoteState.ground.reusable);game.Skins.ApplyForSession((NommieSkin)Mathf.Clamp(remoteState.skin,0,TimeTravelSkins.Names.Length-1));ApplyRemoteSnapshot();
             }
             else if(m.kind=="room")
             {

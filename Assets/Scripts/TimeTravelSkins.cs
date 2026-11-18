@@ -4,15 +4,17 @@ using UnityEngine;
 
 namespace CandyFlick
 {
-    public enum NommieSkin { Original, Medieval, Artist, Pirate, Pharaoh, Greek, Prehistoric, Disco }
+    public enum NommieSkin { Original, Medieval, Artist, Pirate, Pharaoh, Greek, Prehistoric, Disco, OmNelle }
 
     // Optional appearance and voice: the recovered actor root, collider and gameplay stay in place.
     public sealed class TimeTravelSkins : MonoBehaviour
     {
         public const string Preference = "PortNommieSkin";
+        const string PreferenceVersion = "PortNommieSkinVersion";
         public const float PrehistoricSize = 1.25f;
         public static readonly string[] Names = Enum.GetNames(typeof(NommieSkin));
         public static int RandomChoice => Names.Length;
+        public const int SavedRandomChoice = -1;
         public bool RandomSelected { get; private set; }
         public NommieSkin Selected { get; private set; }
         public GameObject Visual { get; private set; }
@@ -37,7 +39,15 @@ namespace CandyFlick
             antenna = GetComponentsInChildren<Transform>(true).First(t=>t.name=="Jt_PonyTail");
             antennaPosition=antenna.localPosition; antennaRotation=antenna.localRotation; antennaScale=antenna.localScale;
             int saved = PlayerPrefs.GetInt(Preference, 0);
-            RandomSelected = saved == RandomChoice;
+            // Index 8 was Random before Om Nelle. Migrate once without changing existing skin indices.
+            if(PlayerPrefs.GetInt(PreferenceVersion,0)<1)
+            {
+                if(saved==8){saved=SavedRandomChoice;PlayerPrefs.SetInt(Preference,saved);}
+                PlayerPrefs.SetInt(PreferenceVersion,1);PlayerPrefs.Save();
+            }
+            // Also accept the previous count-based sentinel when upgrading this selection format.
+            if(saved==RandomChoice){saved=SavedRandomChoice;PlayerPrefs.SetInt(Preference,saved);PlayerPrefs.Save();}
+            RandomSelected = saved == SavedRandomChoice;
             Apply(RandomSelected ? (NommieSkin)UnityEngine.Random.Range(0, Names.Length)
                 : Enum.IsDefined(typeof(NommieSkin), saved) ? (NommieSkin)saved : NommieSkin.Original);
         }
@@ -56,7 +66,7 @@ namespace CandyFlick
         public void SelectRandom()
         {
             RandomSelected = true; RerollRandom();
-            PlayerPrefs.SetInt(Preference, RandomChoice); PlayerPrefs.Save();
+            PlayerPrefs.SetInt(Preference, SavedRandomChoice); PlayerPrefs.Save();
         }
         public void RerollRandom()
         {
@@ -83,7 +93,7 @@ namespace CandyFlick
             Selected = skin;
             antenna.localPosition=antennaPosition; antenna.localRotation=antennaRotation; antenna.localScale=antennaScale;
             Voice = skin == NommieSkin.Original ? null : Resources.Load<TimeTravelVoice>("TimeTravelAudio/" + skin);
-            original.enabled = skin != NommieSkin.Prehistoric;
+            original.enabled = !ReplacesBody(skin);
             if (prefab)
             {
                 Visual = Instantiate(prefab, transform, false);
@@ -108,11 +118,12 @@ namespace CandyFlick
             GetComponent<OmNomActor>()?.RefreshRenderers();
             return true;
         }
-        public bool Includes(Renderer renderer) => renderer != original || Selected != NommieSkin.Prehistoric;
+        static bool ReplacesBody(NommieSkin skin)=>skin==NommieSkin.Prehistoric||skin==NommieSkin.OmNelle;
+        public bool Includes(Renderer renderer) => renderer != original || !ReplacesBody(Selected);
         public AudioClip Sound(NommieSound sound) => TimeTravelVoice.Resolve(sound, Voice, originalAudio);
         public void ConstrainAntenna()
         {
-            if(!antenna || Selected==NommieSkin.Original || Selected==NommieSkin.Greek || Selected==NommieSkin.Prehistoric)return;
+            if(!antenna || Selected==NommieSkin.Original || Selected==NommieSkin.Greek || ReplacesBody(Selected))return;
             antenna.localPosition=antennaPosition; antenna.localRotation=antennaRotation;
             antenna.localScale=Vector3.zero; // Collapse the antenna beneath hats without editing the original mesh.
         }

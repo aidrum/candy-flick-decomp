@@ -76,6 +76,8 @@ namespace CandyFlickEditor
                         game.Resume();game.ar.End();game.enabled=false;Call(game.ar,"SetTracking",true);
                         first=Place(new Vector3(0,0,0),null);second=Place(new Vector3(750,0,0),NommieSkin.Prehistoric);third=Place(new Vector3(-750,200,100),NommieSkin.Disco);
                         Check(first.Appearance.Selected==NommieSkin.Pirate&&second.Appearance.Selected==NommieSkin.Prehistoric&&third.Appearance.Selected==NommieSkin.Disco,"Initial actor uses preferred Pirate; added actors keep independent skins");
+                        third.Appearance.ApplyForSession(NommieSkin.OmNelle);
+                        Check(third.Appearance.Selected==NommieSkin.OmNelle&&PlayerPrefs.GetInt(TimeTravelSkins.Preference)==(int)NommieSkin.Pirate,"Om Nelle can join Photo mode without changing the preferred skin");
                         Check(game.PhotoActors.Count==3&&Snapshot()==before,"Adding multiple actors leaves skin preference and all game progress unchanged");
                         GroundChecks();
                         LaunchRangeChecks();

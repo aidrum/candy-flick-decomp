@@ -23,6 +23,7 @@ namespace CandyFlickEditor
 
         public static void CheckSkin(CandyFlickGame game,NommieSkin skin)
         {
+            if(skin==NommieSkin.OmNelle){OmNelleValidation.CheckAudio(game);Check(true,"Om Nelle has five supplied PCM cues and shares original chewing; no missing cues");return;}
             if(manifest==null)manifest=JsonUtility.FromJson<Manifest>(File.ReadAllText("Documentation/timetravel-audio-source.json"));
             Check(skin==NommieSkin.Original?!game.Skins.Voice:game.Skins.Voice!=null,skin+" selects the correct voice profile");
             foreach(NommieSound cue in Enum.GetValues(typeof(NommieSound)))

@@ -24,7 +24,7 @@ namespace CandyFlickEditor
             var skin=game.Skins.Selected;var player=game.Actor.GetComponent<Animation>();
             var antenna=game.Actor.GetComponentsInChildren<Transform>().Single(t=>t.name=="Jt_PonyTail");
             Pose(game,"idle",.3f);
-            if(skin==NommieSkin.Original||skin==NommieSkin.Greek)
+            if(skin==NommieSkin.Original||skin==NommieSkin.Greek||skin==NommieSkin.OmNelle)
                 Check(antenna.localScale.sqrMagnitude>.1f,skin+" retains its antenna");
             else if(skin!=NommieSkin.Prehistoric)
                 Check(antenna.localScale==Vector3.zero,skin+" hides the original antenna under the hat");
@@ -54,6 +54,10 @@ namespace CandyFlickEditor
                 foreach(float time in new[]{0f,.05f,.1f,.15f,.2f}) { Pose(game,"open",time);capture("Prehistoric-open-"+Mathf.RoundToInt(time*1000)); }
                 foreach(float time in new[]{0f,.1f,.2f,.3f,.6f,.96f}) { Pose(game,"close_eat",time);capture("Prehistoric-eat-"+Mathf.RoundToInt(time*1000)); }
                 ValidatePettingWave(game,capture);
+            }
+            else if(skin==NommieSkin.OmNelle)
+            {
+                OmNelleValidation.Validate(game,capture);
             }
             else
             {
