@@ -26,91 +26,102 @@ namespace CandyFlick
         Color previousSky, previousEquator, previousGround;
         float previousAmbientIntensity, previousReflectionIntensity;
         SphericalHarmonicsL2 previousAmbientProbe;
-        [Serializable]sealed class Lens{public float aspect,x,y,cx,cy;}
-        public const string LensPreference="PortNonARCameraLens";
-        Lens lens;bool lensDirty;int projectionWidth,projectionHeight;
-	public void RememberARProjection(Matrix4x4 projection, float aspect)
-	{
-		if (float.IsFinite(aspect) && !(aspect <= 0f) && float.IsFinite(projection.m00) && float.IsFinite(projection.m11) && !(projection.m00 <= 0f) && !(projection.m11 <= 0f) && float.IsFinite(projection.m02) && float.IsFinite(projection.m12) && !(Mathf.Abs(projection.m32 + 1f) > 0.001f))
-		{
-			Lens lens = new Lens
-			{
-				aspect = aspect,
-				x = projection.m00,
-				y = projection.m11,
-				cx = projection.m02,
-				cy = projection.m12
-			};
-			if (this.lens == null || !(Mathf.Abs(this.lens.aspect - aspect) < 0.0001f) || !(Mathf.Abs(this.lens.x - lens.x) < 0.0001f) || !(Mathf.Abs(this.lens.y - lens.y) < 0.0001f) || !(Mathf.Abs(this.lens.cx - lens.cx) < 0.0001f) || !(Mathf.Abs(this.lens.cy - lens.cy) < 0.0001f))
-			{
-				this.lens = lens;
-				lensDirty = true;
-			}
-		}
-	}
+        // Store the actual SDK projection for each viewport, including optical-center
+        // offsets. A different aspect/orientation needs calibration, not a guessed crop.
+        [Serializable]sealed class Lens
+        {
+            public int width,height,orientation;
+            public float aspect;
+            public Matrix4x4 projection;
+        }
+        [Serializable]sealed class Lenses
+        {
+            public string device;
+            public List<Lens> views = new List<Lens>();
+        }
+        public const string LensPreference="PortCameraLensV2";
+        Lenses lenses;
+        bool lensDirty;
+        int lensRevision,projectionRevision,projectionWidth,projectionHeight,attemptWidth,attemptHeight;
+        ScreenOrientation projectionOrientation,attemptOrientation;
+        public bool HasCalibratedLens => FindLens(game.GameCamera.aspect)!=null;
 
-	public void SaveARLens()
-	{
-		if (lensDirty)
-		{
-			PlayerPrefs.SetString("PortNonARCameraLens", JsonUtility.ToJson(lens));
-			PlayerPrefs.Save();
-			lensDirty = false;
-		}
-	}
+        static bool ValidProjection(Matrix4x4 projection)
+        {
+            for(int i=0;i<16;i++)if(!float.IsFinite(projection[i]))return false;
+            return projection.m00>0 && projection.m11>0 && Mathf.Abs(projection.m32+1)<.001f && Mathf.Abs(projection.m33)<.001f;
+        }
+        Lens FindLens(float aspect)
+        {
+            if(lenses?.views==null)return null;
+            foreach(var lens in lenses.views)
+                if(lens!=null && lens.width==Screen.width && lens.height==Screen.height && lens.orientation==(int)Screen.orientation &&
+                    Mathf.Abs(lens.aspect-aspect)<.0001f && ValidProjection(lens.projection))return lens;
+            return null;
+        }
 
-	public Matrix4x4 ProjectionFor(float aspect, float near, float far)
-	{
-		float num = ((lens == null) ? (1f / Mathf.Tan(0.44505894f)) : ((lens.aspect <= 1f) ? lens.x : lens.y));
-		float num2 = ((aspect <= 1f) ? num : (num / aspect));
-		float num3 = ((aspect <= 1f) ? (num * aspect) : num);
-		Matrix4x4 result = Matrix4x4.Perspective(51f, aspect, near, far);
-		result.m00 = num2;
-		result.m11 = num3;
-		if (lens != null)
-		{
-			if (Mathf.Abs(aspect - lens.aspect) < 0.0001f)
-			{
-				result.m00 = lens.x;
-				result.m11 = lens.y;
-				result.m02 = lens.cx;
-				result.m12 = lens.cy;
-			}
-			else if (aspect <= 1f == lens.aspect <= 1f)
-			{
-				result.m02 = lens.cx * num2 / lens.x;
-				result.m12 = lens.cy * num3 / lens.y;
-			}
-		}
-		return result;
-	}
-
-	private void RefreshProjection()
-	{
-		if (Active)
-		{
-			projectionWidth = Screen.width;
-			projectionHeight = Screen.height;
-			game.GameCamera.projectionMatrix = ProjectionFor(game.GameCamera.aspect, game.GameCamera.nearClipPlane, game.GameCamera.farClipPlane);
-			game.CandyCamera.projectionMatrix = ProjectionFor(game.CandyCamera.aspect, game.CandyCamera.nearClipPlane, game.CandyCamera.farClipPlane);
-		}
-	}
-
-	private void LateUpdate()
-	{
-		if (Active && (Screen.width != projectionWidth || Screen.height != projectionHeight))
-		{
-			RefreshProjection();
-		}
-	}
+        public bool RememberARProjection(Matrix4x4 projection, float aspect)
+        {
+            if(!float.IsFinite(aspect)||aspect<=0||!ValidProjection(projection))return false;
+            var lens=FindLens(aspect);
+            if(lens==null)
+            {
+                lens=new Lens{width=Screen.width,height=Screen.height,orientation=(int)Screen.orientation,aspect=aspect};
+                lenses.views.Add(lens);
+            }
+            if(!lens.projection.Equals(projection))
+            {
+                lens.projection=projection;
+                lensDirty=true;
+                lensRevision++;
+            }
+            return true;
+        }
+        public void SaveARLens()
+        {
+            if(!lensDirty)return;
+            PlayerPrefs.SetString(LensPreference,JsonUtility.ToJson(lenses));
+            PlayerPrefs.Save();lensDirty=false;
+        }
+        public Matrix4x4 ProjectionFor(float aspect,float near,float far)
+        {
+            var lens=FindLens(aspect);
+            // A camera-less editor or denied camera permission has no physical lens
+            // to calibrate. Keep the original camera setting until one is available.
+            var projection=lens!=null?lens.projection:Matrix4x4.Perspective(51,aspect,near,far);
+            projection.m22=-(far+near)/(far-near);
+            projection.m23=-2*far*near/(far-near);
+            return projection;
+        }
+        void RefreshProjection()
+        {
+            projectionWidth=Screen.width;projectionHeight=Screen.height;projectionOrientation=Screen.orientation;
+            projectionRevision=lensRevision;
+            game.GameCamera.projectionMatrix=ProjectionFor(game.GameCamera.aspect,game.GameCamera.nearClipPlane,game.GameCamera.farClipPlane);
+            game.CandyCamera.projectionMatrix=ProjectionFor(game.CandyCamera.aspect,game.CandyCamera.nearClipPlane,game.CandyCamera.farClipPlane);
+        }
+        void LateUpdate()
+        {
+            if(!Active)return;
+            if(Screen.width!=projectionWidth||Screen.height!=projectionHeight||Screen.orientation!=projectionOrientation||projectionRevision!=lensRevision)
+                RefreshProjection();
+            // Defer until after StartGame has stopped the previous AR session. Retry
+            // on a new viewport or session, not continuously if permission is denied.
+            if(!HasCalibratedLens && (attemptWidth!=Screen.width||attemptHeight!=Screen.height||attemptOrientation!=Screen.orientation))
+            {
+                attemptWidth=Screen.width;attemptHeight=Screen.height;attemptOrientation=Screen.orientation;
+                game.ar.BeginNonARCalibration();
+            }
+        }
 
         public void Initialize(CandyFlickGame owner)
         {
             game = owner; originalPlayerPosition = game.Player.position; originalPlayerRotation = game.Player.rotation;
             floor=game.World.Find("Floor");originalFloorPosition=floor.localPosition;
             Navigation = new NonARViewControls(owner);
-            try{lens=JsonUtility.FromJson<Lens>(PlayerPrefs.GetString(LensPreference,""));}catch(ArgumentException){lens=null;}
-            if(lens!=null&&(!float.IsFinite(lens.aspect)||lens.aspect<=0||!float.IsFinite(lens.x)||lens.x<=0||!float.IsFinite(lens.y)||lens.y<=0||!float.IsFinite(lens.cx)||!float.IsFinite(lens.cy)))lens=null;
+            try{lenses=JsonUtility.FromJson<Lenses>(PlayerPrefs.GetString(LensPreference,""));}catch(ArgumentException){lenses=null;}
+            if(lenses==null||lenses.device!=SystemInfo.deviceModel||lenses.views==null)
+                lenses=new Lenses{device=SystemInfo.deviceModel};
         }
         public void Begin()
         {
@@ -131,6 +142,7 @@ namespace CandyFlick
                 RoomLight("Soft room fill", new Vector3(25,-30,0), new Color(1,.98f,.93f), 1f);
             }
             Room.SetActive(true);
+            attemptWidth=attemptHeight=0;
             floor.localPosition=originalFloorPosition+Vector3.up*GroundClearance;
             OverrideSceneLighting();
             game.Player.SetPositionAndRotation(new Vector3(0,500,900), Quaternion.LookRotation(new Vector3(0,70,0)-new Vector3(0,500,900)));
@@ -141,6 +153,7 @@ namespace CandyFlick
         }
         public void End()
         {
+            if(game.ar && game.ar.CalibratingForNonAR)game.ar.End();
             Navigation?.Cancel();
             RestoreSceneLighting();
             if (!Active) return;
@@ -189,6 +202,10 @@ namespace CandyFlick
             RenderSettings.ambientProbe = previousAmbientProbe;
             lightingOverridden = false;
         }
-        void OnDisable() => RestoreSceneLighting();
+        void OnDisable()
+        {
+            if(game && game.ar && game.ar.CalibratingForNonAR)game.ar.End();
+            RestoreSceneLighting();
+        }
     }
 }

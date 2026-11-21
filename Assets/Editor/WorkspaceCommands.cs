@@ -21,6 +21,7 @@ namespace CandyFlickEditor
             {
                 switch (command)
                 {
+                    case "CameraProjectionTest": CameraProjectionValidation.Run(); break;
                     case "SigningTest": AndroidSigningValidation.Run(); break;
                     case "SkinPerfBefore": SkinPerformanceValidation.Run("before"); break;
                     case "SkinPerfAfter": SkinPerformanceValidation.Run("after"); break;

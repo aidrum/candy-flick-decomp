@@ -16,6 +16,12 @@ namespace CandyFlick
 
         void ConfigureTrackingMode()
         {
+            if(!running)
+            {
+                vuforia.DevicePoseBehaviour.enabled=false;
+                foreach(var target in targets)if(target)target.enabled=false;
+                return;
+            }
             // Device tracking stays off for the original image-only experience.
             vuforia.DevicePoseBehaviour.enabled = running && GroundMode;
             // LAN's first target is an upright screen/reference, not the floor.

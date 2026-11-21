@@ -48,6 +48,7 @@ namespace CandyFlick
         }
         public void Begin()
         {
+            if(CalibratingForNonAR)End();
             PhotoSupportFailure=null;
             bool desiredGround=game.IsPhotoMode || (game.IsLanMatch?game.LAN.GroundMode:game.GroundARModeEnabled);
             bool keepGround = running && GroundMode && desiredGround;
@@ -60,7 +61,7 @@ namespace CandyFlick
         IEnumerator StartCamera()
         {
             if(string.IsNullOrWhiteSpace(VuforiaConfiguration.Instance.Vuforia.LicenseKey))
-            { Status = "The Vuforia license key is missing from this build."; yield break; }
+            { Status = "The Vuforia license key is missing from this build."; nonARCalibrationFailed=true; yield break; }
 #if UNITY_ANDROID && !UNITY_EDITOR
             if(!UnityEngine.Android.Permission.HasUserAuthorizedPermission(UnityEngine.Android.Permission.Camera))
             {
@@ -69,7 +70,7 @@ namespace CandyFlick
                 float deadline = Time.realtimeSinceStartup + 30;
                 while(!UnityEngine.Android.Permission.HasUserAuthorizedPermission(UnityEngine.Android.Permission.Camera) && Time.realtimeSinceStartup < deadline)yield return null;
                 if(!UnityEngine.Android.Permission.HasUserAuthorizedPermission(UnityEngine.Android.Permission.Camera))
-                { Status = "Camera access is required. Allow it in Android settings."; yield break; }
+                { Status = "Camera access is required. Allow it in Android settings."; nonARCalibrationFailed=true; yield break; }
             }
 #endif
             if(!rig)
@@ -95,6 +96,7 @@ namespace CandyFlick
                 subscribed = true;
             }
             else rig.SetActive(true);
+            Camera.enabled=!CalibratingForNonAR;
             if(VuforiaApplication.Instance.IsInitialized)
             {
                 ConfigureTrackingMode();
@@ -106,11 +108,11 @@ namespace CandyFlick
         void OnInitialized(VuforiaInitError error)
         {
             if(error != VuforiaInitError.NONE)
-            { Status = "The camera tracker could not start (" + error + ")."; SetTracking(false); return; }
+            { Status = "The camera tracker could not start (" + error + ")."; nonARCalibrationFailed=true; SetTracking(false); return; }
             vuforia.VideoBackground.OnVideoBackgroundChanged += RouteVideoBackground;
             RouteVideoBackground();
             ConfigureTrackingMode();
-            if(!running) { foreach(var target in targets)target.enabled = false; if(rig)rig.SetActive(false); }
+            if(!running && !CalibratingForNonAR) { foreach(var target in targets)target.enabled = false; if(rig)rig.SetActive(false); }
         }
         void RouteVideoBackground()
         {
@@ -135,6 +137,7 @@ namespace CandyFlick
         }
         void OnCameraStateUpdated()
         {
+            if(CalibratingForNonAR){nonARStateCount++;return;}
             if(!running)return;
             RefreshFrameRate();
             if(!game.IsPhotoMode)game.NonARBackground.RememberARProjection(Camera.projectionMatrix,Camera.aspect);
@@ -177,7 +180,7 @@ namespace CandyFlick
             QualitySettings.vSyncCount = previousVSyncCount;
             frameRateLocked = false;
         }
-        void OnStarted() { capturePaused = false; if(running) ConfigureTrackingMode(); RefreshFrameRate(); }
+        void OnStarted() { capturePaused = false; if(running || CalibratingForNonAR) ConfigureTrackingMode(); RefreshFrameRate(); }
         void OnStopped() { RestoreFrameRate(); if(running)LoseTracking(); }
         void OnPaused(bool paused)
         {
@@ -204,6 +207,8 @@ namespace CandyFlick
         public void End()
         {
             if(game&&game.NonARBackground&&!game.IsPhotoMode)game.NonARBackground.SaveARLens();
+            CalibratingForNonAR=false;
+            if(lensCalibration!=null){StopCoroutine(lensCalibration);lensCalibration=null;}
             running = false;lanRetained=false;
             ClearGroundAnchor();
             if(vuforia && vuforia.DevicePoseBehaviour) vuforia.DevicePoseBehaviour.enabled = false;
@@ -214,6 +219,7 @@ namespace CandyFlick
             // Stop capture when leaving AR, but retain the initialized SDK/database
             // for the next game. Avoid repeated native shutdown/reinitialization.
             if(rig)rig.SetActive(false);
+            if(Camera)Camera.enabled=true;
             // Reset while the rig is inactive, avoiding a capture restart on exit.
             if(imageMenuPaused) { imageMenuPaused = false; if(vuforia)vuforia.enabled = true; }
             if(game && game.World)foreach(var renderer in game.World.GetComponentsInChildren<Renderer>())renderer.forceRenderingOff = false;
