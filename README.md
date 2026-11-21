@@ -57,4 +57,7 @@ The latest release can be found [here](https://github.com/aidrum/candy-flick-dec
 - ["Coffee Mug (School Project)"](https://sketchfab.com/3d-models/coffee-mug-school-project-5f5ccee1514c440887c072fae8e0d699) by Ole Gunnar Isager is licensed under [Creative Commons Attribution](https://creativecommons.org/licenses/by/4.0/).
 - ["Lunch Plate (School Project)"](https://sketchfab.com/3d-models/lunch-plate-school-project-eef24ebe601c4e2f99da3108ddc3b09b) by Ole Gunnar Isager is licensed under [Creative Commons Attribution](https://creativecommons.org/licenses/by/4.0/).
 - ["Cookie (School Project)"](https://sketchfab.com/3d-models/cookie-school-project-434b04afb75d4525ae5eb272282d736d) by Ole Gunnar Isager is licensed under [Creative Commons Attribution](https://creativecommons.org/licenses/by/4.0/).
-- Om Nelle Triple Treat 3D model by [MlopsFunny](https://github.com/mlopsfunny/)
+- Om Nelle Triple Treat 3D model by [MlopsFunny](https://github.com/mlopsfunny/) on [CtR Home Discord](https://ctrhome.github.io/discord/)
+
+<hr>
+All rights to original code and assets belong to ZeptoLab. No profits are made from this game.
