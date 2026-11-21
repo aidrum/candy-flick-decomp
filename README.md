@@ -53,8 +53,8 @@ The latest release can be found [here](https://github.com/aidrum/candy-flick-dec
 
   We do not have the time or resources needed to do a full analysis of the iOS code manually. We playtested it for a while, even comparing it with real hardware (iPad 3 and iPhone 4S) to ensure the game was working right/accurately.
   
-  ## Model credits
-  - ["Coffee Mug (School Project)"](https://sketchfab.com/3d-models/coffee-mug-school-project-5f5ccee1514c440887c072fae8e0d699) by Ole Gunnar Isager is licensed under [Creative Commons Attribution](https://creativecommons.org/licenses/by/4.0/).
-  - ["Lunch Plate (School Project)"](https://sketchfab.com/3d-models/lunch-plate-school-project-eef24ebe601c4e2f99da3108ddc3b09b) by Ole Gunnar Isager is licensed under [Creative Commons Attribution](https://creativecommons.org/licenses/by/4.0/).
-  - ["Cookie (School Project)"](https://sketchfab.com/3d-models/cookie-school-project-434b04afb75d4525ae5eb272282d736d) by Ole Gunnar Isager is licensed under [Creative Commons Attribution](https://creativecommons.org/licenses/by/4.0/).
-  - Om Nelle Triple Treat 3D model by [MlopsFunny](https://github.com/mlopsfunny/)
+## Model credits
+- ["Coffee Mug (School Project)"](https://sketchfab.com/3d-models/coffee-mug-school-project-5f5ccee1514c440887c072fae8e0d699) by Ole Gunnar Isager is licensed under [Creative Commons Attribution](https://creativecommons.org/licenses/by/4.0/).
+- ["Lunch Plate (School Project)"](https://sketchfab.com/3d-models/lunch-plate-school-project-eef24ebe601c4e2f99da3108ddc3b09b) by Ole Gunnar Isager is licensed under [Creative Commons Attribution](https://creativecommons.org/licenses/by/4.0/).
+- ["Cookie (School Project)"](https://sketchfab.com/3d-models/cookie-school-project-434b04afb75d4525ae5eb272282d736d) by Ole Gunnar Isager is licensed under [Creative Commons Attribution](https://creativecommons.org/licenses/by/4.0/).
+- Om Nelle Triple Treat 3D model by [MlopsFunny](https://github.com/mlopsfunny/)
