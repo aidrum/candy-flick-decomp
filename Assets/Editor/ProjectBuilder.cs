@@ -108,7 +108,7 @@ namespace CandyFlickEditor
             ConfigureVuforia();
             PlayerSettings.companyName="Candy Flick Restoration";
             PlayerSettings.productName="Om Nom Candy Flick";
-            PlayerSettings.bundleVersion="2.6.0";
+            PlayerSettings.bundleVersion="1.0";
             foreach(string path in new[]{"Assets/AppIcon/icon_dynamic_front.png","Assets/AppIcon/icon_dynamic_back.png"}) {
                 var importer=(TextureImporter)AssetImporter.GetAtPath(path);
                 if(importer && importer.textureCompression!=TextureImporterCompression.Uncompressed) { importer.textureCompression=TextureImporterCompression.Uncompressed;importer.SaveAndReimport(); }

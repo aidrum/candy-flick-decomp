@@ -55,7 +55,24 @@ namespace CandyFlick
         public void ToggleARMode()
         {
             if(ScreenState!=GameScreen.Paused || IsLanMatch || IsPhotoMode)return;
-            bool nonAR=!IsNonAR;
+            ApplyARMode(!IsNonAR);
+        }
+        public void SetTutorialARMode(bool enabled,bool? groundMode,bool resumeGame)
+        {
+            if(groundMode.HasValue)
+            {
+                GroundARModeEnabled=groundMode.Value;
+                PlayerPrefs.SetInt(GroundARPreference,GroundARModeEnabled?1:0);
+            }
+            if(resumeGame){ApplyARMode(!enabled);Resume();}
+            else
+            {
+                NonARModeEnabled=!enabled;
+                PlayerPrefs.SetInt(NonARPreference,NonARModeEnabled?1:0);PlayerPrefs.Save();
+            }
+        }
+        void ApplyARMode(bool nonAR)
+        {
             float previousClearance=IsNonAR?NonARStage.GroundClearance:0;
             CancelCandyGesture();NonARBackground.Navigation.Cancel();PhotoVisibility.End();ar.End();
             NonARModeEnabled=IsNonAR=nonAR;IsAR=!nonAR;

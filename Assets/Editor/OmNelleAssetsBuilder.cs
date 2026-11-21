@@ -39,23 +39,25 @@ namespace CandyFlickEditor
             AssetDatabase.Refresh();
             var modelImporter=(ModelImporter)AssetImporter.GetAtPath("Assets/Editor/OmNelleSource/OmNelle.fbx");
             modelImporter.isReadable=true;modelImporter.importAnimation=false;modelImporter.SaveAndReimport();
-            foreach(string file in new[]{"omnelle.png","omnelle_lashes.png","eyelashes.png"})
-            {
-                string path=Folder+"Textures/"+file;
-                File.Copy(Source+file,path,true);AssetDatabase.ImportAsset(path);
-                var importer=(TextureImporter)AssetImporter.GetAtPath(path);importer.mipmapEnabled=false;
-                importer.textureCompression=TextureImporterCompression.Uncompressed;importer.wrapMode=TextureWrapMode.Clamp;importer.SaveAndReimport();
-            }
+            string png=Folder+"Textures/omnelle.png";
+            File.Copy(Source+"omnelle.png",png,true);AssetDatabase.ImportAsset(png);
+            var textureImporter=(TextureImporter)AssetImporter.GetAtPath(png);textureImporter.mipmapEnabled=false;
+            textureImporter.textureCompression=TextureImporterCompression.Uncompressed;textureImporter.wrapMode=TextureWrapMode.Clamp;textureImporter.SaveAndReimport();
             var geometry=UnityEngine.Object.Instantiate(Resources.Load<GameObject>("Original26/Geometry"));
             var root=UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Editor/OmNelleSource/OmNelle.fbx"));
             try
             {
                 var actor=geometry.transform.Find("OmNom@All-1");var original=actor.GetComponentsInChildren<SkinnedMeshRenderer>().Single(r=>r.name=="OmNom_Mesh");
-                root.name="TimeTravelSkin";root.transform.SetParent(actor,false);root.transform.localScale=Vector3.one*.01f;
-                // The FBX includes an unused duplicate control hierarchy. Only the skinned armature is needed.
-                UnityEngine.Object.DestroyImmediate(root.transform.Find("Bones").gameObject);
-                var rig=root.transform.Find("Bones.001");var visual=root.AddComponent<TimeTravelVisual>();
+                root.name="TimeTravelSkin";root.transform.SetParent(actor,false);
+                var transforms=root.GetComponentsInChildren<Transform>(true);
+                var sourceRoot=transforms.Single(t=>t.name=="OmNomoot");var rig=sourceRoot.parent;
                 var drivers=actor.GetComponentsInChildren<Transform>(true).Where(t=>!t.IsChildOf(root.transform)).ToArray();
+                // Match the authored rig's units to Candy Flick; the replacement FBX has
+                // a different object scale from the old model. Never scale the actor/collider.
+                Vector3 sourceSpan=root.transform.InverseTransformPoint(transforms.Single(t=>t.name=="Jt_PonyTail").position)-root.transform.InverseTransformPoint(sourceRoot.position);
+                Vector3 originalSpan=actor.InverseTransformPoint(drivers.Single(t=>t.name=="Jt_PonyTail").position)-actor.InverseTransformPoint(drivers.Single(t=>t.name=="OmNom_Root").position);
+                root.transform.localScale=Vector3.one*(originalSpan.magnitude/sourceSpan.magnitude);
+                var visual=root.AddComponent<TimeTravelVisual>();
                 var bindings=new System.Collections.Generic.List<TimeTravelVisual.Attachment>();
                 foreach(var bone in rig.GetComponentsInChildren<Transform>(true))
                 {
@@ -74,148 +76,130 @@ namespace CandyFlickEditor
                 }
                 if(bindings.Count<65)throw new Exception("Incomplete Om Nelle retarget: "+bindings.Count);
                 visual.attachments=bindings.ToArray();
+                visual.directSkinning=true;
                 var material=new Material(original.sharedMaterial){name="OmNelle",mainTexture=AssetDatabase.LoadAssetAtPath<Texture2D>(Folder+"Textures/omnelle.png")};
                 material=Save(material,Folder+"Materials/OmNelle.mat");
-                var eyelidMaterial=new Material(material){name="OmNelle_Eyelids",mainTexture=AssetDatabase.LoadAssetAtPath<Texture2D>(Folder+"Textures/omnelle_lashes.png")};
-                eyelidMaterial=Save(eyelidMaterial,Folder+"Materials/Eyelids.mat");
-                var whites=root.GetComponentsInChildren<SkinnedMeshRenderer>().Single(r=>r.name=="omnom_mesh_2");
-                var eyes=new[]{rig.GetComponentsInChildren<Transform>().Single(t=>t.name=="BipL_Bn_FullEye"),rig.GetComponentsInChildren<Transform>().Single(t=>t.name=="BipR_Bn_FullEye")};
+                var face=root.GetComponentsInChildren<SkinnedMeshRenderer>().Single(r=>r.name=="eyelid_mesh_0.001");
+                var gaze=root.GetComponentsInChildren<SkinnedMeshRenderer>().Single(r=>r.name=="omnom_mesh_0");
+                int[] lidVertices=null;
                 foreach(var renderer in root.GetComponentsInChildren<SkinnedMeshRenderer>())
                 {
                     var adapted=UnityEngine.Object.Instantiate(renderer.sharedMesh);
-                    if(renderer.name=="omnom_mesh_0")LowerPupils(adapted,renderer,whites,actor);
-                    if(renderer.name=="eyelid_mesh_0")BindEyelids(adapted,renderer,actor,whites);
+                    if(renderer.name=="omnom_mesh_0")LowerPupils(adapted,renderer,face,actor);
+                    if(renderer==face)lidVertices=EyelidClearance(adapted,renderer,actor);
+                    // Bind the GPU skin directly to the native animation joints. Decomposing
+                    // their affine motion into imported TRS controls loses eye/face shear.
+                    var palette=renderer.bones;var sourceBind=adapted.bindposes;
+                    var used=adapted.boneWeights.SelectMany(w=>new[]{(w.boneIndex0,w.weight0),(w.boneIndex1,w.weight1),(w.boneIndex2,w.weight2),(w.boneIndex3,w.weight3)}).Where(p=>p.Item2>.00001f).Select(p=>p.Item1).ToHashSet();
+                    adapted.bindposes=palette.Select((bone,i)=>
+                    {
+                        int binding=bindings.FindIndex(a=>a.bone==bone);
+                        if(binding>=0)return bindings[binding].correction*sourceBind[i];
+                        if(used.Contains(i))throw new Exception("Unmapped replacement skin joint: "+bone.name);
+                        return actor.worldToLocalMatrix*bone.localToWorldMatrix*sourceBind[i];
+                    }).ToArray();
                     renderer.sharedMesh=Save(adapted,Folder+"Meshes/"+renderer.name+".asset");
-                    renderer.sharedMaterial=renderer.name=="eyelid_mesh_0"?eyelidMaterial:material;renderer.quality=SkinQuality.Bone4;renderer.updateWhenOffscreen=true;
+                    renderer.sharedMaterial=material;renderer.quality=SkinQuality.Bone4;renderer.updateWhenOffscreen=true;
                     renderer.localBounds=new Bounds(Vector3.zero,Vector3.one*2);
                 }
-                var lashes=root.GetComponentInChildren<MeshFilter>();var sourceMesh=lashes.sharedMesh;
-                var lashMaterial=new Material(original.sharedMaterial){name="OmNelle_Eyelashes",mainTexture=AssetDatabase.LoadAssetAtPath<Texture2D>(Folder+"Textures/eyelashes.png")};
-                lashMaterial.shader=Shader.Find("Toon/Basic");lashMaterial=Save(lashMaterial,Folder+"Materials/Eyelashes.mat");
-                // Split the unbound left/right triangles and skin each one to its corresponding full eye.
-                var mesh=UnityEngine.Object.Instantiate(sourceMesh);var points=mesh.vertices;
-                mesh.boneWeights=points.Select(p=>new BoneWeight{boneIndex0=actor.InverseTransformPoint(lashes.transform.TransformPoint(p)).x<0?0:1,weight0=1}).ToArray();
-                mesh.bindposes=eyes.Select(t=>t.worldToLocalMatrix*lashes.transform.localToWorldMatrix).ToArray();
-                mesh=Save(mesh,Folder+"Meshes/Eyelashes.asset");var lashObject=lashes.gameObject;
-                UnityEngine.Object.DestroyImmediate(lashObject.GetComponent<MeshRenderer>());UnityEngine.Object.DestroyImmediate(lashes);
-                var lashRenderer=lashObject.AddComponent<SkinnedMeshRenderer>();lashRenderer.sharedMesh=mesh;lashRenderer.bones=eyes;lashRenderer.rootBone=rig;
-                lashRenderer.sharedMaterial=lashMaterial;lashRenderer.quality=SkinQuality.Bone4;lashRenderer.updateWhenOffscreen=true;lashRenderer.localBounds=new Bounds(Vector3.zero,Vector3.one*2);
+                ConfigureEyeSurface(root,face,gaze,lidVertices,material);
+                // Keep the authored face and lashes; surface attachments keep the two caps
+                // and lowered pupils synchronized with the blended eye whites.
                 foreach(var bone in rig.GetComponentsInChildren<Transform>(true))bone.name="Nelle_"+bone.name;
                 PrefabUtility.SaveAsPrefabAsset(root,"Assets/Resources/TimeTravel/OmNelle.prefab");
             }
             finally {UnityEngine.Object.DestroyImmediate(root);UnityEngine.Object.DestroyImmediate(geometry);}
             BuildVoice();AssetDatabase.SaveAssets();AssetDatabase.Refresh();
         }
-        static void BindEyelids(Mesh mesh,SkinnedMeshRenderer renderer,Transform actor,SkinnedMeshRenderer whites)
+        static int[] EyelidClearance(Mesh mesh,SkinnedMeshRenderer renderer,Transform actor)
         {
-            // The whites blend eye and mouth joints. Transfer that complete skinning field;
-            // attaching the caps only to the two eye controls misses the facial deformation.
-            var points=mesh.vertices.ToList();var uv=mesh.uv.ToList();
-            var edges=new System.Collections.Generic.Dictionary<(int,int),int>();
-            int Midpoint(int a,int b)
+            // The caps are separate surface islands in the combined mesh. A tiny shell
+            // clearance prevents coincident white/green surfaces without changing their weights.
+            var points=mesh.vertices;var normals=mesh.normals;var parents=Enumerable.Range(0,points.Length).ToArray();
+            int Root(int i){while(parents[i]!=i){parents[i]=parents[parents[i]];i=parents[i];}return i;}
+            var indices=mesh.triangles;
+            for(int i=0;i<indices.Length;i+=3){parents[Root(indices[i+1])]=Root(indices[i]);parents[Root(indices[i+2])]=Root(indices[i]);}
+            Matrix4x4 toActor=actor.worldToLocalMatrix*renderer.transform.localToWorldMatrix,normalPose=toActor.inverse.transpose;
+            int caps=0;var selected=new System.Collections.Generic.List<int>();
+            foreach(var component in Enumerable.Range(0,points.Length).GroupBy(Root))
             {
-                var key=a<b?(a,b):(b,a);if(edges.TryGetValue(key,out int existing))return existing;
-                int index=points.Count;edges.Add(key,index);points.Add((points[a]+points[b])*.5f);uv.Add((uv[a]+uv[b])*.5f);return index;
+                var vertices=component.ToArray();if(vertices.Length<80||vertices.Length>180)continue;
+                var bounds=new Bounds(toActor.MultiplyPoint3x4(points[vertices[0]]),Vector3.zero);
+                foreach(int i in vertices)bounds.Encapsulate(toActor.MultiplyPoint3x4(points[i]));
+                if(bounds.min.y<.29f||bounds.max.y>.44f||bounds.min.z<=0)continue;
+                foreach(int i in vertices)points[i]=toActor.inverse.MultiplyPoint3x4(toActor.MultiplyPoint3x4(points[i])+normalPose.MultiplyVector(normals[i]).normalized*.0015f);
+                selected.AddRange(vertices);
+                caps++;
             }
-            var triangles=new System.Collections.Generic.List<int>();var source=mesh.triangles;
-            for(int i=0;i<source.Length;i+=3)
-            {
-                int a=source[i],b=source[i+1],c=source[i+2],ab=Midpoint(a,b),bc=Midpoint(b,c),ca=Midpoint(c,a);
-                triangles.AddRange(new[]{a,ab,ca,ab,b,bc,ca,bc,c,ab,bc,ca});
-            }
-            var surface=EyeSurface(whites,actor);var weights=new BoneWeight[points.Count];
-            for(int i=0;i<points.Count;i++)
-            {
-                Vector3 point=actor.InverseTransformPoint(renderer.transform.TransformPoint(points[i]));
-                var nearest=NearestEyeSurface(point,-1,surface,out Vector3 normal);
-                float clearance=Vector3.Dot(point-nearest,normal);
-                if(clearance<.0025f)point+=normal*(.0025f-clearance);
-                NearestEyeSurface(point,-1,surface,out normal,out EyeTriangle triangle,out Vector3 barycentric);
-                weights[i]=SurfaceWeights(triangle,barycentric);
-                points[i]=renderer.transform.InverseTransformPoint(actor.TransformPoint(point));
-            }
-            mesh.vertices=points.ToArray();mesh.uv=uv.ToArray();mesh.boneWeights=weights;mesh.triangles=triangles.ToArray();
-            renderer.bones=whites.bones;
-            mesh.bindposes=renderer.bones.Select(t=>t.worldToLocalMatrix*renderer.transform.localToWorldMatrix).ToArray();
-            mesh.RecalculateNormals();mesh.RecalculateBounds();
+            if(caps!=2)throw new Exception("Expected two authored eyelid caps, found "+caps);
+            mesh.vertices=points;mesh.RecalculateBounds();return selected.ToArray();
         }
-        internal struct EyeTriangle {public Vector3 a,b,c,normal;public BoneWeight wa,wb,wc;public int side;}
-        internal static EyeTriangle[] EyeSurface(SkinnedMeshRenderer whites,Transform actor)
+        static void ConfigureEyeSurface(GameObject root,SkinnedMeshRenderer face,SkinnedMeshRenderer gaze,int[] lids,Material material)
         {
-            var result=new System.Collections.Generic.List<EyeTriangle>();var points=whites.sharedMesh.vertices;var normals=whites.sharedMesh.normals;
-            var weights=whites.sharedMesh.boneWeights;var indices=whites.sharedMesh.triangles;var uv=whites.sharedMesh.uv;
-            var eyeIndices=whites.bones.Select((bone,index)=>(bone,index)).Where(p=>p.bone.name.EndsWith("Bn_FullEye")).Select(p=>p.index).ToArray();
-            bool EyeVertex(int i)
+            var surface=root.AddComponent<OmNelleEyeSurface>();surface.whites=face;surface.gaze=gaze;
+            var gazeWeights=gaze.sharedMesh.boneWeights;
+            int[] pupilVertices=Enumerable.Range(0,gazeWeights.Length).Where(i=>gaze.bones[gazeWeights[i].boneIndex0].name.EndsWith("_Bn_Eye")).ToArray();
+            var source=AssetDatabase.LoadAssetAtPath<GameObject>(Source+"OmNelle.fbx");
+            var authored=source.GetComponentsInChildren<SkinnedMeshRenderer>().Single(r=>r.name==gaze.name).sharedMesh.vertices;
+            surface.authoredPupils=pupilVertices.Select(i=>authored[i]).ToArray();
+            surface.lids=EyePiece("OmNelle eyelids",root.transform,face,lids,material,true);
+            surface.pupils=EyePiece("OmNelle pupils",root.transform,gaze,pupilVertices,material,false);
+            surface.pupilSourceIndices=pupilVertices;
+            var mesh=face.sharedMesh;var points=mesh.vertices;var uv=mesh.uv;var weights=mesh.boneWeights;var indices=mesh.triangles;
+            bool HasEye(int vertex)
             {
-                var w=weights[i];return w.weight0>.001f&&eyeIndices.Contains(w.boneIndex0)||w.weight1>.001f&&eyeIndices.Contains(w.boneIndex1)||w.weight2>.001f&&eyeIndices.Contains(w.boneIndex2)||w.weight3>.001f&&eyeIndices.Contains(w.boneIndex3);
+                var w=weights[vertex];
+                return w.weight0>.001f&&face.bones[w.boneIndex0].name.Contains("FullEye")||w.weight1>.001f&&face.bones[w.boneIndex1].name.Contains("FullEye")||w.weight2>.001f&&face.bones[w.boneIndex2].name.Contains("FullEye")||w.weight3>.001f&&face.bones[w.boneIndex3].name.Contains("FullEye");
             }
-            Matrix4x4 pose=actor.worldToLocalMatrix*whites.transform.localToWorldMatrix,normalPose=pose.inverse.transpose;
             var atlas=new Texture2D(2,2);atlas.LoadImage(File.ReadAllBytes(Folder+"Textures/omnelle.png"));
+            var white=new System.Collections.Generic.List<int>();
             try
             {
                 for(int t=0;t<indices.Length;t+=3)
                 {
-                    int a=indices[t],b=indices[t+1],c=indices[t+2];Vector2 sample=(uv[a]+uv[b]+uv[c])/3;
-                    if(!EyeVertex(a)&&!EyeVertex(b)&&!EyeVertex(c))continue;
-                    Color color=atlas.GetPixelBilinear(sample.x,sample.y);
-                    // This source mesh also contains the green body. Select its white eye surfaces.
-                    float maximum=Mathf.Max(color.r,Mathf.Max(color.g,color.b)),minimum=Mathf.Min(color.r,Mathf.Min(color.g,color.b));
-                    if(maximum<.15f||minimum<maximum*.75f)continue;
-                    Vector3 pa=pose.MultiplyPoint3x4(points[a]),pb=pose.MultiplyPoint3x4(points[b]),pc=pose.MultiplyPoint3x4(points[c]);
-                    Vector3 normal=Vector3.Cross(pb-pa,pc-pa).normalized;
-                    if(normal.sqrMagnitude<.5f)continue;
-                    if(Vector3.Dot(normal,normalPose.MultiplyVector(normals[a]+normals[b]+normals[c]))<0)normal=-normal;
-                    result.Add(new EyeTriangle{a=pa,b=pb,c=pc,normal=normal,wa=weights[a],wb=weights[b],wc=weights[c],side=pa.x+pb.x+pc.x<0?0:1});
+                    int a=indices[t],b=indices[t+1],c=indices[t+2];if(!HasEye(a)&&!HasEye(b)&&!HasEye(c))continue;
+                    Vector2 sample=(uv[a]+uv[b]+uv[c])/3;Color color=atlas.GetPixelBilinear(sample.x,sample.y);
+                    float max=Mathf.Max(color.r,Mathf.Max(color.g,color.b)),min=Mathf.Min(color.r,Mathf.Min(color.g,color.b));
+                    if(max<.15f||min<max*.75f||Vector3.Cross(points[b]-points[a],points[c]-points[a]).sqrMagnitude<1e-14f)continue;
+                    white.AddRange(new[]{a,b,c});
                 }
             }
             finally{UnityEngine.Object.DestroyImmediate(atlas);}
-            if(result.Count<100)throw new Exception("Missing eye-white surface for eyelid fitting: "+result.Count);
-            return result.ToArray();
+            if(white.Count<300)throw new Exception("Missing animated white-eye surface");
+            surface.whiteTriangles=white.ToArray();
         }
-        internal static Vector3 NearestEyeSurface(Vector3 point,int side,EyeTriangle[] surface,out Vector3 normal)
-            =>NearestEyeSurface(point,side,surface,out normal,out _,out _);
-        internal static Vector3 NearestEyeSurface(Vector3 point,int side,EyeTriangle[] surface,out Vector3 normal,out EyeTriangle face,out Vector3 barycentric)
+        static MeshFilter EyePiece(string name,Transform parent,SkinnedMeshRenderer source,int[] selected,Material material,bool refine)
         {
-            float distance=float.PositiveInfinity;Vector3 nearest=point;normal=Vector3.zero;face=default;barycentric=default;
-            foreach(var triangle in surface)
+            var original=source.sharedMesh;var sourcePoints=original.vertices;var sourceUV=original.uv;var sourceNormals=original.normals;
+            var map=selected.Select((vertex,index)=>(vertex,index)).ToDictionary(p=>p.vertex,p=>p.index);
+            Matrix4x4 pose=parent.worldToLocalMatrix*source.transform.localToWorldMatrix,normalPose=pose.inverse.transpose;
+            var points=selected.Select(i=>pose.MultiplyPoint3x4(sourcePoints[i])).ToList();var uv=selected.Select(i=>sourceUV[i]).ToList();
+            var normals=selected.Select(i=>normalPose.MultiplyVector(sourceNormals[i]).normalized).ToList();
+            var triangles=new System.Collections.Generic.List<int>();var retained=new System.Collections.Generic.List<int>();var indices=original.triangles;
+            for(int t=0;t<indices.Length;t+=3)
             {
-                if(side>=0&&triangle.side!=side)continue;
-                Vector3 hit=ClosestPoint(point,triangle.a,triangle.b,triangle.c);float squared=(point-hit).sqrMagnitude;
-                if(squared>=distance)continue;distance=squared;nearest=hit;normal=triangle.normal;face=triangle;
+                int a=indices[t],b=indices[t+1],c=indices[t+2];
+                if(map.ContainsKey(a)&&map.ContainsKey(b)&&map.ContainsKey(c))triangles.AddRange(new[]{map[a],map[b],map[c]});else retained.AddRange(new[]{a,b,c});
             }
-            Vector3 ab=face.b-face.a,ac=face.c-face.a,ap=nearest-face.a;
-            float d00=Vector3.Dot(ab,ab),d01=Vector3.Dot(ab,ac),d11=Vector3.Dot(ac,ac),d20=Vector3.Dot(ap,ab),d21=Vector3.Dot(ap,ac);
-            float denominator=d00*d11-d01*d01;
-            float v=Mathf.Clamp01((d11*d20-d01*d21)/denominator),w=Mathf.Clamp01((d00*d21-d01*d20)/denominator);
-            barycentric=new Vector3(Mathf.Max(0,1-v-w),v,w);barycentric/=barycentric.x+barycentric.y+barycentric.z;
-            return nearest;
-        }
-        static BoneWeight SurfaceWeights(EyeTriangle triangle,Vector3 barycentric)
-        {
-            var influences=new System.Collections.Generic.Dictionary<int,float>();
-            void Add(int bone,float weight){if(weight>0)influences[bone]=(influences.TryGetValue(bone,out float prior)?prior:0)+weight;}
-            void Mix(BoneWeight w,float amount){Add(w.boneIndex0,w.weight0*amount);Add(w.boneIndex1,w.weight1*amount);Add(w.boneIndex2,w.weight2*amount);Add(w.boneIndex3,w.weight3*amount);}
-            Mix(triangle.wa,barycentric.x);Mix(triangle.wb,barycentric.y);Mix(triangle.wc,barycentric.z);
-            var top=influences.OrderByDescending(p=>p.Value).Take(4).ToArray();float total=top.Sum(p=>p.Value);var result=new BoneWeight();
-            for(int i=0;i<top.Length;i++)
+            if(refine)
             {
-                switch(i){case 0:result.boneIndex0=top[i].Key;result.weight0=top[i].Value/total;break;
-                    case 1:result.boneIndex1=top[i].Key;result.weight1=top[i].Value/total;break;
-                    case 2:result.boneIndex2=top[i].Key;result.weight2=top[i].Value/total;break;
-                    case 3:result.boneIndex3=top[i].Key;result.weight3=top[i].Value/total;break;}
+                var edges=new System.Collections.Generic.Dictionary<(int,int),int>();
+                int Mid(int a,int b)
+                {
+                    var key=a<b?(a,b):(b,a);if(edges.TryGetValue(key,out int index))return index;
+                    index=points.Count;edges.Add(key,index);points.Add((points[a]+points[b])*.5f);uv.Add((uv[a]+uv[b])*.5f);normals.Add((normals[a]+normals[b]).normalized);return index;
+                }
+                var refined=new System.Collections.Generic.List<int>();
+                for(int t=0;t<triangles.Count;t+=3){int a=triangles[t],b=triangles[t+1],c=triangles[t+2],ab=Mid(a,b),bc=Mid(b,c),ca=Mid(c,a);refined.AddRange(new[]{a,ab,ca,ab,b,bc,ca,bc,c,ab,bc,ca});}
+                triangles=refined;
             }
-            return result;
-        }
-        static Vector3 ClosestPoint(Vector3 p,Vector3 a,Vector3 b,Vector3 c)
-        {
-            Vector3 ab=b-a,ac=c-a,ap=p-a;float d1=Vector3.Dot(ab,ap),d2=Vector3.Dot(ac,ap);
-            if(d1<=0&&d2<=0)return a;
-            Vector3 bp=p-b;float d3=Vector3.Dot(ab,bp),d4=Vector3.Dot(ac,bp);if(d3>=0&&d4<=d3)return b;
-            float vc=d1*d4-d3*d2;if(vc<=0&&d1>=0&&d3<=0)return a+ab*(d1/(d1-d3));
-            Vector3 cp=p-c;float d5=Vector3.Dot(ab,cp),d6=Vector3.Dot(ac,cp);if(d6>=0&&d5<=d6)return c;
-            float vb=d5*d2-d1*d6;if(vb<=0&&d2>=0&&d6<=0)return a+ac*(d2/(d2-d6));
-            float va=d3*d6-d5*d4;if(va<=0&&d4-d3>=0&&d5-d6>=0)return b+(c-b)*((d4-d3)/(d4-d3+d5-d6));
-            float inverse=1/(va+vb+vc);return a+ab*(vb*inverse)+ac*(vc*inverse);
+            var mesh=new Mesh{name=name,vertices=points.ToArray(),normals=normals.ToArray(),uv=uv.ToArray(),triangles=triangles.ToArray()};mesh.RecalculateBounds();
+            mesh=Save(mesh,Folder+"Meshes/"+(refine?"EyeCaps":"PupilSurface")+".asset");
+            var trimmed=UnityEngine.Object.Instantiate(original);trimmed.triangles=retained.ToArray();
+            source.sharedMesh=Save(trimmed,AssetDatabase.GetAssetPath(original));
+            var filter=new GameObject(name).AddComponent<MeshFilter>();filter.transform.SetParent(parent,false);filter.sharedMesh=mesh;
+            var renderer=filter.gameObject.AddComponent<MeshRenderer>();renderer.sharedMaterial=material;
+            renderer.shadowCastingMode=source.shadowCastingMode;renderer.receiveShadows=source.receiveShadows;return filter;
         }
         static void LowerPupils(Mesh mesh,SkinnedMeshRenderer pupils,SkinnedMeshRenderer whites,Transform actor)
         {
@@ -228,7 +212,7 @@ namespace CandyFlickEditor
             for(int i=0;i<points.Length;i++)
             {
                 if(!pupils.bones[weights[i].boneIndex0].name.EndsWith("_Bn_Eye"))continue;
-                Vector3 point=actor.InverseTransformPoint(pupils.transform.TransformPoint(points[i]));point.y-=.035f;
+                Vector3 point=actor.InverseTransformPoint(pupils.transform.TransformPoint(points[i]));point.y-=OmNelleEyeSurface.GazeLowering;
                 float front=float.NegativeInfinity;
                 for(int t=0;t<triangles.Length;t+=3)
                 {

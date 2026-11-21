@@ -19,7 +19,7 @@ namespace CandyFlick
         {
             float w=Dimension("SettingScreen$$GetMainBtnWidth");
             float top=height*.08f, bottom=R("SettingScreen$$GetBackBtnRect",true).y-86;
-            float step=Mathf.Min(145,(bottom-top)/5);
+            float step=Mathf.Min(145,(bottom-top)/6);
             float h=Mathf.Min(Dimension("SettingScreen$$GetMainBtnHeight"),step-14);
             return new Rect(320-w/2,top+index*step,w,h);
         }
@@ -27,7 +27,8 @@ namespace CandyFlick
         public Rect MoreFpsRect=>MoreOptionRect(1);
         public Rect MoreHideCandyRect=>MoreOptionRect(2);
         public Rect MoreMusicRect=>MoreOptionRect(3);
-        public Rect MoreARModeRect=>MoreOptionRect(4);
+        public Rect MoreUpdatesRect=>MoreOptionRect(4);
+        public Rect MoreARModeRect=>MoreOptionRect(5);
         public string ARModeLabel=>L("AR Mode: {0}",L(game.GroundARModeEnabled?"Ground":"Image"));
         public Rect MenuPhotoRect=>MenuLowerButtonRect(MenuDownloadRect,false);
         public Rect MenuSkinsRect
@@ -176,6 +177,7 @@ namespace CandyFlick
             DrawSettingsOption(MoreFpsRect,CameraFpsLockLabel,game.ToggleCameraFpsLock);
             DrawSettingsOption(MoreHideCandyRect,HideCandyLabel,game.ToggleHideCandyInPictures);
             DrawSettingsOption(MoreMusicRect,InGameMusicLabel,game.ToggleInGameMusic);
+            DrawSettingsOption(MoreUpdatesRect,UpdateChecksLabel,game.Updates.ToggleChecks);
             DrawSettingsOption(MoreARModeRect,ARModeLabel,game.ToggleGroundARMode,game.GroundARModeEnabled||game.GroundSupport.Supported);
             if(!game.GroundSupport.Supported)
             {
@@ -191,6 +193,7 @@ namespace CandyFlick
         }
         string HideCandyLabel=>OptionLabel(new[]{"Hide candy in pictures","Скрывать конфету на фото","Snoep verbergen op foto's","Masquer le bonbon en photo","Bonbon auf Fotos ausblenden","Nascondi caramella nelle foto","사진에서 사탕 숨기기","Ocultar doce nas fotos","Ocultar caramelo en fotos"},game.HideCandyInPictures);
         string InGameMusicLabel=>OptionLabel(new[]{"In-game music","Музыка в игре","Muziek tijdens het spelen","Musique en jeu","Musik im Spiel","Musica in partita","게임 음악","Música durante o jogo","Música durante el juego"},game.InGameMusicEnabled);
+        string UpdateChecksLabel=>OptionLabel(new[]{"Check for updates","Проверять обновления","Controleren op updates","Rechercher les mises à jour","Nach Updates suchen","Controlla aggiornamenti","업데이트 확인","Verificar atualizações","Buscar actualizaciones"},game.Updates.ChecksEnabled);
         void DrawSettingsOption(Rect rect,string label,System.Action action,bool enabled=true)
         {
             label=L(label);

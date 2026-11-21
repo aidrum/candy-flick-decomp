@@ -66,7 +66,10 @@ namespace CandyFlickEditor
         static void ValidateCopy()
         {
             string[] names={"Coffee Mug","Lunch Plate","Cookie"},slugs={"6toBy","6toBA","6toBB"};
-            Check(CandyFlickUI.ModelCreditText.Length==3,"Model credits include all three requested entries");
+            Check(CandyFlickUI.ModelCreditText.Length==4&&CandyFlickUI.ModelCreditText[3]=="Om Nelle Model: MlopsFunny","Model credits include all original attributions and the exact Om Nelle model credit");
+            Check(ui.AboutVersion.Contains(Application.version),"Main credits display the actual running game version");
+            Check(CandyFlickUI.AboutTitle=="Om Nom: Candy Flick+","Main credits identify the game as Om Nom: Candy Flick+");
+            Check(CandyFlickUI.FormatAboutVersion("Version 2.6","9.8.7")=="Version 9.8.7","Credits version formatting follows future application versions as well");
             for(int i=0;i<3;i++)
             {
                 string copy=CandyFlickUI.ModelCreditText[i];

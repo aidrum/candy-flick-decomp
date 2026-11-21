@@ -2,9 +2,9 @@ Om Nelle source assets supplied from `D:\Downloads\candyflick\omnelle`.
 
 Use **Candy Flick > Import Om Nelle** to regenerate the runtime meshes, materials, prefab and voice profile. Then use **Candy Flick > Generate skin menu assets** to regenerate portraits.
 
-The FBX's duplicate unused control hierarchy is removed. Its body and face follow the original Candy Flick animation clips through bind-space corrections. The eyelid caps are refined and fitted outside the white eye surfaces. Their complete eye-and-mouth skin weights are transferred from the whites, so the lids follow the same stretch, squash and facial deformation. Each eyelash triangle is weighted to its own eye. The pupil patches are lowered and projected onto the actual eye-white surfaces to remain visible below the lids. Actor scale and gameplay colliders are untouched.
+The replacement is **CFlickNelle.fbx by MlopsFunny**, stored here as `OmNelle.fbx`. Its supplied `omnom1.etc1.png` atlas is stored as `omnelle.png`.
 
-The eyelid mesh uses `omnelle_lashes.png` through its own material. The body keeps `omnelle.png`, and the separate eye-attached eyelash triangles keep `eyelashes.png`.
+The rig's scale is matched to the original actor's bind pose. Candy Flick's native animation joints drive the mesh directly, preserving complete affine stretch and shear. The eyelid caps attach to the deformed white-eye triangles, including their stretching and squashing, with a small surface clearance. The caps are subdivided once so their interiors follow the curved whites. Pupils animate from the model's authored geometry, then shift down by 0.035 actor units and project onto the animated eye surface each frame. Applying the lowering after animation preserves the authored alignment rather than rotating a bind-space offset differently for each eye. Lashes retain their authored skin weights. These surface meshes are independent for each Photo mode actor. Actor scale, candy/touch colliders and sounds are unchanged.
 
 Voice mapping:
 

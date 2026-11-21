@@ -1398,9 +1398,9 @@
       ]
     },
     {
-      "key": "Ground tracking needs a supported phone; it is unavailable in the editor.",
+      "key": "Ground tracking needs a supported phone, it is unavailable in the editor.",
       "text": [
-        "Ground tracking needs a supported phone; it is unavailable in the editor.",
+        "Ground tracking needs a supported phone, it is unavailable in the editor.",
         "Для отслеживания поверхностей нужен совместимый телефон. В редакторе оно недоступно.",
         "Grondtracking vereist een ondersteunde telefoon en werkt niet in de editor.",
         "Le suivi au sol nécessite un téléphone compatible et est indisponible dans l’éditeur.",
@@ -1605,6 +1605,76 @@
         "Game Center는 iOS에서 사용할 수 있습니다.",
         "O Game Center está disponível no iOS.",
         "Game Center está disponible en iOS."
+      ]
+    },
+    {
+      "key": "Download",
+      "text": [
+        "Download",
+        "???????",
+        "Downloaden",
+        "T?l?charger",
+        "Herunterladen",
+        "Scarica",
+        "????",
+        "Baixar",
+        "Descargar"
+      ]
+    },
+    {
+      "key": "Cancel",
+      "text": [
+        "Cancel",
+        "??????",
+        "Annuleren",
+        "Annuler",
+        "Abbrechen",
+        "Annulla",
+        "??",
+        "Cancelar",
+        "Cancelar"
+      ]
+    },
+    {
+      "key": "A new version of Candy Flick is available.\nVersion: {0}",
+      "text": [
+        "A new version of Candy Flick is available.\nVersion: {0}",
+        "???????? ????? ?????? Candy Flick.\n??????: {0}",
+        "Er is een nieuwe versie van Candy Flick beschikbaar.\nVersie: {0}",
+        "Une nouvelle version de Candy Flick est disponible.\nVersion : {0}",
+        "Eine neue Version von Candy Flick ist verf?gbar.\nVersion: {0}",
+        "? disponibile una nuova versione di Candy Flick.\nVersione: {0}",
+        "Candy Flick? ? ??? ????.\n??: {0}",
+        "Uma nova vers?o de Candy Flick est? dispon?vel.\nVers?o: {0}",
+        "Hay una nueva versi?n de Candy Flick disponible.\nVersi?n: {0}"
+      ]
+    },
+    {
+      "key": "Ground detection mode",
+      "text": [
+        "Ground detection mode",
+        "Режим распознавания поверхности",
+        "Grondherkenningsmodus",
+        "Mode de détection du sol",
+        "Bodenerkennungsmodus",
+        "Modalità rilevamento del suolo",
+        "바닥 감지 모드",
+        "Modo de detecção do chão",
+        "Modo de detección del suelo"
+      ]
+    },
+    {
+      "key": "Play with AR off",
+      "text": [
+        "Play with AR off",
+        "Играть без AR",
+        "Spelen zonder AR",
+        "Jouer sans AR",
+        "Ohne AR spielen",
+        "Gioca senza AR",
+        "AR 없이 플레이",
+        "Jogar sem AR",
+        "Jugar sin RA"
       ]
     }
   ]

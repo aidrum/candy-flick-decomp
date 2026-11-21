@@ -23,6 +23,7 @@ namespace CandyFlick
         }
         public Attachment[] attachments = Array.Empty<Attachment>();
         public ClipBinding[] clips = Array.Empty<ClipBinding>();
+        public bool directSkinning;
         public Transform[] glasses = Array.Empty<Transform>();
         public int[] lensVertices = Array.Empty<int>();
         public float LensClearance { get; private set; }
@@ -41,6 +42,17 @@ namespace CandyFlick
             var bones = actor.GetComponentsInChildren<Transform>(true)
                 .Where(t => !t.IsChildOf(transform)).ToDictionary(t => t.name);
             drivers = attachments.Select(a => bones[a.originalBone]).ToArray();
+            if(directSkinning)
+            {
+                var mapped=attachments.Select((a,i)=>(a.bone,driver:drivers[i])).ToDictionary(p=>p.bone,p=>p.driver);
+                foreach(var renderer in GetComponentsInChildren<SkinnedMeshRenderer>())
+                {
+                    renderer.bones=renderer.bones.Select(b=>mapped.TryGetValue(b,out var driver)?driver:actor).ToArray();
+                    renderer.rootBone=actor;
+                }
+                GetComponent<OmNelleEyeSurface>()?.Initialize(actor);
+                return;
+            }
             if(glasses.Length>0)
             {
                 body=actor.GetComponentsInChildren<SkinnedMeshRenderer>(true).Single(r=>r.name=="OmNom_Mesh");
@@ -57,7 +69,7 @@ namespace CandyFlick
         void Follow()
         {
             if(owner)owner.ConstrainAntenna();
-            if (drivers == null) return;
+            if (drivers == null || directSkinning) return;
             // Attachments are stored parent first, so intermediate mapped bones are stable.
             for (int i = 0; i < attachments.Length; i++)
             {

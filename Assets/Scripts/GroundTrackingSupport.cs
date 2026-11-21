@@ -25,7 +25,7 @@ namespace CandyFlick
             if(unavailableCached)return;
             nextCheck=Time.unscaledTime+2;
 #if UNITY_EDITOR
-            Set(GroundSupportState.Unsupported,"Ground tracking needs a supported phone; it is unavailable in the editor.");
+            Set(GroundSupportState.Unsupported,"Ground tracking needs a supported phone, it is unavailable in the editor.");
 #elif UNITY_ANDROID
             if(!SystemInfo.supportsGyroscope){Set(GroundSupportState.Unsupported,"Ground tracking requires a gyroscope. Use AR Mode: Image.");return;}
             try

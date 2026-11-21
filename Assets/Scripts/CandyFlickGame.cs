@@ -11,6 +11,7 @@ namespace CandyFlick
     public sealed partial class CandyFlickGame : MonoBehaviour
     {
         public GameAssets assets;
+        public GameUpdateChecker Updates {get;private set;}
         public GameScreen ScreenState { get; private set; }
         public LaunchMode ControlMode { get; private set; } = LaunchMode.Slingshot;
         public const string ControlModePreference = "PortControlMode";
@@ -95,7 +96,8 @@ namespace CandyFlick
             input.Flick += OnTouchFlick;
             input.TweakerCancel += () => { isCandyTapped = false; Actor.OnCancelShoot(); ResetCandyPos(); };
             input.Hold += touch => OnTouchHold(touch);
-            gameObject.AddComponent<CandyFlickUI>().game = this;
+            var ui=gameObject.AddComponent<CandyFlickUI>();ui.game = this;
+            Updates=gameObject.AddComponent<GameUpdateChecker>();Updates.Initialize(ui);
             ar = gameObject.AddComponent<ARMarkerMode>(); ar.Initialize(this);
             LAN = gameObject.AddComponent<LanMultiplayer>(); LAN.Initialize(this);
             ScreenState = GameScreen.Menu; SetWorldVisible(false);

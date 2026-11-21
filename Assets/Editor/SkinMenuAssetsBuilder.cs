@@ -63,6 +63,7 @@ namespace CandyFlickEditor
                     var animation=game.Actor.GetComponent<Animation>();animation.Stop();animation.Play("idle");
                     animation["idle"].time=.3f;animation.Sample();game.Skins.ConstrainAntenna();
                     if(game.Skins.Visual)game.Skins.Visual.SendMessage("LateUpdate",SendMessageOptions.DontRequireReceiver);
+                    if(game.Skins.Visual)game.Skins.Visual.GetComponent<OmNelleEyeSurface>()?.Refresh();
                     Texture2D portrait=Capture();
                     atlas.SetPixels32((index%4)*512,(CandyFlickUI.SkinPortraitRows-1-index/4)*512,512,512,portrait.GetPixels32());
                     File.WriteAllBytes("Documentation/SkinMenu/"+TimeTravelSkins.Names[index]+".png",portrait.EncodeToPNG());

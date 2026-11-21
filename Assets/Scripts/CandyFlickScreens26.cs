@@ -46,10 +46,7 @@ namespace CandyFlick
             else if (tutorialStartsNewGame) StartPlatformGame();
             else game.Resume();
         });
-        public void FinishTutorial()
-        {
-            tutorialReturnToMenu = false; CloseTutorial();
-        }
+        public void FinishTutorial() => LaunchTutorial(TutorialPlayMode.Image);
         public void Back()
         {
             if(game.ScreenState==GameScreen.LanLobby) { transition.Begin(game.LAN.LeaveRoom);return; }
@@ -88,8 +85,8 @@ namespace CandyFlick
             GUILayout.EndVertical();GUILayout.EndArea();
             if(Button(R("MarkerScreen$$GetOkButtonRect",true),gameSkin.GetStyle("ok_btn")))transition.Begin(game.Resume);
         }
-        void TutorialImage(string screen, string method, string image)
-            => GUI.DrawTexture(R(screen + "$$" + method), Texture(DevicePath("tutorial") + image));
+        void TutorialImage(string screen, string method, string image, bool bottom = false)
+            => GUI.DrawTexture(R(screen + "$$" + method, bottom), Texture(DevicePath("tutorial") + image));
         void TutorialLabel(string screen, string method, string key, string style = "label_tutor1_1")
             => GUI.Label(R(screen + "$$" + method), T(key), gameSkin.GetStyle(style));
         void TutorialButton(string screen, string method, string style, Action action, string key = null)
@@ -120,19 +117,12 @@ namespace CandyFlick
             {
                 case TutorialPage.Welcome:
                     screen = "TutorWelcomeScreen";
-                    TutorialImage(screen, "GetHandIphoneRect", "hand_iphone");
+                    TutorialImage(screen, "GetHandIphoneRect", "hand_iphone", true);
                     TutorialLabel(screen, "GetFirstTitleRect", "TUTOR_WELCOME");
                     TutorialButton(screen, "GetNextBtnRect", "next_btn", () => SetTutorialPage(TutorialPage.Start));
                     break;
                 case TutorialPage.Start:
-                    screen = "TutorStartScreen";
-                    TutorialImage(screen, "GetMarkersRect", "two_markers");
-                    TutorialLabel(screen, "GetTitleRect", "TUTOR_TITLE");
-                    TutorialLabel(screen, "GetOrRect", "TUTOR_OR", "orLabel");
-                    TutorialLabel(screen, "GetHaveMarkerRect", "TUTOR_HAVE_MARKER", "label_tutor1_2");
-                    TutorialLabel(screen, "GetImgRect", "TUTOR_GETIMG", "label_tutor1_2");
-                    TutorialButton(screen, "GetHaveMarkerBtnRect", "next_btn", FinishTutorial);
-                    TutorialButton(screen, "GetImgBtnRect", "next_btn", () => SetTutorialPage(TutorialPage.CreateMarker));
+                    DrawTutorialStart();
                     break;
                 case TutorialPage.CreateMarker:
                     screen = "TutorCreateMarkerScreen";
@@ -178,13 +168,17 @@ namespace CandyFlick
             game.Play(game.assets.button);
             transition.Begin(() => { settingsPage = page; gameCenterFromResults = false; resetHolding = 0; resetArmed = resetPointerDown = false; });
         }
+        public static string FormatAboutVersion(string localized,string version)
+            =>System.Text.RegularExpressions.Regex.Replace(localized,@"\d+(?:\.\d+)*",_=>version);
+        public const string AboutTitle="Om Nom: Candy Flick+";
+        public string AboutVersion=>FormatAboutVersion(T("ABOUT_VERSION"),Application.version);
         void DrawAbout()
         {
-            string copy = string.Join("\n", T("ABOUT_VERSION"), T("ABOUT_TEXT1"), T("ABOUT_TEXT2"), T("ABOUT_TEXT3"));
+            string copy = string.Join("\n", AboutVersion, T("ABOUT_TEXT1"), T("ABOUT_TEXT2"), T("ABOUT_TEXT3"));
             var titleStyle = new GUIStyle(Main(43)) { alignment = TextAnchor.UpperCenter, wordWrap = true, fixedHeight = 0 };
             var bodyStyle = new GUIStyle(Main(42)) { alignment = TextAnchor.UpperCenter, fixedHeight = 0 };
-            Rect[] layout = AboutLayout(T("ABOUT_TITLE"), copy, titleStyle, bodyStyle, height);
-            GUI.Label(layout[0], T("ABOUT_TITLE"), titleStyle);
+            Rect[] layout = AboutLayout(AboutTitle, copy, titleStyle, bodyStyle, height);
+            GUI.Label(layout[0], AboutTitle, titleStyle);
             GUI.Label(layout[1], copy, bodyStyle);
             if (Button(layout[2], Main(1))) Application.OpenURL("http://privacy-policy.truste.com/certified-policy/mobile/app/en/CutTheRope.com/");
             Outline(layout[2], T("PRIVACY_POLICY"), Main(1));

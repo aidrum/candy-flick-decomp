@@ -9,7 +9,8 @@ namespace CandyFlick
         public static readonly string[] ModelCreditText = {
             "\"Coffee Mug (School Project)\" (https://skfb.ly/6toBy) by Ole Gunnar Isager is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).",
             "\"Lunch Plate (School Project)\" (https://skfb.ly/6toBA) by Ole Gunnar Isager is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).",
-            "\"Cookie (School Project)\" (https://skfb.ly/6toBB) by Ole Gunnar Isager is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/)."
+            "\"Cookie (School Project)\" (https://skfb.ly/6toBB) by Ole Gunnar Isager is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).",
+            "Om Nelle Model: MlopsFunny"
         };
         public Rect CreditsBackRect => R("SettingScreen$$GetBackBtnRect",true);
         public Rect CreditsNextRect { get { Rect rect=CreditsBackRect;rect.x=640-rect.xMax;return rect; } }
@@ -39,7 +40,7 @@ namespace CandyFlick
         public static Rect[] ModelCreditsLayout(GUIStyle body,float availableHeight)
         {
             string[] localized=ModelCreditText.Select(PortLocalization.Translate).ToArray();
-            const float width=528,top=240,gap=30;
+            const float width=528,top=225,gap=18;
             float Measure()
             {
                 float sum=gap*(ModelCreditText.Length-1);

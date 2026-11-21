@@ -281,8 +281,8 @@ namespace CandyFlickEditor
                     foreach(float h in new[]{853f,1136f,1422f}) {
                         var title=new GUIStyle(skin.customStyles[43]) { alignment=TextAnchor.UpperCenter,wordWrap=true,fixedHeight=0 };
                         var body=new GUIStyle(skin.customStyles[42]) { alignment=TextAnchor.UpperCenter,fixedHeight=0 };
-                        string copy=string.Join("\n",text.GetStringByKey("ABOUT_VERSION"),text.GetStringByKey("ABOUT_TEXT1"),text.GetStringByKey("ABOUT_TEXT2"),text.GetStringByKey("ABOUT_TEXT3"));
-                        Rect[] boxes=CandyFlickUI.AboutLayout(text.GetStringByKey("ABOUT_TITLE"),copy,title,body,h);
+                        string copy=string.Join("\n",ui.AboutVersion,text.GetStringByKey("ABOUT_TEXT1"),text.GetStringByKey("ABOUT_TEXT2"),text.GetStringByKey("ABOUT_TEXT3"));
+                        Rect[] boxes=CandyFlickUI.AboutLayout(CandyFlickUI.AboutTitle,copy,title,body,h);
                         Check(boxes[0].yMax<=boxes[1].y && boxes[1].yMax<=boxes[2].y && boxes[2].yMax<=boxes[3].y && boxes[3].yMax<=h-155,
                             "Credits fit without overlap: language "+language+", usable height "+h);
                         Check(boxes[1].height>=body.CalcHeight(new GUIContent(copy),boxes[1].width),"Credits text is fully measured: language "+language+", height "+h);

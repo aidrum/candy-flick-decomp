@@ -12,7 +12,20 @@ namespace CandyFlick
         public bool PhotoSkinPicker=>photoSkinPicker;
         bool PhotoPlacementPrompt=>game.IsPhotoMode&&game.PhotoPlacing;
         public void ShowPhotoSupportWarning(string reason)=>ShowPopupMessage(reason);
-        GUIStyle PhotoMenuButtonStyle=>new GUIStyle(Main(23)){fixedWidth=0,fixedHeight=0};
+        GUIStyle photoMenuButton;
+        GUIStyle PhotoMenuButtonStyle
+        {
+            get
+            {
+                if(photoMenuButton==null)
+                {
+                    var normal=Resources.Load<Texture2D>("PhotoModeMenu/photo_mode");
+                    var pressed=Resources.Load<Texture2D>("PhotoModeMenu/photo_mode_pressed");
+                    photoMenuButton=new GUIStyle{normal={background=normal},hover={background=normal},active={background=pressed}};
+                }
+                return photoMenuButton;
+            }
+        }
         public Rect PhotoCameraRect=>R("GamePlayScreen$$GetRestartRectGP",true);
         Rect PhotoActionRect(int row)
         {
