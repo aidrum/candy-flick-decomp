@@ -51,7 +51,7 @@ namespace CandyFlickEditor
                 importer.importAnimation=false;importer.isReadable=true;importer.addCollider=false;
                 importer.materialImportMode=ModelImporterMaterialImportMode.None;importer.SaveAndReimport();
             }
-            foreach(string file in new[]{"Models/bagel.png","Models/cupcake.png","thumbnails.png"})
+            foreach(string file in new[]{"Models/bagel.png","Models/cupcake.png"})
             {
                 var importer=(TextureImporter)AssetImporter.GetAtPath(Folder+"/"+file);
                 importer.mipmapEnabled=false;importer.npotScale=TextureImporterNPOTScale.None;importer.alphaIsTransparency=true;
@@ -89,9 +89,10 @@ namespace CandyFlickEditor
                 }
             }
             finally{EditorSceneManager.ClosePreviewScene(scene);}
-            foreach(string file in new[]{"Models/bagel.png","Models/cupcake.png","thumbnails.png"})
+            foreach(string file in new[]{"Models/bagel.png","Models/cupcake.png"})
             {var importer=(TextureImporter)AssetImporter.GetAtPath(Folder+"/"+file);importer.isReadable=false;importer.SaveAndReimport();}
             AssetDatabase.SaveAssets();File.WriteAllText("Documentation/candy-skin-assets.txt",report.ToString());
+            CandyPortraitsBuilder.Build();
         }
     }
 }

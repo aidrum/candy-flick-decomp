@@ -19,7 +19,8 @@ namespace CandyFlick
             game.ScreenState==GameScreen.Playing && game.IsAR && game.ar.GroundMode &&
             (!game.IsLanMatch||game.LAN.IsHost) &&
             (game.IsPhotoMode ? PhotoPlacementPrompt : !game.ar.GroundPlaced && !game.ar.Tracking) && !PopupActive && !hideGui && !transition.Waiting &&
-            Input.touchCount<=1 && fullScreen.Contains(point) && !R("GamePlayScreen$$GetPauseRect",true).Contains(point);
+            Input.touchCount<=1 && fullScreen.Contains(point) && !R("GamePlayScreen$$GetPauseRect",true).Contains(point) &&
+            (!game.IsPhotoMode||!PhotoAddRect.Contains(point));
         void HandleGroundPlacementTap()
         {
             // Run after buttons have received this event so a UI gesture never places.

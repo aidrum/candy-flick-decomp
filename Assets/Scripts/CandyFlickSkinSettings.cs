@@ -45,7 +45,7 @@ namespace CandyFlick
         {
             if(skinsMenuButton!=null)return;
             Texture2D Load(string name)=>Resources.Load<Texture2D>("SkinMenu/"+name);
-            candyPortraits=Resources.Load<Texture2D>("CandySkins/thumbnails");
+            candyPortraits=Resources.Load<Texture2D>("CandySkins/portraits");
             skinsBackground=Load("skins_bg"); skinPortraits=Load("nommies");
             skinsMenuButton=new GUIStyle { normal={background=Load("skins_btn")}, hover={background=Load("skins_btn")}, active={background=Load("skins_btn_pressed")} };
             skinCard=new GUIStyle {normal={background=Load("skin_btn_bg")}};
@@ -66,7 +66,7 @@ namespace CandyFlick
         }
         void CloseSkins()
         {
-            if(photoSkinPicker){transition.Begin(()=>{photoSkinPicker=false;game.Pause();game.Show(GameScreen.Paused);});return;}
+            if(photoSkinPicker){transition.Begin(()=>{photoSkinPicker=false;if(photoSkinsFromPause)game.Show(GameScreen.Paused);else game.Resume();});return;}
             bool returnToLan=skinsFromLan;
             transition.Begin(()=>
             {
@@ -112,7 +112,7 @@ namespace CandyFlick
             {
                 Rect card=SkinCardRect(i,CandySkinSettings.Count+1);
                 if(Button(card,game.CandySkins.Selected==i?selectedSkinCard:skinCard))game.CandySkins.Select(i);
-                if(candyPortraits)GUI.DrawTextureWithTexCoords(new Rect(card.center.x-75,card.y+12,150,150),candyPortraits,new Rect(i/4f,.5f,.25f,.5f),true);
+                if(candyPortraits)GUI.DrawTextureWithTexCoords(new Rect(card.center.x-75,card.y+12,150,150),candyPortraits,new Rect(i/4f,0,.25f,1),true);
             }
             Rect random=SkinCardRect(CandySkinSettings.RandomChoice,CandySkinSettings.Count+1);
             if(Button(random,game.CandySkins.Selected==CandySkinSettings.RandomChoice?selectedSkinCard:skinCard))game.CandySkins.Select(CandySkinSettings.RandomChoice);

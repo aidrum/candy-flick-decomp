@@ -11,7 +11,7 @@ namespace CandyFlickEditor
         {
             const string folder="Assets/Resources/PhotoModeMenu/";
             Directory.CreateDirectory(folder);
-            foreach(string name in new[]{"photo_mode","photo_mode_pressed"})
+            foreach(string name in new[]{"photo_mode","photo_mode_pressed","add","add_pressed"})
             {
                 string path=folder+name+".png";
                 string source=Path.Combine(@"D:\Downloads\candyflick\photomode",name+".png");

@@ -5,14 +5,14 @@ namespace CandyFlick
 {
     public sealed partial class CandyFlickUI
     {
-        bool photoSkinPicker,photoTapPressed;
+        bool photoSkinPicker,photoSkinsFromPause,photoTapPressed;
         Vector2 photoTapStart;
         float photoTapTime;
         PhotoOmNom photoTapTarget;
         public bool PhotoSkinPicker=>photoSkinPicker;
         bool PhotoPlacementPrompt=>game.IsPhotoMode&&game.PhotoPlacing;
         public void ShowPhotoSupportWarning(string reason)=>ShowPopupMessage(reason);
-        GUIStyle photoMenuButton;
+        GUIStyle photoMenuButton,photoAddButton;
         GUIStyle PhotoMenuButtonStyle
         {
             get
@@ -27,6 +27,23 @@ namespace CandyFlick
             }
         }
         public Rect PhotoCameraRect=>R("GamePlayScreen$$GetRestartRectGP",true);
+        public Rect PhotoAddRect
+        {
+            get {var rect=PhotoCameraRect;rect.y=height-(int)(rect.height*1.5f);return rect;}
+        }
+        GUIStyle PhotoAddButtonStyle
+        {
+            get
+            {
+                if(photoAddButton==null)
+                {
+                    var normal=Resources.Load<Texture2D>("PhotoModeMenu/add");
+                    var pressed=Resources.Load<Texture2D>("PhotoModeMenu/add_pressed");
+                    photoAddButton=new GUIStyle{normal={background=normal},hover={background=normal},active={background=pressed}};
+                }
+                return photoAddButton;
+            }
+        }
         Rect PhotoActionRect(int row)
         {
             Texture image=Main(1).normal.background;float w=Mathf.Min(430,CanvasWidth-64),h=w*image.height/image.width;
@@ -44,7 +61,8 @@ namespace CandyFlick
         {
             if(!game.IsPhotoMode)return;
             InitSkinMenu();game.DeselectPhotoActor();
-            transition.Begin(()=>{photoSkinPicker=true;skinsFromLan=false;candySkinTab=false;skinScroll=Vector2.zero;skinPointerDown=skinDragging=false;game.Show(GameScreen.Skins);});
+            photoSkinsFromPause=game.ScreenState==GameScreen.Paused;
+            transition.Begin(()=>{game.Pause();photoSkinPicker=true;skinsFromLan=false;candySkinTab=false;skinScroll=Vector2.zero;skinPointerDown=skinDragging=false;game.Show(GameScreen.Skins);});
         }
         public void ChoosePhotoSkin(NommieSkin skin)
         {
@@ -81,6 +99,7 @@ namespace CandyFlick
                 DrawSettingsOption(PhotoActionRect(3),"Cancel",game.DeselectPhotoActor);
             }
             if(!game.PhotoPlacing&&!game.PhotoSelection&&!CaptureManager26.IsScreenShotSaving&&Button(PhotoCameraRect,Game(30)))PhotoTapped();
+            if(!game.PhotoSelection&&!CaptureManager26.IsScreenShotSaving&&Button(PhotoAddRect,PhotoAddButtonStyle))OpenPhotoSkins();
             if(Button(R("GamePlayScreen$$GetPauseRect",true),Game(11))){game.DeselectPhotoActor();game.Pause();}
             if(!hideGui){HandleGroundPlacementTap();HandlePhotoSelectionTap();}
         }
@@ -106,7 +125,6 @@ namespace CandyFlick
         void DrawPhotoPause()
         {
             GUI.color=new Color(0,0,0,.5f);GUI.DrawTexture(fullScreen,Texture2D.whiteTexture);GUI.color=Color.white;
-            DrawSettingsOption(PhotoActionRect(1),"Add Om Nom",OpenPhotoSkins);
             DrawSettingsOption(PhotoActionRect(2),"Delete all Om Noms",game.DeleteAllPhotoActors);
             if(game.PhotoPlacing)DrawSettingsOption(PhotoActionRect(3),"Cancel placement",()=>{game.CancelPhotoPlacement();game.Resume();});
             if(Button(R("GamePlayScreen$$GetHelpRect",true),Game(12)))

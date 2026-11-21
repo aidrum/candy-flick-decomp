@@ -34,6 +34,7 @@ namespace CandyFlickEditor
                     case "PrehistoricIdles": PrehistoricIdleCapture.Run(); break;
                     case "CandyTest": CandySkinValidation.Run(); break;
                     case "CandyAssets": CandySkinAssetsBuilder.Build(); break;
+                    case "CandyPortraits": CandyPortraitsBuilder.Build(); break;
                     case "Prepare": ProjectBuilder.PrepareProject(); break;
                     case "SkinsImport": TimeTravelSkinBuilder.Build(); break;
                     case "SkinMenuAssets": SkinMenuAssetsBuilder.Build(); break;

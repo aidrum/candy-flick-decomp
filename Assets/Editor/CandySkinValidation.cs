@@ -57,7 +57,8 @@ namespace CandyFlickEditor
                 {
                     case 0:
                         Check(game.CandySkins.Selected==0&&Ghost.Skin==0,"Candy 1 is the default without a saved candy preference");
-                        Check(Resources.Load<Texture2D>("CandySkins/thumbnails").width==1024,"Three supplied 2D thumbnails load from one atlas");
+                        var portraits=Resources.Load<Texture2D>("CandySkins/portraits");
+                        Check(portraits&&portraits.width==2048&&portraits.height==512,"Three rendered 3D candy portraits load from one atlas");
                         Check(CandySkinSettings.CleanChoice(99)==0&&CandySkinSettings.CleanSkin(3)==0,"Invalid choice and unresolved Random IDs fall back to original candy");
                         ui.OpenSkins();deadline=EditorApplication.timeSinceStartup+8;break;
                     case 1:

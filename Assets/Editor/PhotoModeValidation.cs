@@ -66,13 +66,17 @@ namespace CandyFlickEditor
                         Check(game.GameplayMusic.isPlaying&&game.GameplayMusic.clip==Resources.Load<AudioClip>(CandyFlickGame.PhotoTrackResource),"Winter Fun plays during scanning despite normal gameplay music being off");
                         Check(!game.ar.PlaceGround(),"Simulator cannot invent a ground hit");Capture("scanning");game.Pause();break;
                     case 2:
-                        Check(game.GameplayMusic.isPlaying,"Photo music continues while paused with no actors");Capture("pause-empty");ui.OpenPhotoSkins();break;
+                        Check(game.GameplayMusic.isPlaying,"Photo music continues while paused with no actors");game.Resume();
+                        Check(ui.PhotoAddRect.x==ui.PhotoCameraRect.x&&ui.PhotoAddRect.center.y<ui.PhotoCameraRect.center.y&&ui.PhotoAddRect.size==ui.PhotoCameraRect.size,"HUD Add button occupies the normal camera position above the Photo camera");
+                        Check(Resources.Load<Texture2D>("PhotoModeMenu/add")&&Resources.Load<Texture2D>("PhotoModeMenu/add_pressed"),"HUD Add uses the supplied normal and pressed artwork");
+                        Check(!ui.CanTapGroundPlacement(ui.PhotoAddRect.center),"Tapping Add while placing cannot also place an Om Nom");
+                        Capture("add-button");typeof(SkinMenuValidation).GetMethod("Click",BindingFlags.Static|BindingFlags.NonPublic).Invoke(null,new object[]{ui.PhotoAddRect.center});break;
                     case 3:
                         if(game.ScreenState!=GameScreen.Skins){stage--;return;}
-                        Check(ui.PhotoSkinPicker,"Add Om Nom opens the dedicated skin picker");Capture("select-om-nom");ui.Back();break;
+                        Check(ui.PhotoSkinPicker&&Time.timeScale==0,"HUD Add Om Nom opens the dedicated skin picker and pauses gameplay");Capture("select-om-nom");ui.Back();break;
                     case 4:
-                        if(game.ScreenState!=GameScreen.Paused){stage--;return;}
-                        Check(game.PhotoPlacing&&game.PhotoActors.Count==0,"Picker Back returns to pause without adding an actor");
+                        if(game.ScreenState!=GameScreen.Playing){stage--;return;}
+                        Check(game.PhotoPlacing&&game.PhotoActors.Count==0,"Picker Back returns to Photo gameplay without adding an actor");
                         game.Resume();game.ar.End();game.enabled=false;Call(game.ar,"SetTracking",true);
                         first=Place(new Vector3(0,0,0),null);second=Place(new Vector3(750,0,0),NommieSkin.Prehistoric);third=Place(new Vector3(-750,200,100),NommieSkin.Disco);
                         Check(first.Appearance.Selected==NommieSkin.Pirate&&second.Appearance.Selected==NommieSkin.Prehistoric&&third.Appearance.Selected==NommieSkin.Disco,"Initial actor uses preferred Pirate; added actors keep independent skins");
