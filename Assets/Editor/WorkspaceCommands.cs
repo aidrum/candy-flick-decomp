@@ -21,6 +21,8 @@ namespace CandyFlickEditor
             {
                 switch (command)
                 {
+                    case "SkinPerfBefore": SkinPerformanceValidation.Run("before"); break;
+                    case "SkinPerfAfter": SkinPerformanceValidation.Run("after"); break;
                     case "BuildSettingsTest": BuildSettingsValidation.Run(); break;
                     case "TutorialModesTest": TutorialModeValidation.Run(); break;
                     case "PhotoMenuAssets": PhotoMenuAssetsBuilder.Build(); break;

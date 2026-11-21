@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -16,17 +17,20 @@ namespace CandyFlick
         public const float GazeLowering=.035f;
         const float Clearance=.003f;
         struct Anchor {public int triangle;public Vector3 barycentric;public float distance,area;}
-        struct Triangle {public Vector3 a,b,c,normal;public float area;}
+        struct Triangle {public Vector3 a,b,c,normal,min,max;public float area,uX,uY,vX,vY,denominator;}
+        struct Node {public Vector3 min,max;public int left,right,start,count;}
         Transform actor;
         Mesh lidMesh,pupilMesh;
-        Vector3[] whiteRest,gazeRest,whitePoints,whiteNormals,lidPoints,lidNormals,pupilPoints,pupilNormals;
+        Vector3[] whiteRest,whitePoints,whiteNormals,lidPoints,lidNormals,pupilPoints,pupilNormals;
         BoneWeight[] whiteWeights,gazeWeights;
         Matrix4x4[] whiteBind,gazeBind,whitePose,gazePose;
         Transform[] whiteBones,gazeBones;
         Triangle[] triangles;
         Anchor[] anchors;
-        bool[] usedWhite;
-        int[] whiteJoints,gazeJoints;
+        int[] whiteVertices,whiteJoints,gazeJoints,triangleOrder,queryStack;
+        Node[] nodes;
+        int nodeCount;
+        bool posed;
         float[] orientation;
         Matrix4x4 lidToActor,pupilToActor,actorToLid,actorToPupil;
         public float MinimumPupilClearance {get;private set;}
@@ -36,12 +40,13 @@ namespace CandyFlick
         {
             actor=owner;
             whiteRest=whites.sharedMesh.vertices;whiteWeights=whites.sharedMesh.boneWeights;whiteBind=whites.sharedMesh.bindposes;whiteBones=whites.bones;
-            gazeRest=gaze.sharedMesh.vertices;gazeWeights=gaze.sharedMesh.boneWeights;gazeBind=gaze.sharedMesh.bindposes;gazeBones=gaze.bones;
+            gazeWeights=gaze.sharedMesh.boneWeights;gazeBind=gaze.sharedMesh.bindposes;gazeBones=gaze.bones;
             whitePose=new Matrix4x4[whiteBind.Length];gazePose=new Matrix4x4[gazeBind.Length];
-            whitePoints=new Vector3[whiteRest.Length];whiteNormals=new Vector3[whiteRest.Length];usedWhite=new bool[whiteRest.Length];
+            whitePoints=new Vector3[whiteRest.Length];whiteNormals=new Vector3[whiteRest.Length];var usedWhite=new bool[whiteRest.Length];
             foreach(int i in whiteTriangles)usedWhite[i]=true;
             whiteJoints=Joints(whiteWeights,usedWhite,whiteBind.Length);
-            var usedGaze=new bool[gazeRest.Length];foreach(int i in pupilSourceIndices)usedGaze[i]=true;
+            whiteVertices=Enumerable.Range(0,usedWhite.Length).Where(i=>usedWhite[i]).ToArray();
+            var usedGaze=new bool[gazeWeights.Length];foreach(int i in pupilSourceIndices)usedGaze[i]=true;
             gazeJoints=Joints(gazeWeights,usedGaze,gazeBind.Length);
             lidMesh=Instantiate(lids.sharedMesh);pupilMesh=Instantiate(pupils.sharedMesh);lidMesh.MarkDynamic();pupilMesh.MarkDynamic();
             lids.sharedMesh=lidMesh;pupils.sharedMesh=pupilMesh;
@@ -57,7 +62,7 @@ namespace CandyFlick
                 int a=whiteTriangles[t*3],b=whiteTriangles[t*3+1],c=whiteTriangles[t*3+2];
                 orientation[t]=Vector3.Dot(Vector3.Cross(whitePoints[b]-whitePoints[a],whitePoints[c]-whitePoints[a]),normalPose.MultiplyVector(normals[a]+normals[b]+normals[c]))<0?-1:1;
             }
-            BuildTriangles();anchors=new Anchor[lidPoints.Length];
+            BuildTriangles();BuildTree();anchors=new Anchor[lidPoints.Length];
             for(int i=0;i<anchors.Length;i++)
             {
                 Vector3 point=lidToActor.MultiplyPoint3x4(lidPoints[i]);int t=Nearest(point,out Vector3 hit);var triangle=triangles[t];
@@ -70,10 +75,19 @@ namespace CandyFlick
         public void Refresh()
         {
             if(!actor)return;
-            Matrix4x4 worldToActor=actor.worldToLocalMatrix;
-            foreach(int i in whiteJoints)whitePose[i]=worldToActor*whiteBones[i].localToWorldMatrix*whiteBind[i];
-            foreach(int i in gazeJoints)gazePose[i]=worldToActor*gazeBones[i].localToWorldMatrix*gazeBind[i];
-            for(int i=0;i<whiteRest.Length;i++)if(usedWhite[i]){whitePoints[i]=Skin(whiteRest[i],whiteWeights[i],whitePose);whiteNormals[i]=Vector3.zero;}
+            Matrix4x4 worldToActor=actor.worldToLocalMatrix;bool changed=!posed;
+            foreach(int i in whiteJoints)
+            {
+                var pose=worldToActor*whiteBones[i].localToWorldMatrix*whiteBind[i];
+                if(!pose.Equals(whitePose[i]))changed=true;whitePose[i]=pose;
+            }
+            foreach(int i in gazeJoints)
+            {
+                var pose=worldToActor*gazeBones[i].localToWorldMatrix*gazeBind[i];
+                if(!pose.Equals(gazePose[i]))changed=true;gazePose[i]=pose;
+            }
+            if(!changed)return;
+            foreach(int i in whiteVertices){whitePoints[i]=Skin(whiteRest[i],whiteWeights[i],whitePose);whiteNormals[i]=Vector3.zero;}
             BuildTriangles();
             Matrix4x4 lidNormal=lidToActor.transpose,pupilNormal=pupilToActor.transpose;
             MinimumLidClearance=float.PositiveInfinity;
@@ -99,11 +113,9 @@ namespace CandyFlick
                 // space rotates the offset differently for each eye and changes their alignment.
                 Vector3 desired=Skin(authoredPupils[i],gazeWeights[source],gazePose);
                 desired.y-=GazeLowering;
-                int triangle=0;Vector3 barycentric=default,hit=default;bool found=false;
                 // Squashed eye surfaces can overlap in projection. Always use the foremost
-                // triangle, even if the pupil still lies inside last frame's triangle.
-                float front=float.NegativeInfinity;
-                for(int t=0;t<triangles.Length;t++)if(Ray(desired,triangles[t],out var b,out var p)&&p.z>front){front=p.z;triangle=t;barycentric=b;hit=p;found=true;}
+                // hit. The tree skips irrelevant regions without relying on last frame's hit.
+                bool found=FrontHit(desired,out int triangle,out Vector3 barycentric,out Vector3 hit);
                 if(!found){triangle=Nearest(desired,out hit,true);barycentric=Barycentric(hit,triangles[triangle]);}
                 Vector3 normal=SurfaceNormal(triangle,barycentric);
                 if(normal.z<0)normal=-normal;
@@ -115,6 +127,7 @@ namespace CandyFlick
             }
             lidMesh.vertices=lidPoints;lidMesh.normals=lidNormals;lidMesh.RecalculateBounds();
             pupilMesh.vertices=pupilPoints;pupilMesh.normals=pupilNormals;pupilMesh.RecalculateBounds();
+            posed=true;
         }
         void BuildTriangles()
         {
@@ -122,30 +135,122 @@ namespace CandyFlick
             {
                 int a=whiteTriangles[t*3],b=whiteTriangles[t*3+1],c=whiteTriangles[t*3+2];
                 Vector3 cross=Vector3.Cross(whitePoints[b]-whitePoints[a],whitePoints[c]-whitePoints[a])*orientation[t];float area=cross.magnitude;
-                triangles[t]=new Triangle{a=whitePoints[a],b=whitePoints[b],c=whitePoints[c],normal=area>.00000001f?cross/area:Vector3.forward,area=Mathf.Max(.00000001f,area)};
+                Vector3 pa=whitePoints[a],pb=whitePoints[b],pc=whitePoints[c];
+                float uX=pb.y-pc.y,uY=pc.x-pb.x;
+                triangles[t]=new Triangle{a=pa,b=pb,c=pc,normal=area>.00000001f?cross/area:Vector3.forward,area=Mathf.Max(.00000001f,area),
+                    min=Vector3.Min(pa,Vector3.Min(pb,pc)),max=Vector3.Max(pa,Vector3.Max(pb,pc)),
+                    uX=uX,uY=uY,vX=pc.y-pa.y,vY=pa.x-pc.x,denominator=uX*(pa.x-pc.x)+uY*(pa.y-pc.y)};
                 whiteNormals[a]+=cross;whiteNormals[b]+=cross;whiteNormals[c]+=cross;
             }
+            foreach(int i in whiteVertices)whiteNormals[i]=whiteNormals[i].normalized;
+            if(nodes!=null)RefitTree();
         }
         Vector3 SurfaceNormal(int triangle,Vector3 barycentric)
         {
-            Vector3 normal=(whiteNormals[whiteTriangles[triangle*3]].normalized*Mathf.Max(0,barycentric.x)+whiteNormals[whiteTriangles[triangle*3+1]].normalized*Mathf.Max(0,barycentric.y)+whiteNormals[whiteTriangles[triangle*3+2]].normalized*Mathf.Max(0,barycentric.z)).normalized;
+            Vector3 normal=(whiteNormals[whiteTriangles[triangle*3]]*Mathf.Max(0,barycentric.x)+whiteNormals[whiteTriangles[triangle*3+1]]*Mathf.Max(0,barycentric.y)+whiteNormals[whiteTriangles[triangle*3+2]]*Mathf.Max(0,barycentric.z)).normalized;
             return normal.sqrMagnitude>.1f?normal:triangles[triangle].normal;
         }
-        static bool Ray(Vector3 point,Triangle t,out Vector3 barycentric,out Vector3 hit)
+        static bool Ray(Vector3 point,in Triangle t,out Vector3 barycentric,out Vector3 hit)
         {
             hit=default;barycentric=default;
-            if(point.x<Mathf.Min(t.a.x,Mathf.Min(t.b.x,t.c.x))||point.x>Mathf.Max(t.a.x,Mathf.Max(t.b.x,t.c.x))||point.y<Mathf.Min(t.a.y,Mathf.Min(t.b.y,t.c.y))||point.y>Mathf.Max(t.a.y,Mathf.Max(t.b.y,t.c.y)))return false;
-            float d=(t.b.y-t.c.y)*(t.a.x-t.c.x)+(t.c.x-t.b.x)*(t.a.y-t.c.y);if(Mathf.Abs(d)<1e-10f)return false;
-            float u=((t.b.y-t.c.y)*(point.x-t.c.x)+(t.c.x-t.b.x)*(point.y-t.c.y))/d;
-            float v=((t.c.y-t.a.y)*(point.x-t.c.x)+(t.a.x-t.c.x)*(point.y-t.c.y))/d;
+            if(point.x<t.min.x||point.x>t.max.x||point.y<t.min.y||point.y>t.max.y||Mathf.Abs(t.denominator)<1e-10f)return false;
+            float u=(t.uX*(point.x-t.c.x)+t.uY*(point.y-t.c.y))/t.denominator;
+            float v=(t.vX*(point.x-t.c.x)+t.vY*(point.y-t.c.y))/t.denominator;
             if(u<-.00001f||v<-.00001f||u+v>1.00001f)return false;
             barycentric=new Vector3(u,v,1-u-v);hit=t.a*u+t.b*v+t.c*(1-u-v);return true;
         }
         int Nearest(Vector3 point,out Vector3 hit,bool frontOnly=false)
         {
-            int nearest=0;float distance=float.PositiveInfinity;hit=point;
-            for(int t=0;t<triangles.Length;t++){var triangle=triangles[t];if(frontOnly&&triangle.normal.z<=.001f)continue;Vector3 p=ClosestPoint(point,triangle.a,triangle.b,triangle.c);float d=(p-point).sqrMagnitude;if(d<distance){distance=d;nearest=t;hit=p;}}
+            int nearest=0,top=0;float distance=float.PositiveInfinity;hit=point;queryStack[top++]=0;
+            while(top>0)
+            {
+                ref Node node=ref nodes[queryStack[--top]];
+                if(BoxDistance(point,node)>distance)continue;
+                if(node.count>0)
+                {
+                    for(int i=node.start;i<node.start+node.count;i++)
+                    {
+                        int t=triangleOrder[i];ref Triangle triangle=ref triangles[t];
+                        if(frontOnly&&triangle.normal.z<=.001f)continue;
+                        Vector3 p=ClosestPoint(point,triangle.a,triangle.b,triangle.c);float d=(p-point).sqrMagnitude;
+                        if(d<distance||(d==distance&&t<nearest)){distance=d;nearest=t;hit=p;}
+                    }
+                }
+                else
+                {
+                    int near=node.left,far=node.right;
+                    if(BoxDistance(point,nodes[near])>BoxDistance(point,nodes[far])){near=node.right;far=node.left;}
+                    queryStack[top++]=far;queryStack[top++]=near;
+                }
+            }
             return nearest;
+        }
+        bool FrontHit(Vector3 point,out int triangle,out Vector3 barycentric,out Vector3 hit)
+        {
+            triangle=0;barycentric=hit=default;bool found=false;
+            int top=0;float front=float.NegativeInfinity;queryStack[top++]=0;
+            while(top>0)
+            {
+                ref Node node=ref nodes[queryStack[--top]];
+                if(point.x<node.min.x||point.x>node.max.x||point.y<node.min.y||point.y>node.max.y||node.max.z<front)continue;
+                if(node.count>0)
+                {
+                    for(int i=node.start;i<node.start+node.count;i++)
+                    {
+                        int t=triangleOrder[i];
+                        if(Ray(point,triangles[t],out var b,out var p)&&(p.z>front||(p.z==front&&t<triangle)))
+                        {front=p.z;triangle=t;barycentric=b;hit=p;found=true;}
+                    }
+                }
+                else
+                {
+                    int near=node.left,far=node.right;
+                    if(nodes[near].max.z<nodes[far].max.z){near=node.right;far=node.left;}
+                    queryStack[top++]=far;queryStack[top++]=near;
+                }
+            }
+            return found;
+        }
+        // Build the hierarchy once from topology, then refit its bounds to each animated pose.
+        // Both nearest-point and foremost-hit queries remain exact, including folded eye poses.
+        void BuildTree()
+        {
+            triangleOrder=Enumerable.Range(0,triangles.Length).ToArray();nodes=new Node[triangles.Length*2];nodeCount=0;
+            BuildNode(0,triangles.Length);queryStack=new int[nodeCount];
+        }
+        int BuildNode(int start,int count)
+        {
+            int index=nodeCount++;var min=new Vector3(float.PositiveInfinity,float.PositiveInfinity,float.PositiveInfinity);var max=-min;
+            for(int i=start;i<start+count;i++){var t=triangles[triangleOrder[i]];min=Vector3.Min(min,t.min);max=Vector3.Max(max,t.max);}
+            var node=new Node{min=min,max=max,start=start,count=count};
+            if(count>6)
+            {
+                Vector3 size=max-min;int axis=size.x>=size.y&&size.x>=size.z?0:size.y>=size.z?1:2;
+                Array.Sort(triangleOrder,start,count,Comparer<int>.Create((a,b)=>(triangles[a].min[axis]+triangles[a].max[axis]).CompareTo(triangles[b].min[axis]+triangles[b].max[axis])));
+                int half=count/2;node.left=BuildNode(start,half);node.right=BuildNode(start+half,count-half);node.count=0;
+            }
+            nodes[index]=node;return index;
+        }
+        void RefitTree()
+        {
+            for(int i=nodeCount-1;i>=0;i--)
+            {
+                ref Node node=ref nodes[i];
+                if(node.count>0)
+                {
+                    node.min=new Vector3(float.PositiveInfinity,float.PositiveInfinity,float.PositiveInfinity);node.max=-node.min;
+                    for(int n=node.start;n<node.start+node.count;n++)
+                    {ref Triangle t=ref triangles[triangleOrder[n]];node.min=Vector3.Min(node.min,t.min);node.max=Vector3.Max(node.max,t.max);}
+                }
+                else {node.min=Vector3.Min(nodes[node.left].min,nodes[node.right].min);node.max=Vector3.Max(nodes[node.left].max,nodes[node.right].max);}
+            }
+        }
+        static float BoxDistance(Vector3 point,in Node node)
+        {
+            float x=point.x<node.min.x?node.min.x-point.x:point.x>node.max.x?point.x-node.max.x:0;
+            float y=point.y<node.min.y?node.min.y-point.y:point.y>node.max.y?point.y-node.max.y:0;
+            float z=point.z<node.min.z?node.min.z-point.z:point.z>node.max.z?point.z-node.max.z:0;
+            return x*x+y*y+z*z;
         }
         static Vector3 Barycentric(Vector3 point,Triangle t)
         {
@@ -174,7 +279,14 @@ namespace CandyFlick
             }
             return Enumerable.Range(0,count).Where(i=>used[i]).ToArray();
         }
-        static Vector3 Skin(Vector3 point,BoneWeight w,Matrix4x4[] pose)=>pose[w.boneIndex0].MultiplyPoint3x4(point)*w.weight0+pose[w.boneIndex1].MultiplyPoint3x4(point)*w.weight1+pose[w.boneIndex2].MultiplyPoint3x4(point)*w.weight2+pose[w.boneIndex3].MultiplyPoint3x4(point)*w.weight3;
+        static Vector3 Skin(Vector3 point,BoneWeight w,Matrix4x4[] pose)
+        {
+            Vector3 result=pose[w.boneIndex0].MultiplyPoint3x4(point)*w.weight0;
+            if(w.weight1>0)result+=pose[w.boneIndex1].MultiplyPoint3x4(point)*w.weight1;
+            if(w.weight2>0)result+=pose[w.boneIndex2].MultiplyPoint3x4(point)*w.weight2;
+            if(w.weight3>0)result+=pose[w.boneIndex3].MultiplyPoint3x4(point)*w.weight3;
+            return result;
+        }
         void OnDestroy(){if(lidMesh)Destroy(lidMesh);if(pupilMesh)Destroy(pupilMesh);}
     }
 }
