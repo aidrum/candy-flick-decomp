@@ -22,6 +22,15 @@ This was made due to the original game being locked into old iOS devices forever
 
 The latest release can be found [here](https://github.com/aidrum/candy-flick-decomp/releases/latest/) (Android only).
 
+## Features
+- **Ground detection AR mode**, so you don't need the Candy Flick image and the game will still know where Om Nom is even if he goes offscreen, similar to Pokémon GO. (Can only be used on devices that support [Google ARCore](https://play.google.com/store/apps/details?id=com.google.ar.core) and have it installed).
+- **Non-AR mode** so you can play wherever you want (like cars). Can be toggled in the game's pause menu.
+- **Local Multiplayer mode:** Connect to the same Wi-Fi, create a lobby and join up to 10 friends, try to score as many points as possible! Works in both Image and Ground detection mode, but Ground mode is recommended for a better experience (especially with many players).
+- **Photo mode**: Place as many Nommies as you want in the world and take pictures! Only available in Ground mode, cannot be started in devices without ARCore.
+- **Cut the Rope Triple Treat skins** for all Time Travel 3DS noms, and an Om Nelle model made by [MlopsFunny](https://github.com/mlopsfunny/)! (Used with permission)
+- **Cut the Rope Triple Treat candies**, the original three!
+- **Local achievement tracking** for the original Game Center achievements the game had!
+- **Two ways to flick:** Slingshot (default) and Flick. Flick is the mode the game originally had, while slingshot was forced in an update (due to it generally being more fun). Now you can pick which one to use!
 
 ## FAQ
 

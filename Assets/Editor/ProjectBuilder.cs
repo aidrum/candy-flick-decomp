@@ -168,7 +168,9 @@ namespace CandyFlickEditor
         static void Build(string output,BuildTarget target)
         {
             Directory.CreateDirectory(Path.GetDirectoryName(output));
-            var report=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=StartupScenes,locationPathName=output,target=target,options=BuildOptions.None});
+            BuildReport report;
+            using(AndroidBuildSigning.ForBuild(target))
+                report=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=StartupScenes,locationPathName=output,target=target,options=BuildOptions.None});
             File.WriteAllText("Documentation/last-build.json",JsonUtility.ToJson(new BuildEvidence{target=target.ToString(),result=report.summary.result.ToString(),errors=(int)report.summary.totalErrors,warnings=(int)report.summary.totalWarnings,bytes=report.summary.totalSize.ToString(),output=Path.GetFullPath(output)},true));
             if(report.summary.result!=BuildResult.Succeeded)throw new Exception("Build failed: "+report.summary.result);
             Debug.Log("CANDY_FLICK_BUILD_SUCCEEDED: "+Path.GetFullPath(output));
