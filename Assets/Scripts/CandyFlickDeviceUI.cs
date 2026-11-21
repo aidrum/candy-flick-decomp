@@ -57,6 +57,7 @@ namespace CandyFlick
             string skin=family=="ipad2"?"iPad2":family=="iphone4"?"iPhone4":"iPhone5";
             mainSkin=Instantiate(Resources.Load<GUISkin>("skins/"+skin+"Skin"));
             gameSkin=Instantiate(Resources.Load<GUISkin>("skins/"+skin+"SkinGame"));
+            ConfigureButtonFeedback(mainSkin);ConfigureButtonFeedback(gameSkin);
             ScaleSkin(mainSkin,profileUnit);ScaleSkin(gameSkin,profileUnit);
             var layout=JsonUtility.FromJson<Layout>(Resources.Load<TextAsset>("Original26/layout-"+family).text);
             referenceHeight=layout.height*profileUnit;

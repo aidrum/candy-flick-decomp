@@ -260,7 +260,7 @@ namespace CandyFlick
         GUIStyle Game(int index) => gameSkin.customStyles[index];
         bool Button(Rect rect, GUIStyle style, string text = "")
         {
-            bool tapped = GUI.Button(rect, text, style);
+            bool tapped = GUI.Button(rect, text, PressOnlyButtonStyle(style));
             if (tapped) game.Play(game.assets.button);
             return tapped;
         }
@@ -270,9 +270,14 @@ namespace CandyFlick
         void Outline(Rect rect, string text, GUIStyle style = null)
         {
             style = style ?? numberStyle;
-            if (style.normal.background) { style = new GUIStyle(style); style.normal.background = null; style.active.background = null; }
+            if (style.normal.background || style.hover.background || style.active.background || style.focused.background)
+            {
+                style = new GUIStyle(style);style.normal.background = null;style.normal.scaledBackgrounds = null;
+                style.hover = style.active = style.focused = style.normal;
+            }
             var outer = style == numberStyle ? outlineStyle : new GUIStyle(style);
             outer.normal.background = null; outer.normal.textColor = Color.black;
+            outer.hover = outer.active = outer.focused = outer.normal;
             Rect offset = rect; offset.x--; GUI.Label(offset, text, outer);
             offset.x += 2; GUI.Label(offset, text, outer);
             offset = rect; offset.y--; GUI.Label(offset, text, outer);
@@ -366,7 +371,7 @@ namespace CandyFlick
             Event current=Event.current;EventType original=current.type;
             bool ignore=original==EventType.MouseDown&&rect.Contains(current.mousePosition)&&!RoundMenuButtonContains(rect,current.mousePosition);
             if(ignore)current.type=EventType.Ignore;
-            bool tapped=GUI.Button(rect,"",style);
+            bool tapped=GUI.Button(rect,"",PressOnlyButtonStyle(style));
             if(ignore)current.type=original;
             if(!tapped||!RoundMenuButtonContains(rect,current.mousePosition))return false;
             game.Play(game.assets.button);return true;
