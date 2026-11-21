@@ -272,7 +272,7 @@ namespace CandyFlick
             style = style ?? numberStyle;
             if (style.normal.background || style.hover.background || style.active.background || style.focused.background)
             {
-                style = new GUIStyle(style);style.normal.background = null;style.normal.scaledBackgrounds = null;
+                style = new GUIStyle(style);style.normal.background = null;
                 style.hover = style.active = style.focused = style.normal;
             }
             var outer = style == numberStyle ? outlineStyle : new GUIStyle(style);
