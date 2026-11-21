@@ -21,6 +21,7 @@ namespace CandyFlickEditor
             {
                 switch (command)
                 {
+                    case "BuildSettingsTest": BuildSettingsValidation.Run(); break;
                     case "TutorialModesTest": TutorialModeValidation.Run(); break;
                     case "PhotoMenuAssets": PhotoMenuAssetsBuilder.Build(); break;
                     case "UpdateCheckTest": UpdateCheckerValidation.Run(); break;

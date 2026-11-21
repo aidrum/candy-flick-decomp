@@ -50,7 +50,7 @@ namespace CandyFlickEditor
             tag_name=version,draft=draft,prerelease=prerelease,html_url=url??"https://github.com/aidrum/candy-flick-decomp/releases/tag/"+version});
         static void Rules()
         {
-            Check(PlayerSettings.bundleVersion=="1.0"&&Application.version=="1.0","Port build and runtime versions are 1.0");
+            Check(!string.IsNullOrWhiteSpace(PlayerSettings.bundleVersion)&&Application.version==PlayerSettings.bundleVersion,"Runtime version follows the current Player Settings version");
             Check(GameUpdateChecker.LatestReleaseUrl.EndsWith("/releases/latest"),"The checker requests GitHub's latest stable release");
             Check(GameUpdateChecker.TryFindUpdate(Release("v1.1"),"1.0",out var update)&&update.Version=="1.1"&&update.Url.EndsWith("/tag/v1.1"),"Newer stable tag with v prefix retains the exact release link");
             Check(!GameUpdateChecker.TryFindUpdate(Release("1.0.0.0"),"1.0",out _),"Equal normalized versions do not prompt");

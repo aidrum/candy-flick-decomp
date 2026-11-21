@@ -3,11 +3,9 @@ using System.IO;
 using System.Linq;
 using CandyFlick;
 using UnityEditor;
-using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using Vuforia;
 
@@ -81,7 +79,7 @@ namespace CandyFlickEditor
             EditorSceneManager.SaveScene(scene,ScenePath);
             ConfigureStartupScenes();
             AssetDatabase.SaveAssets();
-            Debug.Log("CANDY_FLICK_PROJECT_READY: Unity "+Application.unityVersion+", original assets, Android ARM64 IL2CPP, Vuforia image tracking with the original 2.6 target database (optional ARCore Ground mode).");
+            Debug.Log("CANDY_FLICK_PROJECT_READY: Unity "+Application.unityVersion+", original assets, Player Settings preserved, Vuforia image tracking with the original 2.6 target database (optional ARCore Ground mode).");
         }
 
         static void RepairMaterials()
@@ -105,10 +103,9 @@ namespace CandyFlickEditor
 
         public static void ConfigureAndroid()
         {
+            // Prepare runtime dependencies only. Build identity, signing, icons and every
+            // other Player Setting belong to the project and must survive preparation/builds.
             ConfigureVuforia();
-            PlayerSettings.companyName="Candy Flick Restoration";
-            PlayerSettings.productName="Om Nom Candy Flick";
-            PlayerSettings.bundleVersion="1.0";
             foreach(string path in new[]{"Assets/AppIcon/icon_dynamic_front.png","Assets/AppIcon/icon_dynamic_back.png"}) {
                 var importer=(TextureImporter)AssetImporter.GetAtPath(path);
                 if(importer && importer.textureCompression!=TextureImporterCompression.Uncompressed) { importer.textureCompression=TextureImporterCompression.Uncompressed;importer.SaveAndReimport(); }
@@ -118,19 +115,6 @@ namespace CandyFlickEditor
                 var importer=(TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(icon));
                 if(importer.textureCompression!=TextureImporterCompression.Uncompressed) { importer.textureCompression=TextureImporterCompression.Uncompressed;importer.SaveAndReimport(); }
             }
-            if(icon)PlayerSettings.SetIcons(NamedBuildTarget.Unknown,new[]{icon},IconKind.Any);
-            PlayerSettings.Android.bundleVersionCode=5;
-            PlayerSettings.Android.minSdkVersion=AndroidSdkVersions.AndroidApiLevel29;
-            PlayerSettings.Android.targetSdkVersion=AndroidSdkVersions.AndroidApiLevel36;
-            PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android,ScriptingImplementation.IL2CPP);
-            PlayerSettings.Android.targetArchitectures=AndroidArchitecture.ARM64;
-            PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android,false);
-            PlayerSettings.SetGraphicsAPIs(BuildTarget.Android,new[]{GraphicsDeviceType.OpenGLES3});
-            PlayerSettings.defaultInterfaceOrientation=UIOrientation.Portrait;
-            PlayerSettings.defaultScreenWidth=540;PlayerSettings.defaultScreenHeight=960;
-            PlayerSettings.resizableWindow=true;
-            PlayerSettings.runInBackground=false;
-            PlayerSettings.colorSpace=ColorSpace.Gamma;
             var graphics=new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/GraphicsSettings.asset")[0]);
             var shaders=graphics.FindProperty("m_AlwaysIncludedShaders");
             // BulletBehaviour selects its original fade shader by name at runtime.
@@ -141,13 +125,6 @@ namespace CandyFlickEditor
                 if(!included){int index=shaders.arraySize;shaders.InsertArrayElementAtIndex(index);shaders.GetArrayElementAtIndex(index).objectReferenceValue=shader;}
             }
             graphics.ApplyModifiedPropertiesWithoutUndo();
-            PlayerSettings.Android.useCustomKeystore=false;
-            PlayerSettings.Android.appCategory="game";
-            PlayerSettings.SetManagedStrippingLevel(NamedBuildTarget.Android,ManagedStrippingLevel.Low);
-            var serialized=new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/ProjectSettings.asset")[0]);
-            var input=serialized.FindProperty("activeInputHandler");if(input!=null){input.intValue=0;serialized.ApplyModifiedPropertiesWithoutUndo();}
-            EditorBuildSettings.RemoveConfigObject("com.unity.xr.management.loader_settings");
-
         }
 
         public static void ConfigureVuforia()
