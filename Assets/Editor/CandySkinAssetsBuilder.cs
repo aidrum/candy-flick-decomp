@@ -11,6 +11,7 @@ namespace CandyFlickEditor
 {
     public static class CandySkinAssetsBuilder
     {
+        // Models/bagel.fbx is CtRDonutFIXED.fbx, retained at the original path/GUID.
         const string Folder="Assets/Resources/CandySkins";
         static void Bake(GameObject obj,string source,Scene scene,StringBuilder report)
         {
@@ -30,8 +31,10 @@ namespace CandyFlickEditor
             float size=Mathf.Max(bounds.size.x,bounds.size.y,bounds.size.z);
             for(int i=0;i<vertices.Count;i++)vertices[i]=(vertices[i]-bounds.center)/size;
             string name=source=="bagel"?"Donut":"Cupcake",meshPath=Folder+"/"+name+".asset",materialPath=Folder+"/"+name+".mat";
-            var baked=new Mesh{name=name};baked.SetVertices(vertices);baked.SetNormals(normals);baked.SetUVs(0,uv);baked.SetTriangles(indices,0);baked.RecalculateBounds();
-            var existing=AssetDatabase.LoadAssetAtPath<Mesh>(meshPath);if(existing){EditorUtility.CopySerialized(baked,existing);UnityEngine.Object.DestroyImmediate(baked);baked=existing;}else AssetDatabase.CreateAsset(baked,meshPath);
+            var baked=AssetDatabase.LoadAssetAtPath<Mesh>(meshPath);bool create=!baked;
+            if(create)baked=new Mesh{name=name};else baked.Clear();
+            baked.SetVertices(vertices);baked.SetNormals(normals);baked.SetUVs(0,uv);baked.SetTriangles(indices,0);baked.RecalculateBounds();
+            if(create)AssetDatabase.CreateAsset(baked,meshPath);else EditorUtility.SetDirty(baked);
             var native=Resources.Load<GameObject>("Original26/Geometry").transform.Find("Candies/Candy1/zCandy").GetComponent<Renderer>().sharedMaterial;
             var material=AssetDatabase.LoadAssetAtPath<Material>(materialPath);if(!material){material=new Material(native);AssetDatabase.CreateAsset(material,materialPath);}else material.CopyPropertiesFromMaterial(native);
             material.shader=source=="cupcake"?Shader.Find("Toon/Basic"):native.shader;
@@ -49,6 +52,7 @@ namespace CandyFlickEditor
             {
                 var importer=(ModelImporter)AssetImporter.GetAtPath(Folder+"/"+file);
                 importer.importAnimation=false;importer.isReadable=true;importer.addCollider=false;
+                importer.importNormals=ModelImporterNormals.Import;
                 importer.materialImportMode=ModelImporterMaterialImportMode.None;importer.SaveAndReimport();
             }
             foreach(string file in new[]{"Models/bagel.png","Models/cupcake.png"})

@@ -42,9 +42,9 @@ namespace CandyFlickEditor
                 AssetDatabase.SaveAssets();
                 File.WriteAllText("Documentation/candy-portraits.json",JsonUtility.ToJson(new Evidence{
                     utc=DateTime.UtcNow.ToString("o"),width=atlas.width,height=atlas.height,cell=Cell,
-                    skins=Names,views=new[]{"Top (+Y)","45 degrees above front (+Y/+Z)","Front (+Z)"},
+                    skins=Names,views=new[]{"Top (+Y)","Top (+Y)","Front (+Z)"},
                     method="Orthographic Unity camera renders with preview shader outlines disabled; transparent backgrounds; models fill about two thirds of each image; silhouette outlines are added to the finished images."},true));
-                Debug.Log("CANDY_PORTRAITS_READY: Candy from above; Donut at 45 degrees; Cupcake from the front. Outlines are baked into the images.");
+                Debug.Log("CANDY_PORTRAITS_READY: Candy and Donut from above; Cupcake from the front. Outlines are baked into the images.");
             }
             finally{UnityEngine.Object.DestroyImmediate(atlas);}
         }
@@ -85,8 +85,8 @@ namespace CandyFlickEditor
                         copy.SetShaderPassEnabled("OUTLINE",false);previewMaterials.Add(copy);return copy;
                     }).ToArray();
                 var camera=preview.camera;camera.orthographic=true;camera.nearClipPlane=.01f;camera.farClipPlane=10;
-                Vector3 direction=skin==0?Vector3.up:skin==1?new Vector3(0,1,1).normalized:Vector3.forward;
-                Vector3 up=skin==0?Vector3.forward:Vector3.up;
+                Vector3 direction=skin==2?Vector3.forward:Vector3.up;
+                Vector3 up=skin==2?Vector3.up:Vector3.forward;
                 camera.transform.SetPositionAndRotation(direction*3,Quaternion.LookRotation(-direction,up));
                 var renderers=model.GetComponentsInChildren<Renderer>();Bounds bounds=renderers[0].bounds;
                 foreach(var renderer in renderers)bounds.Encapsulate(renderer.bounds);
